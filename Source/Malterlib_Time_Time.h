@@ -519,7 +519,8 @@ namespace NMib
 
 			struct CFormatOptions
 			{
-				zbool m_bFullPrecision;
+				bool m_bDateOnly = false;
+				bool m_bFullPrecision = false;
 			};
 			
 			template <typename tf_COption>
@@ -1600,6 +1601,9 @@ namespace NMib
 					case 'F':
 						_Options.m_bFullPrecision = true;
 						return true;
+					case 'D':
+						_Options.m_bDateOnly = true;
+						return true;
 					}
 				}
 				break;
@@ -1612,28 +1616,33 @@ namespace NMib
 		{
 			NTime::CTimeConvert::CDateTime DateTime;
 			NTime::CTimeConvert(*this).f_ExtractDateTime(DateTime);
-			fp64 Scale;
-			int64 ScaleInt;
-			int32 Decimals;
-
-			if (_Options.m_LocalOptions.m_bFullPrecision)
-			{
-				Scale = 1000000000000000.0;
-				ScaleInt = constant_uint64(1000000000000000);
-				Decimals = 15;
-			}
+			if (_Options.m_LocalOptions.m_bDateOnly)
+				_FormatInto += typename tf_CStr::CFormat("{}-{sj2,sf0}-{sj2,sf0}") << DateTime.m_Year << DateTime.m_Month << DateTime.m_DayOfMonth;
 			else
 			{
-				Scale = 1000.0;
-				ScaleInt = 1000;
-				Decimals = 3;
+				fp64 Scale;
+				int64 ScaleInt;
+				int32 Decimals;
+
+				if (_Options.m_LocalOptions.m_bFullPrecision)
+				{
+					Scale = 1000000000000000.0;
+					ScaleInt = constant_uint64(1000000000000000);
+					Decimals = 15;
+				}
+				else
+				{
+					Scale = 1000.0;
+					ScaleInt = 1000;
+					Decimals = 3;
+				}
+
+				int64 Fraction = (DateTime.m_Fraction*Scale).f_ToIntRound();
+				if (Fraction >= ScaleInt)
+					Fraction = ScaleInt - 1;
+
+				_FormatInto += typename tf_CStr::CFormat("{}-{sj2,sf0}-{sj2,sf0} {sj2,sf0}:{sj2,sf0}:{sj2,sf0}.{sj*,sf0}") << DateTime.m_Year << DateTime.m_Month << DateTime.m_DayOfMonth << DateTime.m_Hour << DateTime.m_Minute << DateTime.m_Second << Fraction << Decimals;
 			}
-
-			int64 Fraction = (DateTime.m_Fraction*Scale).f_ToIntRound();
-			if (Fraction >= ScaleInt)
-				Fraction = ScaleInt - 1;
-
-			_FormatInto += typename tf_CStr::CFormat("{}-{sj2,sf0}-{sj2,sf0} {sj2,sf0}:{sj2,sf0}:{sj2,sf0}.{sj*,sf0}") << DateTime.m_Year << DateTime.m_Month << DateTime.m_DayOfMonth << DateTime.m_Hour << DateTime.m_Minute << DateTime.m_Second << Fraction << Decimals;
 		}
 	}
 	
