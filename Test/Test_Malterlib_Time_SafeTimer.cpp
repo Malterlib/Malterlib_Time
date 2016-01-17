@@ -82,7 +82,7 @@ namespace
 			{
 				if (fg_TestReportFlags() & ETestReportFlag_ProcessRecursive)
 				{
-					bool bRetVal = f_UnstableTimerTest([] {	NMib::fg_GetSys()->f_EnableSafeTimer(); });
+					bool bRetVal = f_UnstableTimerTest([] {	NMib::NTime::CSystem_Time::fs_EnableSafeTimer(); });
 					NMib::NTest::fg_TestSetReturnValue(bRetVal ? 0 : 1);
 				}
 				else
@@ -103,7 +103,7 @@ namespace
 					{
 						NMib::NTime::NPlatform::fg_MakeSafeTimerWrap(0.4f);
 						DMibTestPath(NMib::NStr::fg_Format("Wrap {}", i));
-						bool bRetVal = f_UnstableTimerTest([] {	NMib::fg_GetSys()->f_EnableSafeTimer();});
+						bool bRetVal = f_UnstableTimerTest([] {	NMib::NTime::CSystem_Time::fs_EnableSafeTimer();});
 						if (!bRetVal)
 							NMib::NTest::fg_TestSetReturnValue(1);
 					}

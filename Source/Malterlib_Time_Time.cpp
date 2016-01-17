@@ -6,8 +6,8 @@ namespace NMib
 	namespace NTime
 	{
 
-		const int32 CTimeConvert_ProlepticGreogrian::ms_MonthDayOfYear[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
-		const int32 CTimeConvert_ProlepticGreogrian::ms_DaysInMonth[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+//		const int32 CTimeConvert_ProlepticGreogrian::ms_MonthDayOfYear[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+	//	const int32 CTimeConvert_ProlepticGreogrian::ms_DaysInMonth[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 #ifdef DMibDebuggerHelpers
 		assure_used ch8 const* CTime::fsp_DebugStr(void* _pTime)

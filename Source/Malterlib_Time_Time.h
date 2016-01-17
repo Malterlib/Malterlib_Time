@@ -256,10 +256,12 @@ namespace NMib
 		};
 
 		class CTimeConvert_BabylonianCommon;
+		class CTimeConvert_ProlepticGreogrian;
 
 		class CTime
 		{
 			friend class CTimeConvert_BabylonianCommon;
+			friend class CTimeConvert_ProlepticGreogrian;
 		private:
 			uint64 m_Seconds;  // Number of seconds since 30 billion years BC (Proleptic Gregorian). Hoping of universe beeing less than 30 billion years so we never need negative dates :)
 			uint64 m_Fraction; // Fraction of second one second is 9223372031757829470 (1003344011 * Cs-133(9192631770))
@@ -268,6 +270,12 @@ namespace NMib
 #ifdef DMibDebuggerHelpers
 			static ch8 const* fsp_DebugStr(void* _pTime);
 #endif
+
+			constexpr CTime(uint64 _Seconds, uint64 _Fraction)
+				: m_Seconds(_Seconds)
+				, m_Fraction(_Fraction)
+			{
+			}
 		public:	
 			CTime()
 			{
@@ -440,7 +448,7 @@ namespace NMib
 				return *this;
 			}
 
-			uint64 f_GetSeconds() const 
+			constexpr uint64 f_GetSeconds() const 
 			{
 				return m_Seconds;
 			}
@@ -456,7 +464,7 @@ namespace NMib
 				m_Seconds = _Seconds;
 			}
 
-			uint64 f_GetFractionInt() const 
+			constexpr uint64 f_GetFractionInt() const 
 			{
 				return m_Fraction;
 			}
@@ -502,12 +510,9 @@ namespace NMib
 				return Ret;
 			}
 
-			static CTime fs_Create(uint64 _Seconds, uint64 _Fraction = 0)
+			constexpr static CTime fs_Create(uint64 _Seconds, uint64 _Fraction = 0)
 			{
-				CTime Ret;
-				Ret.m_Seconds = _Seconds; // 
-				Ret.m_Fraction = _Fraction; // 
-				return Ret;
+				return CTime{_Seconds, _Fraction};
 			}
 
 			static int64 fs_GetResolution();
@@ -775,6 +780,13 @@ namespace NMib
 				else
 					_AddResult.m_Fraction += FracAdd;
 			}
+			constexpr static CTime fsp_AddTimeIntFracConstexr(CTime const &_Old, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, uint64 _Fraction = 0) // One second is 9223372031757829470 fraction
+			{
+				return (_Fraction >= (constant_int64(9223372031757829470) - _Old.m_Fraction)) 
+					? CTime{_Old.m_Seconds + _Hour * 3600 + _Minute * 60 + _Second + 1, _Fraction - (constant_int64(9223372031757829470) - _Old.m_Fraction)}
+					: CTime{_Old.m_Seconds + _Hour * 3600 + _Minute * 60 + _Second, _Old.m_Fraction + _Fraction}
+				;
+			}
 		};
 
 		class CTimeConvert_ISOWeek;
@@ -801,41 +813,45 @@ namespace NMib
 			
 
 		private:
-			static const int32 ms_MonthDayOfYear[12];
-			static const int32 ms_DaysInMonth[12];
-			static inline_small aint fsp_GetDayOfYearFromMonth(aint _Month)
+			constexpr static const int32 ms_MonthDayOfYear[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+			constexpr static const int32 ms_DaysInMonth[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+			constexpr static inline_small aint fsp_GetDayOfYearFromMonth(aint _Month)
 			{
 				return ms_MonthDayOfYear[_Month];
 			}
 
-			static inline_small aint fsp_IsLeapYear(int64 _Year)
+			constexpr static inline_small aint fsp_IsLeapYear(int64 _Year)
 			{
 				return !(_Year & 0x3) && ((_Year % 100) || (!(_Year % 400))) && _Year;
 			}
 
-			static inline_small aint fsp_GetDayOfYearFromMonth(int64 _Year, aint _Month)
+			constexpr static inline_small aint fsp_GetDayOfYearFromMonth(int64 _Year, aint _Month)
 			{
-				aint Day;
-				if (fsp_IsLeapYear(_Year) && _Month > 1)
-					Day = 1;
-				else
-					Day = 0;
-				Day += fsp_GetDayOfYearFromMonth(_Month);
-				return Day;
+				return fsp_GetDayOfYearFromMonth(_Month) + (fsp_IsLeapYear(_Year) && _Month > 1 ? 1 : 0);
 			}
 
-			static int64 fsp_GetSecondsFromYear(int64 _Year)
+			constexpr static int64 fsp_GetSecondsFromYear(int64 _Year)
 			{
-				uint64 Seconds = constant_int64(237148560000000000);	// Start at 0 AD
-				Seconds += (_Year) * (365 * 86400);	// Days in normal year
-				if (_Year > 0)
-					--_Year;
-				else if (_Year < 0)
-					++_Year;
-				Seconds += ((_Year) / 4) * 86400;		// Leap year every 4 years
-				Seconds -= ((_Year) / 100) * 86400;	// Not a leap year every 100 years
-				Seconds += ((_Year) / 400) * 86400;	// A leap year every 400 years despite 100 year rule				
-				return Seconds;
+				return
+					constant_int64(237148560000000000)	// Start at 0 AD
+					+ (_Year) * (365 * 86400)	// Days in normal year
+					+ 
+					(
+						(_Year > 0) 
+						?
+						(
+							((_Year-1) / 4) * 86400		// Leap year every 4 years
+							- ((_Year-1) / 100) * 86400	// Not a leap year every 100 years
+							+ ((_Year-1) / 400) * 86400	// A leap year every 400 years despite 100 year rule				
+						)
+						:
+						(
+							+ ((_Year+1) / 4) * 86400		// Leap year every 4 years
+							- ((_Year+1) / 100) * 86400	// Not a leap year every 100 years
+							+ ((_Year+1) / 400) * 86400	// A leap year every 400 years despite 100 year rule				
+						)
+					)
+				;
 			}
 
 			static inline_medium aint fsp_GetWeekDay(int64 _Year, aint _DayOfYear)
@@ -1220,13 +1236,28 @@ namespace NMib
 				DMibSafeCheck(_Minute >= 0 && _Minute <= 59, "Minute range check error");
 				DMibSafeCheck(_Second >= 0 && _Second <= 59, "Second range check error");
 				DMibSafeCheck(_Fraction >= 0.0 && _Fraction < 1.0, "Fraction range check error");
-				CTime NewTime;
 				int64 Seconds = fsp_GetSecondsFromYear(_Year);
 				Seconds += fsp_GetDayOfYearFromMonth(_Year, _Month) * 86400;
 				Seconds += _DayOfMonth * 86400;	
-				NewTime.f_SetSeconds(Seconds);
+				CTime NewTime{(uint64)Seconds, 0};
 				fsp_AddTime(NewTime, _Hour, _Minute, _Second, _Fraction);
 				return NewTime;
+			}
+			constexpr static CTime fs_CreateTimeConstExpr(int64 _Year, aint _Month = 1, aint _DayOfMonth = 1, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, uint64 _Fraction = 0)
+			{
+				return fsp_AddTimeIntFracConstexr
+					(
+						CTime
+						{
+							uint64(fsp_GetSecondsFromYear(_Year) + fsp_GetDayOfYearFromMonth(_Year, _Month - 1) * 86400 + (_DayOfMonth - 1) * 86400)
+							, 0
+						}
+						, _Hour
+						, _Minute
+						, _Second
+						, _Fraction
+					)
+				;
 			}
 
 			

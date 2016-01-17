@@ -5,9 +5,7 @@
 
 #include "../Malterlib_Time_Platform.h"
 
-#include <CoreFoundation/CoreFoundation.h>
-#include <sys/time.h>
-#include <mach/mach_time.h>
+#include <Windows.h>
 
 inline_never int64 NMib::NTime::NPlatform::fg_Timer_Cycles()
 {
@@ -78,6 +76,8 @@ int64 NMib::NTime::NPlatform::fg_TimerRaw_PreciseFrequency()
 	return Temp.QuadPart;
 }
 
+extern bool g_bAggregatesDestroyed;
+
 namespace
 {
 	struct CIncreaseTimerPrecision
@@ -92,10 +92,9 @@ namespace
 		}
 	};
 
-	TCAggregate<CIncreaseTimerPrecision> g_IncreaseTimerPrecision;
-	bool g_bAggregatesDestroyed = false;
+	NMib::NAggregate::TCAggregate<CIncreaseTimerPrecision> g_IncreaseTimerPrecision;
 
-	TCAtomicAggregate<uint64> g_SafeTimerFullPrecision = {DAggregateInit};
+	NMib::NAtomic::TCAtomicAggregate<uint64> g_SafeTimerFullPrecision = {DAggregateInit};
 }
 
 
@@ -152,7 +151,7 @@ int64 NMib::NTime::NPlatform::fg_TimerRaw_SafeFrequency()
 void NMib::NTime::NPlatform::fg_TimeRaw_GetUTCOffset(NTime::CTimeSpan *_pTimeOffset)
 {
 	TIME_ZONE_INFORMATION TimeZone;
-	fg_MemClear(TimeZone);
+	NMem::fg_MemClear(TimeZone);
 	uint32 CurrentDaylight = GetTimeZoneInformation(&TimeZone); // If this fails the bias will be 0 hours because we cleaned the TimeZone...
 	if (CurrentDaylight == TIME_ZONE_ID_DAYLIGHT)
 		*_pTimeOffset = NTime::CTimeSpanConvert::fs_CreateMinuteSpan((-TimeZone.Bias) + (-TimeZone.DaylightBias));
@@ -160,11 +159,17 @@ void NMib::NTime::NPlatform::fg_TimeRaw_GetUTCOffset(NTime::CTimeSpan *_pTimeOff
 		*_pTimeOffset = NTime::CTimeSpanConvert::fs_CreateMinuteSpan((-TimeZone.Bias));
 }
 
+namespace
+{
+	// NMib::NTime::CTimeConvert::fs_CreateTimeConstExpr(1601, 1, 1)
+	constexpr static NMib::NTime::CTime const g_FileTimeBase = NMib::NTime::CTime::fs_Create(237148610522659200, 0);
+}
+
 void NMib::NTime::NPlatform::fg_TimeRaw_GetNow(NMib::NTime::CTime *_pTime)
 {
 	FILETIME Time;
 	GetSystemTimeAsFileTime(&Time);
-	NTime::CTime CurrentTime = fg_GetLocalSys()->m_FileTimeBase;
+	NTime::CTime CurrentTime = g_FileTimeBase;
 
 	LARGE_INTEGER Temp;
 	Temp.LowPart = Time.dwLowDateTime;
