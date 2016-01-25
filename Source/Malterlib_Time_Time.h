@@ -526,6 +526,9 @@ namespace NMib
 			{
 				bool m_bDateOnly = false;
 				bool m_bFullPrecision = false;
+				ch32 m_DateSeparator = '-';
+				ch32 m_TimeSeparator = ':';
+				ch32 m_SecondSeparator = '.';
 			};
 			
 			template <typename tf_COption>
@@ -1635,6 +1638,22 @@ namespace NMib
 					case 'D':
 						_Options.m_bDateOnly = true;
 						return true;
+					case 'S':
+						switch (*_Option.m_pDataStart)
+						{
+						case 'T':
+						case 't':
+							_Options.m_TimeSeparator = _Option.m_pDataStart[1];
+							return true;
+						case 'D':
+						case 'd':
+							_Options.m_DateSeparator = _Option.m_pDataStart[1];
+							return true;
+						case 'S':
+						case 's':
+							_Options.m_SecondSeparator = _Option.m_pDataStart[1];
+							return true;
+						}
 					}
 				}
 				break;
@@ -1645,10 +1664,20 @@ namespace NMib
 		template <typename tf_CStr, typename tf_COptions>
 		void CTime::f_Format(tf_CStr &_FormatInto, tf_COptions const &_Options) const
 		{
+			using CChar = typename tf_CStr::CChar;
 			NTime::CTimeConvert::CDateTime DateTime;
 			NTime::CTimeConvert(*this).f_ExtractDateTime(DateTime);
 			if (_Options.m_LocalOptions.m_bDateOnly)
-				_FormatInto += typename tf_CStr::CFormat("{}-{sj2,sf0}-{sj2,sf0}") << DateTime.m_Year << DateTime.m_Month << DateTime.m_DayOfMonth;
+			{
+				CChar DateSeparator[] = {static_cast<CChar>(_Options.m_LocalOptions.m_DateSeparator), 0};
+				_FormatInto += typename tf_CStr::CFormat("{}{}{sj2,sf0}{}{sj2,sf0}") 
+					<< DateTime.m_Year 
+					<< DateSeparator
+					<< DateTime.m_Month 
+					<< DateSeparator
+					<< DateTime.m_DayOfMonth
+				;
+			}
 			else
 			{
 				fp64 Scale;
@@ -1671,8 +1700,26 @@ namespace NMib
 				int64 Fraction = (DateTime.m_Fraction*Scale).f_ToIntRound();
 				if (Fraction >= ScaleInt)
 					Fraction = ScaleInt - 1;
+				
+				CChar DateSeparator[] = {static_cast<CChar>(_Options.m_LocalOptions.m_DateSeparator), 0};
+				CChar TimeSeparator[] = {static_cast<CChar>(_Options.m_LocalOptions.m_TimeSeparator), 0};
+				CChar SecondSeparator[] = {static_cast<CChar>(_Options.m_LocalOptions.m_SecondSeparator), 0};
 
-				_FormatInto += typename tf_CStr::CFormat("{}-{sj2,sf0}-{sj2,sf0} {sj2,sf0}:{sj2,sf0}:{sj2,sf0}.{sj*,sf0}") << DateTime.m_Year << DateTime.m_Month << DateTime.m_DayOfMonth << DateTime.m_Hour << DateTime.m_Minute << DateTime.m_Second << Fraction << Decimals;
+				_FormatInto += typename tf_CStr::CFormat("{}{}{sj2,sf0}{}{sj2,sf0} {sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj*,sf0}") 
+					<< DateTime.m_Year 
+					<< DateSeparator
+					<< DateTime.m_Month
+					<< DateSeparator
+					<< DateTime.m_DayOfMonth
+					<< DateTime.m_Hour 
+					<< TimeSeparator
+					<< DateTime.m_Minute 
+					<< TimeSeparator
+					<< DateTime.m_Second 
+					<< SecondSeparator
+					<< Fraction 
+					<< Decimals
+				;
 			}
 		}
 	}

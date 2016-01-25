@@ -15,5 +15,7 @@ Option	| Description			| Indirection	| Example (2016-01-22 20:20:05.999999999999
 `  `	|No options				|No				|\code "{}" -> "2016-01-22 20:20:05.999"\endcode
 `tf`	|Output full precision 	|No				|\code "{tf}" -> "2016-01-22 20:20:05.999999999999999"\endcode
 `td`	|Date only				|No				|\code "{td}" -> "2016-01-22"\endcode
-
+`tsd`	|Date separator			|No				|\code "{tsd|}" -> "2016|01|22 20:20:05.999"\endcode
+`tst`	|Time separator			|No				|\code "{tst|}" -> "2016-01-22 20|20|05.999"\endcode
+`tss`	|Second sSeparator		|No				|\code "{tss|}" -> "2016-01-22 20:20:05|999"\endcode
  */
