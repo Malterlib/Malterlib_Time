@@ -293,46 +293,51 @@ namespace NMib
 				if (m_bUsedTimeSpeed || _bRecursive)
 					return;
 
+				NTime::CTime SystemTime;
+				NSys::fg_TimeRaw_GetNow(&SystemTime);
+		
 				int64 UpdateDiff = m_NextUpdate - _CurrentTimer;
-				if (UpdateDiff < 0 || UpdateDiff > m_TimerFrequency * 2)
+				if (UpdateDiff < 0 || UpdateDiff > m_TimerFrequency * 2 || fg_Abs((_Time - SystemTime).f_GetSeconds()) > 60)
 				{
-					DMibLock(m_Lock);
-					m_LastTimer = _CurrentTimer;
-					UpdateDiff = m_NextUpdate - _CurrentTimer;
-					if (UpdateDiff < 0 || UpdateDiff > m_TimerFrequency * 2)
+					NTime::CTime OldTime;
 					{
-						m_NextUpdate = _CurrentTimer + m_TimerFrequency;
-
-						NTime::CTime CurrentTime;
-						NPlatform::fg_TimeRaw_GetNow(&CurrentTime);
-
-						NTime::CTimeSpan TimeDiff = CurrentTime - m_TimeBase;
-
-						int64 Diff = (_CurrentTimer - m_TimerBase);
-						int64 CurrentTimeFrequency = (TimeDiff.f_GetSeconds() * m_TimerFrequency + (TimeDiff.f_GetFraction() * m_TimerFrequencyFp).f_ToInt());
-						int64 Error = CurrentTimeFrequency - Diff;
-						if (fg_Abs(Error) > m_ErrorMarginReset)
+						DMibLock(m_Lock);
+						m_LastTimer = _CurrentTimer;
+						UpdateDiff = m_NextUpdate - _CurrentTimer;
+						if (UpdateDiff < 0 || UpdateDiff > m_TimerFrequency * 2)
 						{
+							m_NextUpdate = _CurrentTimer + m_TimerFrequency;
 
-							m_TimerBase -= Error;
-							f_TimeGetNow(&_Time, true); // Reget time with new value
-						}
-						else if (fg_Abs(Error) > m_ErrorMargin)
-						{
-							m_Drift = fp64(-Error) / (m_TimerFrequencyFp * 10); // Fix any error over 10 seconds
-							m_Drift = fg_Max(fg_Min(m_Drift, fp64(0.5)), fp64(-0.5)); // Only go max 50% or 150% of normal time speed
-							m_LastDiff = _CurrentTimer;
-						}
-						else
-							m_Drift = 0.0;
+							NTime::CTimeSpan TimeDiff = SystemTime - m_TimeBase;
 
-						int64 UTCUpdateDiff = m_NextUTCUpdate - _CurrentTimer;
-						if (UTCUpdateDiff < 0 || UTCUpdateDiff > m_TimerFrequency * 120)
-						{
-							NPlatform::fg_TimeRaw_GetUTCOffset(&m_UTCOffset);
-							m_NextUTCUpdate = _CurrentTimer + m_TimerFrequency * 60; // Update once every minute
+							int64 Diff = (_CurrentTimer - m_TimerBase);
+							int64 CurrentTimeFrequency = (TimeDiff.f_GetSeconds() * m_TimerFrequency + (TimeDiff.f_GetFraction() * m_TimerFrequencyFp).f_ToInt());
+							int64 Error = CurrentTimeFrequency - Diff;
+							if (fg_Abs(Error) > m_ErrorMarginReset)
+							{
+								f_TimeGetNow(&OldTime, true);
+								m_TimerBase -= Error;
+								f_TimeGetNow(&_Time, true); // Reget time with new value
+							}
+							else if (fg_Abs(Error) > m_ErrorMargin)
+							{
+								m_Drift = fp64(-Error) / (m_TimerFrequencyFp * 10); // Fix any error over 10 seconds
+								m_Drift = fg_Max(fg_Min(m_Drift, fp64(0.5)), fp64(-0.5)); // Only go max 50% or 150% of normal time speed
+								m_LastDiff = _CurrentTimer;
+							}
+							else
+								m_Drift = 0.0;
+
+							int64 UTCUpdateDiff = m_NextUTCUpdate - _CurrentTimer;
+							if (UTCUpdateDiff < 0 || UTCUpdateDiff > m_TimerFrequency * 120)
+							{
+								NPlatform::fg_TimeRaw_GetUTCOffset(&m_UTCOffset);
+								m_NextUTCUpdate = _CurrentTimer + m_TimerFrequency * 60; // Update once every minute
+							}
 						}
 					}
+					if (OldTime.f_IsValid())
+						fg_GetSys()->f_ReportTimeChange(OldTime, _Time, "System time more than 60 seconds off");
 				}
 				else
 				{
@@ -359,18 +364,24 @@ namespace NMib
 		#ifdef DMibSafeTimerAvailable
 			void CSubSystem_Time::f_EnableSafeTimer()
 			{
-				DMibLock(m_Lock);
-				if (m_bUseSafeTimer)
-					return;
-				//DMibDTrace("Switching to safe timer because of broken precise timer\n", 0);
-				m_bUseSafeTimer = true;
-				NPlatform::fg_TimerRaw_SafeIncreasePrecision();
-				m_LastInternalTimer = -1;
-				int64 LastTimer = m_LastTimer;
+				{
+					DMibLock(m_Lock);
+					if (m_bUseSafeTimer)
+						return;
+					//DMibDTrace("Switching to safe timer because of broken precise timer\n", 0);
+					m_bUseSafeTimer = true;
+					NPlatform::fg_TimerRaw_SafeIncreasePrecision();
+					m_LastInternalTimer = -1;
+					int64 LastTimer = m_LastTimer;
 				
-				m_SafeTimerLast = NPlatform::fg_TimerRaw_SafeGet();
-				m_SafeTimerVal = LastTimer;
-				m_SafeTimerScale = fp64(NPlatform::fg_TimerRaw_PreciseFrequency()) / fp64(NPlatform::fg_TimerRaw_SafeFrequency());
+					m_SafeTimerLast = NPlatform::fg_TimerRaw_SafeGet();
+					m_SafeTimerVal = LastTimer;
+					m_SafeTimerScale = fp64(NPlatform::fg_TimerRaw_PreciseFrequency()) / fp64(NPlatform::fg_TimerRaw_SafeFrequency());
+				}
+				
+				NTime::CTime NewTime;
+				f_TimeGetNow(&NewTime);
+				fg_GetSys()->f_ReportTimeChange(NTime::CTime(), NewTime, "Safe timer enabled");
 			}
 		#endif
 
@@ -393,10 +404,20 @@ namespace NMib
 
 				NTime::CTimeSpan Add;
 				int64 Diff = (CurrentTimer - m_TimerBase);
-				int64 nSeconds = Diff / m_TimerFrequency;
-				Add.f_SetSeconds(nSeconds);
-				Add.f_SetFraction(fp64(Diff % m_TimerFrequency) / m_TimerFrequencyFp);
-				Ret += Add;
+				if (Diff < 0)
+				{
+					int64 nSeconds = fg_Abs(Diff) / m_TimerFrequency;
+					Add.f_SetSeconds(nSeconds);
+					Add.f_SetFraction(fp64(fg_Abs(Diff) % m_TimerFrequency) / m_TimerFrequencyFp);
+					Ret -= Add;
+				}
+				else
+				{
+					int64 nSeconds = Diff / m_TimerFrequency;
+					Add.f_SetSeconds(nSeconds);
+					Add.f_SetFraction(fp64(Diff % m_TimerFrequency) / m_TimerFrequencyFp);
+					Ret += Add;
+				}
 
 				fg_RemoveQualifiers(*this).fp_TimerUpdate(CurrentTimer, Ret, _bRecursive);
 
@@ -405,6 +426,9 @@ namespace NMib
 
 			void CSubSystem_Time::f_DisableTimeSpeed()
 			{
+				NTime::CTime OldTime;
+				f_TimeGetNow(&OldTime, false);
+		
 				m_TimeSpeed = 1.0;
 				m_TimeSpeedReciprocal = 1.0;
 				m_bUsedTimeSpeed = false;
@@ -412,10 +436,18 @@ namespace NMib
 				m_InternalTimer = 0;
 
 				fp_TimeInit();
+		
+				NTime::CTime NewTime;
+				f_TimeGetNow(&NewTime, false);
+				fg_GetSys()->f_ReportTimeChange(OldTime, NewTime, "Disable time speed");
 			}
 
 			void CSubSystem_Time::f_SetTimeSpeed(fp64 _Multiplier, NTime::CTime const *_pOptionalTime)
 			{
+				NTime::CTime OldTime;
+				f_TimeGetNow(&OldTime, false);
+		
+				DMibLock(m_TimerValLock);
 				m_TimeSpeed = _Multiplier;
 				m_TimeSpeedReciprocal = fp64(1.0) / _Multiplier;
 				if (_Multiplier != 1.0 || _pOptionalTime)
@@ -423,15 +455,16 @@ namespace NMib
 					m_bUsedTimeSpeed = true;
 					if (_pOptionalTime)
 					{
-						DMibLock(m_TimerValLock);
+						int64 TimerVal = f_GetTimerVal();
 						NTime::CTimeSpan Diff = *_pOptionalTime - m_TimeBase;
-
-						m_LastInternalTimer = fp_GetTimerValInternal();
-						m_InternalTimer = m_TimerBase + (Diff.f_GetSecondsFraction() * m_TimerFrequencyFp).f_ToInt();
+						m_TimerBase = TimerVal - (Diff.f_GetSecondsFraction() * m_TimerFrequencyFp).f_ToInt();
 					}
 				}
-				NTime::CTime TempVal;
-				f_TimeGetNow(&TempVal, false);
+				NTime::CTime NewTime;
+				f_TimeGetNow(&NewTime, false);
+
+				if (_pOptionalTime)
+					fg_GetSys()->f_ReportTimeChange(OldTime, NewTime, "Set time speed");
 			}
 
 			fp64 CSubSystem_Time::f_GetTimeSpeed() const

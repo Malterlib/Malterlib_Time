@@ -283,6 +283,60 @@ namespace NMib
 			
 		};
 
+		class CClockRawAggregate
+		{
+		public:
+			int64 m_StartTime;
+
+			void f_Construct()
+			{
+			}
+			void f_Construct(bint _bStart)
+			{
+				if (_bStart)
+					f_Start();
+			}
+			void f_Destruct()
+			{
+			}
+			
+			inline_small void f_Start()
+			{
+				m_StartTime = NSys::fg_TimerRaw_PreciseGet();
+			}
+			
+			// In seconds
+			operator fp64() const
+			{
+				return f_GetTime();
+			}
+			fp64 f_GetTime() const
+			{
+				return (fp64(NSys::fg_TimerRaw_PreciseGet() - m_StartTime)) / fp64(NSys::fg_TimerRaw_PreciseFrequency());
+			}
+		};
+
+		class CClockRaw : public CClockRawAggregate
+		{
+		public:
+			//int64 m_StartTime;	// TODO: Should this be here? I'm not sure of it's purpose other than to catch unsuspecting coders out :-) I have removed it for now.
+
+			CClockRaw()
+			{
+				f_Construct();
+			}
+			CClockRaw(bint _bStart)
+			{
+				f_Construct(_bStart);
+			}
+
+			CClockRaw(CClock const& _ToMove)
+			{
+				m_StartTime = _ToMove.m_StartTime;
+			}
+			
+		};
+		
 		class CCyclesClockAggregate
 		{
 		public:
