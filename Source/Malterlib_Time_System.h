@@ -11,6 +11,31 @@ namespace NMib
 	{
 		struct CSystem_Time
 		{
+			class CTimeChangeNotificationSubscription
+			{
+				friend struct CSystem_Time;
+			public:
+				CTimeChangeNotificationSubscription(CTimeChangeNotificationSubscription const &_Other) = delete;
+				CTimeChangeNotificationSubscription &operator =(CTimeChangeNotificationSubscription const &_Other) = delete;
+				
+				CTimeChangeNotificationSubscription();
+				CTimeChangeNotificationSubscription(CTimeChangeNotificationSubscription &&_Other);
+				CTimeChangeNotificationSubscription &operator =(CTimeChangeNotificationSubscription &&_Other);
+				~CTimeChangeNotificationSubscription();
+			private:
+				CTimeChangeNotificationSubscription(NFunction::TCFunction<void (NTime::CTime const &_OldTime, NTime::CTime const &_NewTime, NStr::CStr const &_Reason)> *_pNotification);
+				void fp_Remove();
+				
+				NFunction::TCFunction<void (NTime::CTime const &_OldTime, NTime::CTime const &_NewTime, NStr::CStr const &_Reason)> *mp_pNotification;
+			};
+			
+			static CTimeChangeNotificationSubscription fs_RegisterTimeChangeNotification
+				(
+					NFunction::TCFunction<void (NTime::CTime const &_OldTime, NTime::CTime const &_NewTime, NStr::CStr const &_Reason)> &&_fNotification
+				)
+			;
+			
+			
 			static bool fs_TimeInitDone();
 			static fp64 fs_CyclesFrequencyFp();
 			static uint64 fs_CyclesFrequency();

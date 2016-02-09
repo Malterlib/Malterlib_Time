@@ -74,6 +74,9 @@ namespace NMib
 				fp64 m_SafeTimerFrequencyReciprocal;
 				fp64 m_SafeTimerScale;
 		#endif
+				
+				NThread::CMutual m_TimeChangeNotificationLock;
+				NContainer::TCLinkedList<NFunction::TCFunction<void (NTime::CTime const &_OldTime, NTime::CTime const &_NewTime, NStr::CStr const &_Reason)>> m_TimeChangeNotifications;
 
 				int64 fp_GetTimerFreq() const;
 				int64 fp_GetTimerValInternal() const;
@@ -94,6 +97,8 @@ namespace NMib
 		#endif
 				void f_DestroyThreadLocal() override;
 
+				void f_ReportTimeChange(NTime::CTime const &_OldTime, NTime::CTime const &_NewTime, NStr::CStr const &_Reason);
+				
 				CSubSystem_Time();
 				~CSubSystem_Time();
 			};
@@ -294,7 +299,7 @@ namespace NMib
 					return;
 
 				NTime::CTime SystemTime;
-				NSys::fg_TimeRaw_GetNow(&SystemTime);
+				NPlatform::fg_TimeRaw_GetNow(&SystemTime);
 		
 				int64 UpdateDiff = m_NextUpdate - _CurrentTimer;
 				if (UpdateDiff < 0 || UpdateDiff > m_TimerFrequency * 2 || fg_Abs((_Time - SystemTime).f_GetSeconds()) > 60)
@@ -337,7 +342,7 @@ namespace NMib
 						}
 					}
 					if (OldTime.f_IsValid())
-						fg_GetSys()->f_ReportTimeChange(OldTime, _Time, "System time more than 60 seconds off");
+						f_ReportTimeChange(OldTime, _Time, "System time more than 60 seconds off");
 				}
 				else
 				{
@@ -381,7 +386,7 @@ namespace NMib
 				
 				NTime::CTime NewTime;
 				f_TimeGetNow(&NewTime);
-				fg_GetSys()->f_ReportTimeChange(NTime::CTime(), NewTime, "Safe timer enabled");
+				f_ReportTimeChange(NTime::CTime(), NewTime, "Safe timer enabled");
 			}
 		#endif
 
@@ -439,7 +444,7 @@ namespace NMib
 		
 				NTime::CTime NewTime;
 				f_TimeGetNow(&NewTime, false);
-				fg_GetSys()->f_ReportTimeChange(OldTime, NewTime, "Disable time speed");
+				f_ReportTimeChange(OldTime, NewTime, "Disable time speed");
 			}
 
 			void CSubSystem_Time::f_SetTimeSpeed(fp64 _Multiplier, NTime::CTime const *_pOptionalTime)
@@ -464,7 +469,7 @@ namespace NMib
 				f_TimeGetNow(&NewTime, false);
 
 				if (_pOptionalTime)
-					fg_GetSys()->f_ReportTimeChange(OldTime, NewTime, "Set time speed");
+					f_ReportTimeChange(OldTime, NewTime, "Set time speed");
 			}
 
 			fp64 CSubSystem_Time::f_GetTimeSpeed() const
@@ -481,7 +486,72 @@ namespace NMib
 			{
 				return m_bUsedTimeSpeed;
 			}
+			
+			void CSubSystem_Time::f_ReportTimeChange(NTime::CTime const &_OldTime, NTime::CTime const &_NewTime, NStr::CStr const &_Reason)
+			{
+				DMibLock(m_TimeChangeNotificationLock);
+				
+				for (auto &fNotification : m_TimeChangeNotifications)
+					fNotification(_OldTime, _NewTime, _Reason);
+			}
 		}
+		
+		CSystem_Time::CTimeChangeNotificationSubscription::CTimeChangeNotificationSubscription()
+			: mp_pNotification(nullptr)
+		{
+		}
+		
+		CSystem_Time::CTimeChangeNotificationSubscription::CTimeChangeNotificationSubscription(CTimeChangeNotificationSubscription &&_Other)
+		{
+			mp_pNotification = _Other.mp_pNotification;
+			_Other.mp_pNotification = nullptr;
+		}
+
+		CSystem_Time::CTimeChangeNotificationSubscription &CSystem_Time::CTimeChangeNotificationSubscription::operator =(CTimeChangeNotificationSubscription &&_Other)
+		{
+			fp_Remove();
+			mp_pNotification = _Other.mp_pNotification;
+			_Other.mp_pNotification = nullptr;
+			return *this;
+		}
+		
+		void CSystem_Time::CTimeChangeNotificationSubscription::fp_Remove()
+		{
+			if (mp_pNotification)
+			{
+				auto &SubSystem = *g_MalterlibSubSystem_Time;
+				DMibLock(SubSystem.m_TimeChangeNotificationLock);
+				SubSystem.m_TimeChangeNotifications.f_Remove(*mp_pNotification);
+				mp_pNotification = nullptr;
+			}
+		}
+
+		CSystem_Time::CTimeChangeNotificationSubscription::~CTimeChangeNotificationSubscription()
+		{
+			fp_Remove();
+		}
+
+		CSystem_Time::CTimeChangeNotificationSubscription::CTimeChangeNotificationSubscription
+			(
+				NFunction::TCFunction<void (NTime::CTime const &_OldTime, NTime::CTime const &_NewTime, NStr::CStr const &_Reason)> *_pNotification
+			)
+			: mp_pNotification(_pNotification)
+		{
+			
+		}
+		
+		CSystem_Time::CTimeChangeNotificationSubscription CSystem_Time::fs_RegisterTimeChangeNotification
+			(
+				NFunction::TCFunction<void (NTime::CTime const &_OldTime, NTime::CTime const &_NewTime, NStr::CStr const &_Reason)> &&_fNotification
+			)
+		{
+			auto &SubSystem = *g_MalterlibSubSystem_Time;
+			DMibLock(SubSystem.m_TimeChangeNotificationLock);
+			
+			auto &NewNotification = SubSystem.m_TimeChangeNotifications.f_Insert(fg_Move(_fNotification));
+			return &NewNotification;		
+		}
+		
 		
 		bool CSystem_Time::fs_TimeInitDone()
 		{
@@ -557,7 +627,5 @@ namespace NMib
 			g_MalterlibSubSystem_Time->f_EnableSafeTimer();
 		}
 	#endif
-		
 	}
 } 
-

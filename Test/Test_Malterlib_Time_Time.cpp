@@ -217,7 +217,7 @@ namespace
 			{
 				NMib::NThread::CMutual Lock;
 				NMib::NStr::CStr Reason;
-				auto Subscription = NMib::fg_GetSys()->f_RegisterTimeChangeNotification
+				auto Subscription = NMib::NTime::CSystem_Time::fs_RegisterTimeChangeNotification
 					(
 						[&](NMib::NTime::CTime const &_OldTime, NMib::NTime::CTime const &_NewTime, NMib::NStr::CStr const &_Reason)
 						{
@@ -228,13 +228,13 @@ namespace
 				;
 				NMib::NTime::CTime Time = NMib::NTime::CTime::fs_NowUTC();
 				Time += NMib::NTime::CTimeSpanConvert::fs_CreateDaySpan(365);
-				NMib::fg_GetSys()->f_SetTimeSpeed(1.0, &Time);
+				NMib::NTime::CSystem_Time::fs_SetTimeSpeed(1.0, &Time);
 				{
 					DMibLock(Lock);
 					DMibExpect(Reason, ==, "Set time speed");
 				}
 				
-				NMib::fg_GetSys()->f_DisableTimeSpeed();
+				NMib::NTime::CSystem_Time::fs_DisableTimeSpeed();
 				{
 					DMibLock(Lock);
 					DMibExpect(Reason, ==, "Disable time speed");
@@ -243,4 +243,5 @@ namespace
 		}
 	};
 }
+
 DMibTestRegister(CTime_Tests, Malterlib::Time);

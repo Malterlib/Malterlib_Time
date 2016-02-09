@@ -302,7 +302,7 @@ namespace NMib
 			
 			inline_small void f_Start()
 			{
-				m_StartTime = NSys::fg_TimerRaw_PreciseGet();
+				m_StartTime = NPlatform::fg_TimerRaw_PreciseGet();
 			}
 			
 			// In seconds
@@ -312,7 +312,7 @@ namespace NMib
 			}
 			fp64 f_GetTime() const
 			{
-				return (fp64(NSys::fg_TimerRaw_PreciseGet() - m_StartTime)) / fp64(NSys::fg_TimerRaw_PreciseFrequency());
+				return (fp64(NPlatform::fg_TimerRaw_PreciseGet() - m_StartTime)) / fp64(NPlatform::fg_TimerRaw_PreciseFrequency());
 			}
 		};
 
