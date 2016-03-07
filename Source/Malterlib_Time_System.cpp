@@ -350,7 +350,7 @@ namespace NMib
 					return;
 
 				NTime::CTime SystemTime;
-				NSys::fg_TimeRaw_GetNow(&SystemTime);
+				NPlatform::fg_TimeRaw_GetNow(&SystemTime);
 				
 				int64 UpdateDiff = m_NextUpdate - _CurrentTimer;
 				if 
@@ -366,7 +366,7 @@ namespace NMib
 						m_LastTimer = _CurrentTimer;
 						UpdateDiff = m_NextUpdate - _CurrentTimer;
 						NTime::CTime SystemTime;
-						NSys::fg_TimeRaw_GetNow(&SystemTime);
+						NPlatform::fg_TimeRaw_GetNow(&SystemTime);
 						if 
 							(
 								(UpdateDiff < 0)
@@ -400,7 +400,7 @@ namespace NMib
 							int64 UTCUpdateDiff = m_NextUTCUpdate - _CurrentTimer;
 							if (UTCUpdateDiff < 0 || UTCUpdateDiff > m_TimerFrequency * 120)
 							{
-								NSys::fg_TimeRaw_GetUTCOffset(&m_UTCOffset);
+								NPlatform::fg_TimeRaw_GetUTCOffset(&m_UTCOffset);
 								m_NextUTCUpdate = _CurrentTimer + m_TimerFrequency * 60; // Update once every minute
 							}
 						}

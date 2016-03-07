@@ -173,7 +173,7 @@ namespace
 			
 			DMibTestSuite("Time speed")
 			{
-				NMib::NTime::CSystem_Time::fs_SetTimeSpeed(2.0, nullptr);
+				NMib::NTime::CSystem_Time::fs_SetTimeSpeed(2.0, nullptr, nullptr);
 				NMib::NTime::CTime Start = NMib::NTime::CTime::fs_NowUTC();
 				NMib::NTime::CTime StartRaw;
 				NMib::NTime::NPlatform::fg_TimeRaw_GetNow(&StartRaw);
@@ -195,7 +195,7 @@ namespace
 
 			DMibTestSuite("Timer speed")
 			{
-				NMib::NTime::CSystem_Time::fs_SetTimeSpeed(2.0, nullptr);
+				NMib::NTime::CSystem_Time::fs_SetTimeSpeed(2.0, nullptr, nullptr);
 				int64 Start = NMib::NTime::CSystem_Time::fs_GetTimerValue();
 				int64 StartRaw = NMib::NTime::NPlatform::fg_TimerRaw_PreciseGet();
 
@@ -228,7 +228,7 @@ namespace
 				;
 				NMib::NTime::CTime Time = NMib::NTime::CTime::fs_NowUTC();
 				Time += NMib::NTime::CTimeSpanConvert::fs_CreateDaySpan(365);
-				NMib::NTime::CSystem_Time::fs_SetTimeSpeed(1.0, &Time);
+				NMib::NTime::CSystem_Time::fs_SetTimeSpeed(1.0, &Time, nullptr);
 				{
 					DMibLock(Lock);
 					DMibExpect(Reason, ==, "Set time speed");

@@ -43,7 +43,7 @@ namespace NMib
 			static int64 fs_TimerFrequency();
 			static fp64 fs_TimerFrequencyFp();
 			static int64 fs_GetTimerValue();
-			static void fs_SetTimeSpeed(fp64 _Multiplier, NTime::CTime const *_pOptionalTime);
+			static void fs_SetTimeSpeed(fp64 _Multiplier, NTime::CTime const *_pOptionalTime, NTime::CTimeSpan const *_pTimeZone);
 			static fp64 fs_GetTimeSpeed();
 			static fp64 fs_GetTimeSpeedReciprocal();
 			static void fs_DisableTimeSpeed();
