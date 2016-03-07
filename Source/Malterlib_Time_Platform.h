@@ -23,8 +23,8 @@ namespace NMib
 			};
 
 			void fg_MakeTimerUnstable(EUnstableTimerMode _Mode);
-			void fg_MakeSafeTimerWrap(fp32 _InSeconds);
-
+			int64 fg_MakeSafeTimerWrap(fp32 _InSeconds, uint32 _Where);
+			int64 fg_TimerRaw_SafeOffset(fp32 _InSeconds);
 	#endif
 
 			int64 fg_TimerRaw_PreciseGet();

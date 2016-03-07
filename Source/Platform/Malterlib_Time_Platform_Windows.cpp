@@ -110,10 +110,26 @@ namespace
 	uint32 g_SafeTimerOffset = 0;
 }
 
-void NMib::NTime::NPlatform::fg_MakeSafeTimerWrap(fp32 _InSeconds)
+int64 NMib::NTime::NPlatform::fg_MakeSafeTimerWrap(fp32 _InSeconds, uint32 _Where)
 {
-	g_SafeTimerOffset = (0xffffffff - timeGetTime()) - (_InSeconds * 1000.0).f_ToInt();
-	g_SafeTimerFullPrecision = (g_SafeTimerFullPrecision.f_Load() & constant_uint64(0xFFFFFFFF00000000)) | g_SafeTimerOffset;
+	int64 LastValue = fg_TimerRaw_SafeGet();
+	if (_Where == 0)
+		g_SafeTimerOffset = (0x40000000 - timeGetTime()) - (_InSeconds * 1000.0).f_ToInt();
+	else if (_Where == 1)
+		g_SafeTimerOffset = (0x80000000 - timeGetTime()) - (_InSeconds * 1000.0).f_ToInt();
+	else if (_Where == 2)
+		g_SafeTimerOffset = (0xC0000000 - timeGetTime()) - (_InSeconds * 1000.0).f_ToInt();
+	else
+		g_SafeTimerOffset = (0xffffffff - timeGetTime()) - (_InSeconds * 1000.0).f_ToInt();
+	g_SafeTimerFullPrecision = (g_SafeTimerFullPrecision.f_Load() & constant_uint64(0xFFFFFFFF00000000)) | (g_SafeTimerOffset + timeGetTime());
+	return fg_TimerRaw_SafeGet() - LastValue;
+}
+
+int64 NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(fp32 _InSeconds)
+{
+	int64 LastValue = fg_TimerRaw_SafeGet();
+	(int32 &)g_SafeTimerOffset += (int32)(_InSeconds * 1000.0).f_ToInt();
+	return fg_TimerRaw_SafeGet() - LastValue;
 }
 
 #endif
@@ -122,24 +138,34 @@ int64 NMib::NTime::NPlatform::fg_TimerRaw_SafeGet()
 {
 	while (true)
 	{
+		uint64 LastFullPrecision = g_SafeTimerFullPrecision.f_Load();
 #if DMibConfig_Tests_Enable
 		uint32 Now = timeGetTime() + g_SafeTimerOffset;
 #else
 		uint32 Now = timeGetTime();
 #endif
-		uint64 CurrentFullPrecision = g_SafeTimerFullPrecision.f_Load();
 
-		uint32 Current = CurrentFullPrecision & 0xffffffff;
+		uint32 Last = LastFullPrecision & 0xffffffff;
 		uint64 NewFullPresision;
-		if (Now == Current)
-			return CurrentFullPrecision;
-		else if (Now > Current)
-			NewFullPresision = (CurrentFullPrecision & constant_uint64(0xFFFFFFFF00000000)) | Now;
-		else
-			NewFullPresision = ((CurrentFullPrecision & constant_uint64(0xFFFFFFFF00000000)) + constant_uint64(0x100000000)) | Now;
 
-		if (g_SafeTimerFullPrecision.f_CompareExchangeStrong(CurrentFullPrecision, NewFullPresision))
-			return NewFullPresision;
+		if (LastFullPrecision == constant_uint64(0)) // First time called
+			NewFullPresision = constant_uint64(0x100000000) | Now;
+		else if (Last < 0x40000000u && Now > 0xC0000000u) // Went backwards wrap
+			return LastFullPrecision - constant_uint64(0x100000000);
+		else if (Now < 0x40000000u && Last > 0xC0000000u) // Wrapped
+			NewFullPresision = ((LastFullPrecision & constant_uint64(0xFFFFFFFF00000000)) + constant_uint64(0x100000000)) | Now;
+		else if (Now == Last) // No change
+			return LastFullPrecision - constant_uint64(0x100000000);
+		else if (Now < Last) // Went backwards.
+			return LastFullPrecision - constant_uint64(0x100000000);
+		else // Normal forward tick
+		{
+			DMibFastCheck(Now > Last);
+			NewFullPresision = (LastFullPrecision & constant_uint64(0xFFFFFFFF00000000)) | Now;
+		}
+
+		if (g_SafeTimerFullPrecision.f_CompareExchangeStrong(LastFullPrecision, NewFullPresision))
+			return NewFullPresision - constant_uint64(0x100000000);
 	}
 }
 
