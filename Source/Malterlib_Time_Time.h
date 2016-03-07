@@ -1,4 +1,4 @@
-﻿// Copyright © 2015 Hansoft AB 
+// Copyright © 2015 Hansoft AB 
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #include <Mib/Core/Core>
@@ -1664,6 +1664,12 @@ namespace NMib
 		template <typename tf_CStr, typename tf_COptions>
 		void CTime::f_Format(tf_CStr &_FormatInto, tf_COptions const &_Options) const
 		{
+			if (!f_IsValid())
+			{
+				_FormatInto += "INVALID";
+				return;
+			}
+			
 			using CChar = typename tf_CStr::CChar;
 			NTime::CTimeConvert::CDateTime DateTime;
 			NTime::CTimeConvert(*this).f_ExtractDateTime(DateTime);

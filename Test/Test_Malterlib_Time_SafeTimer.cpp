@@ -27,7 +27,7 @@ namespace
 			return bRetVal && ExitCode == 0;
 		}
 
-		bool f_UnstableTimerTest(NMib::NFunction::TCFunction<void()>&& _fTamperWithTime)
+		bool f_UnstableTimerTest(NMib::NFunction::TCFunction<void()>&& _fTamperWithTime, bool _bExpectSafeTime = true)
 		{
 			NMib::NTime::CClock Clock;
 			{
@@ -58,6 +58,20 @@ namespace
 
 			bool bSuccess = true;
 
+#if defined(DMibSafeTimerAvailable)
+			if (_bExpectSafeTime && !NMib::fg_GetSys()->f_IsSafeTimerEnabled())
+			{
+				DMibConErrOut("Safe timer is not enabled when it should be{\n}", 0);
+				bSuccess = false;
+			}
+
+			if (!_bExpectSafeTime && NMib::fg_GetSys()->f_IsSafeTimerEnabled())
+			{
+				DMibConErrOut("Safe timer is enabled when it should not be{\n}", 0);
+				bSuccess = false;
+			}
+#endif
+
 			if (!((TotalTime / TotalTimeTimerRaw) > 0.98 && (TotalTime / TotalTimeTimerRaw) < 1.02))
 			{
 				DMibConErrOut("TotalTime: {}, TotalTimeTimerRaw: {}{\n}", TotalTime << TotalTimeTimerRaw);
@@ -87,34 +101,132 @@ namespace
 				}
 				else
 				{
-					NMib::NStr::CStr Error;
-					bool bTestSuccessful = f_RecursiveTest(Error);
+					NMib::NStr::CStr ErrorString;
+					bool bTestSuccessful = f_RecursiveTest(ErrorString);
 
 					DMibTest(DMibExpr(bTestSuccessful));
-					DMibTest(DMibExpr(Error) == DMibExpr(""));
+					DMibTest(DMibExpr(ErrorString) == DMibExpr(""));
 				}
 			};
 
-			DMibTestSuite("Safe timer wrap")
+			for (mint iWrapPos = 0; iWrapPos < 4; ++iWrapPos)
+			{
+				NMib::NStr::CStr WrapPos = NMib::NStr::fg_Format("WrapPos{}", iWrapPos);
+				DMibTestCategory(WrapPos)
+				{
+					DMibTestSuite("Safe timer wrap")
+					{
+						if (fg_TestReportFlags() & ETestReportFlag_ProcessRecursive)
+						{
+							for (mint i = 0; i < 5; ++i)
+							{
+								NMib::fg_GetSys()->f_MakeSafeTimerWrap(0.4f, iWrapPos);
+								DMibTestPath(NMib::NStr::fg_Format("Wrap {}", i));
+								bool bRetVal = f_UnstableTimerTest([] {	NMib::fg_GetSys()->f_EnableSafeTimer();});
+								if (!bRetVal)
+									NMib::NTest::fg_TestSetReturnValue(1);
+							}
+						}
+						else
+						{
+							NMib::NStr::CStr ErrorString;
+							bool bTestSuccessful = f_RecursiveTest(ErrorString);
+
+							DMibTest(DMibExpr(bTestSuccessful));
+							DMibTest(DMibExpr(ErrorString) == DMibExpr(""));
+						}
+					};
+					DMibTestSuite("Safe timer wrap backwards")
+					{
+						if (fg_TestReportFlags() & ETestReportFlag_ProcessRecursive)
+						{
+							for (mint i = 0; i < 5; ++i)
+							{
+								NMib::fg_GetSys()->f_MakeSafeTimerWrap(0.0f, iWrapPos);
+								NMib::NSys::fg_Thread_Sleep(0.1f);
+								DMibTestPath(NMib::NStr::fg_Format("Wrap {}", i));
+								bool bRetVal = f_UnstableTimerTest
+									(
+										[]
+										{
+											NMib::NTime::CTime::fs_NowUTC();
+											NMib::NSys::fg_TimerRaw_SafeOffset(-0.5f);
+											NMib::NTime::CTime::fs_NowUTC();
+											NMib::NSys::fg_TimerRaw_SafeOffset(0.5f);
+											NMib::NTime::CTime::fs_NowUTC();
+										}
+										, false
+									)
+								;
+								if (!bRetVal)
+									NMib::NTest::fg_TestSetReturnValue(1);
+							}
+						}
+						else
+						{
+							NMib::NStr::CStr ErrorString;
+							bool bTestSuccessful = f_RecursiveTest(ErrorString);
+
+							DMibTest(DMibExpr(bTestSuccessful));
+							DMibTest(DMibExpr(ErrorString) == DMibExpr(""));
+						}
+					};
+
+					DMibTestSuite("Safe timer wrap no auto enable")
+					{
+						if (fg_TestReportFlags() & ETestReportFlag_ProcessRecursive)
+						{
+							for (mint i = 0; i < 5; ++i)
+							{
+								NMib::fg_GetSys()->f_MakeSafeTimerWrap(0.4f, iWrapPos);
+								DMibTestPath(NMib::NStr::fg_Format("Wrap {}", i));
+								bool bRetVal = f_UnstableTimerTest([] {	}, false);
+								if (!bRetVal)
+									NMib::NTest::fg_TestSetReturnValue(1);
+							}
+						}
+						else
+						{
+							NMib::NStr::CStr ErrorString;
+							bool bTestSuccessful = f_RecursiveTest(ErrorString);
+
+							DMibTest(DMibExpr(bTestSuccessful));
+							DMibTest(DMibExpr(ErrorString) == DMibExpr(""));
+						}
+					};
+				};
+			}
+			DMibTestSuite("Safe timer backwards")
 			{
 				if (fg_TestReportFlags() & ETestReportFlag_ProcessRecursive)
 				{
 					for (mint i = 0; i < 5; ++i)
 					{
-						NMib::NTime::NPlatform::fg_MakeSafeTimerWrap(0.4f);
 						DMibTestPath(NMib::NStr::fg_Format("Wrap {}", i));
-						bool bRetVal = f_UnstableTimerTest([] {	NMib::NTime::CSystem_Time::fs_EnableSafeTimer();});
+						bool bRetVal = f_UnstableTimerTest
+							(
+								[]
+								{
+									NMib::NTime::CTime::fs_NowUTC();
+									NMib::NSys::fg_TimerRaw_SafeOffset(-0.1f);
+									NMib::NTime::CTime::fs_NowUTC();
+									NMib::NSys::fg_TimerRaw_SafeOffset(0.1f);
+									NMib::NTime::CTime::fs_NowUTC();
+								}
+								, false
+							)
+						;
 						if (!bRetVal)
 							NMib::NTest::fg_TestSetReturnValue(1);
 					}
 				}
 				else
 				{
-					NMib::NStr::CStr Error;
-					bool bTestSuccessful = f_RecursiveTest(Error);
+					NMib::NStr::CStr ErrorString;
+					bool bTestSuccessful = f_RecursiveTest(ErrorString);
 
 					DMibTest(DMibExpr(bTestSuccessful));
-					DMibTest(DMibExpr(Error) == DMibExpr(""));
+					DMibTest(DMibExpr(ErrorString) == DMibExpr(""));
 				}
 			};
 
@@ -127,11 +239,11 @@ namespace
 				}
 				else
 				{
-					NMib::NStr::CStr Error;
-					bool bTestSuccessful = f_RecursiveTest(Error);
+					NMib::NStr::CStr ErrorString;
+					bool bTestSuccessful = f_RecursiveTest(ErrorString);
 
 					DMibTest(DMibExpr(bTestSuccessful));
-					DMibTest(DMibExpr(Error) == DMibExpr(""));
+					DMibTest(DMibExpr(ErrorString) == DMibExpr(""));
 				}
 			};
 
@@ -144,11 +256,11 @@ namespace
 				}
 				else
 				{
-					NMib::NStr::CStr Error;
-					bool bTestSuccessful = f_RecursiveTest(Error);
+					NMib::NStr::CStr ErrorString;
+					bool bTestSuccessful = f_RecursiveTest(ErrorString);
 
 					DMibTest(DMibExpr(bTestSuccessful));
-					DMibTest(DMibExpr(Error) == DMibExpr(""));
+					DMibTest(DMibExpr(ErrorString) == DMibExpr(""));
 				}
 			};
 
@@ -161,11 +273,11 @@ namespace
 				}
 				else
 				{
-					NMib::NStr::CStr Error;
-					bool bTestSuccessful = f_RecursiveTest(Error);
+					NMib::NStr::CStr ErrorString;
+					bool bTestSuccessful = f_RecursiveTest(ErrorString);
 
 					DMibTest(DMibExpr(bTestSuccessful));
-					DMibTest(DMibExpr(Error) == DMibExpr(""));
+					DMibTest(DMibExpr(ErrorString) == DMibExpr(""));
 				}
 			};
 
@@ -178,11 +290,11 @@ namespace
 				}
 				else
 				{
-					NMib::NStr::CStr Error;
-					bool bTestSuccessful = f_RecursiveTest(Error);
+					NMib::NStr::CStr ErrorString;
+					bool bTestSuccessful = f_RecursiveTest(ErrorString);
 
 					DMibTest(DMibExpr(bTestSuccessful));
-					DMibTest(DMibExpr(Error) == DMibExpr(""));
+					DMibTest(DMibExpr(ErrorString) == DMibExpr(""));
 				}
 			};
 
@@ -195,11 +307,11 @@ namespace
 				}
 				else
 				{
-					NMib::NStr::CStr Error;
-					bool bTestSuccessful = f_RecursiveTest(Error);
+					NMib::NStr::CStr ErrorString;
+					bool bTestSuccessful = f_RecursiveTest(ErrorString);
 
 					DMibTest(DMibExpr(bTestSuccessful));
-					DMibTest(DMibExpr(Error) == DMibExpr(""));
+					DMibTest(DMibExpr(ErrorString) == DMibExpr(""));
 				}
 			};
 
@@ -212,11 +324,11 @@ namespace
 				}
 				else
 				{
-					NMib::NStr::CStr Error;
-					bool bTestSuccessful = f_RecursiveTest(Error);
+					NMib::NStr::CStr ErrorString;
+					bool bTestSuccessful = f_RecursiveTest(ErrorString);
 
 					DMibTest(DMibExpr(bTestSuccessful));
-					DMibTest(DMibExpr(Error) == DMibExpr(""));
+					DMibTest(DMibExpr(ErrorString) == DMibExpr(""));
 				}
 			};
 #endif
