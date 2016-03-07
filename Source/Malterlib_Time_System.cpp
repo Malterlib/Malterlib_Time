@@ -84,6 +84,8 @@ namespace NMib
 				NThread::CMutual m_TimeChangeNotificationLock;
 				NContainer::TCLinkedList<NFunction::TCFunction<void (NTime::CTime const &_OldTime, NTime::CTime const &_NewTime, NStr::CStr const &_Reason)>> m_TimeChangeNotifications;
 
+				static CSubSystem_Time *ms_pThis;
+
 				int64 fp_GetTimerFreq() const;
 				int64 fp_GetTimerValInternal() const;
 				void fp_TimeInit();
@@ -114,9 +116,12 @@ namespace NMib
 			};
 			
 			TCSubSystem<CSubSystem_Time, ESubSystemDestruction_Last> g_MalterlibSubSystem_Time = {DAggregateInit};
+
+			CSubSystem_Time *CSubSystem_Time::ms_pThis = nullptr;
 			
 			CSubSystem_Time::CSubSystem_Time()
 			{
+				ms_pThis = this;
 				m_bTimeInitDone = false;
 		#ifdef DMibSafeTimerAvailable
 				m_bUseSafeTimer = false;
@@ -156,7 +161,7 @@ namespace NMib
 				, m_LastTimer(-1)
 			{
 		#if DMibConfig_Tests_Enable
-				auto &Internal = *fg_GetSys()->m_TimeInternal;
+				auto &Internal = *ms_pThis;
 				DMibLock(Internal.m_ThreadLocalsLock);
 				Internal.m_ThreadLocals.f_Insert(this);
 		#endif
@@ -165,7 +170,7 @@ namespace NMib
 			CSubSystem_Time::CThreadLocal::~CThreadLocal()
 			{
 		#if DMibConfig_Tests_Enable
-				auto &Internal = *fg_GetSys()->m_TimeInternal;
+				auto &Internal = *ms_pThis;
 				DMibLock(Internal.m_ThreadLocalsLock);
 				Internal.m_ThreadLocals.f_Remove(this);
 		#endif
@@ -433,7 +438,7 @@ namespace NMib
 		#if DMibConfig_Tests_Enable
 			void CSubSystem_Time::f_MakeSafeTimerWrap(fp64 _InSeconds, uint32 _Where)
 			{
-				int64 Offset = NMib::NSys::fg_MakeSafeTimerWrap(_InSeconds, _Where);
+				int64 Offset = NPlatform::fg_MakeSafeTimerWrap(_InSeconds, _Where);
 
 				{
 					DMibLock(m_Lock);
@@ -721,7 +726,7 @@ namespace NMib
 		{
 			g_MalterlibSubSystem_Time->f_EnableSafeTimer("Manually");
 		}
-		bool CSystem_Time::fs_IsSafeTimerEnabled() const
+		bool CSystem_Time::fs_IsSafeTimerEnabled()
 		{
 			return g_MalterlibSubSystem_Time->m_bUseSafeTimer;
 		}

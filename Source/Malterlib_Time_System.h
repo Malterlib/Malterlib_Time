@@ -52,7 +52,11 @@ namespace NMib
 			static void fs_TimeGetNowUTC(NTime::CTime *_pTime);
 			static int64 fs_TimeResolution();
 		#ifdef DMibSafeTimerAvailable
+			#if DMibConfig_Tests_Enable
+			static void fs_MakeSafeTimerWrap(fp64 _InSeconds, uint32 _Where);
+			#endif
 			static void fs_EnableSafeTimer();
+			static bool fs_IsSafeTimerEnabled();
 		#endif
 		};
 	}

@@ -59,13 +59,13 @@ namespace
 			bool bSuccess = true;
 
 #if defined(DMibSafeTimerAvailable)
-			if (_bExpectSafeTime && !NMib::fg_GetSys()->f_IsSafeTimerEnabled())
+			if (_bExpectSafeTime && !NMib::NTime::CSystem_Time::fs_IsSafeTimerEnabled())
 			{
 				DMibConErrOut("Safe timer is not enabled when it should be{\n}", 0);
 				bSuccess = false;
 			}
 
-			if (!_bExpectSafeTime && NMib::fg_GetSys()->f_IsSafeTimerEnabled())
+			if (!_bExpectSafeTime && NMib::NTime::CSystem_Time::fs_IsSafeTimerEnabled())
 			{
 				DMibConErrOut("Safe timer is enabled when it should not be{\n}", 0);
 				bSuccess = false;
@@ -120,9 +120,9 @@ namespace
 						{
 							for (mint i = 0; i < 5; ++i)
 							{
-								NMib::fg_GetSys()->f_MakeSafeTimerWrap(0.4f, iWrapPos);
+								NMib::NTime::CSystem_Time::fs_MakeSafeTimerWrap(0.4f, iWrapPos);
 								DMibTestPath(NMib::NStr::fg_Format("Wrap {}", i));
-								bool bRetVal = f_UnstableTimerTest([] {	NMib::fg_GetSys()->f_EnableSafeTimer();});
+								bool bRetVal = f_UnstableTimerTest([] {	NMib::NTime::CSystem_Time::fs_EnableSafeTimer();});
 								if (!bRetVal)
 									NMib::NTest::fg_TestSetReturnValue(1);
 							}
@@ -142,7 +142,7 @@ namespace
 						{
 							for (mint i = 0; i < 5; ++i)
 							{
-								NMib::fg_GetSys()->f_MakeSafeTimerWrap(0.0f, iWrapPos);
+								NMib::NTime::CSystem_Time::fs_MakeSafeTimerWrap(0.0f, iWrapPos);
 								NMib::NSys::fg_Thread_Sleep(0.1f);
 								DMibTestPath(NMib::NStr::fg_Format("Wrap {}", i));
 								bool bRetVal = f_UnstableTimerTest
@@ -150,9 +150,9 @@ namespace
 										[]
 										{
 											NMib::NTime::CTime::fs_NowUTC();
-											NMib::NSys::fg_TimerRaw_SafeOffset(-0.5f);
+											NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(-0.5f);
 											NMib::NTime::CTime::fs_NowUTC();
-											NMib::NSys::fg_TimerRaw_SafeOffset(0.5f);
+											NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(0.5f);
 											NMib::NTime::CTime::fs_NowUTC();
 										}
 										, false
@@ -178,7 +178,7 @@ namespace
 						{
 							for (mint i = 0; i < 5; ++i)
 							{
-								NMib::fg_GetSys()->f_MakeSafeTimerWrap(0.4f, iWrapPos);
+								NMib::NTime::CSystem_Time::fs_MakeSafeTimerWrap(0.4f, iWrapPos);
 								DMibTestPath(NMib::NStr::fg_Format("Wrap {}", i));
 								bool bRetVal = f_UnstableTimerTest([] {	}, false);
 								if (!bRetVal)
@@ -208,9 +208,9 @@ namespace
 								[]
 								{
 									NMib::NTime::CTime::fs_NowUTC();
-									NMib::NSys::fg_TimerRaw_SafeOffset(-0.1f);
+									NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(-0.1f);
 									NMib::NTime::CTime::fs_NowUTC();
-									NMib::NSys::fg_TimerRaw_SafeOffset(0.1f);
+									NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(0.1f);
 									NMib::NTime::CTime::fs_NowUTC();
 								}
 								, false
