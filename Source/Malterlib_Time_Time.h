@@ -1159,10 +1159,25 @@ namespace NMib
 				fp_ExtractDateTime<-1, true>(_Destination);
 			}
 
+			CDateTime f_ExtractDateTime() const
+			{
+				CDateTime Destination;
+				fp_ExtractDateTime<-1, true>(Destination);
+				return Destination;
+			}
+
 			template <aint t_StopAtStage>
 			void f_ExtractDateTime(CDateTime &_Destination) const
 			{
 				fp_ExtractDateTime<t_StopAtStage, true>(_Destination);
+			}
+
+			template <aint t_StopAtStage>
+			CDateTime f_ExtractDateTime() const
+			{
+				CDateTime Destination;
+				fp_ExtractDateTime<t_StopAtStage, true>(Destination);
+				return Destination;
 			}
 
 			int64 f_GetYear() const
