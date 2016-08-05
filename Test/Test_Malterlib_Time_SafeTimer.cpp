@@ -3,6 +3,16 @@
 
 #include <Mib/Process/ProcessLaunch>
 
+#define DMalteribTimeTestWithPrecision
+
+#ifdef DMalteribTimeTestWithPrecision
+static fp64 const g_CheckTime = 0.2;
+static fp64 const g_AllowedDiff = 1.1;
+#else
+static fp64 const g_CheckTime = 1.0;
+static fp64 const g_AllowedDiff = 1.03;
+#endif
+
 namespace 
 {
 	class CSafeTimer_Tests : public NMib::NTest::CTest
@@ -48,7 +58,7 @@ namespace
 				NMib::NTime::NPlatform::fg_TimerRaw_PreciseGet();
 				NMib::NTime::NPlatform::fg_TimerRaw_SafeGet();
 			}
-			NMib::NSys::fg_Thread_Sleep(1.0f);
+			NMib::NSys::fg_Thread_Sleep(g_CheckTime);
 			NMib::NTime::CTime End = NMib::NTime::CTime::fs_NowUTC();
 			fp32 TotalTimeTimer = Clock.f_GetTime();
 			auto TimerEnd = NMib::NTime::NPlatform::fg_TimerRaw_SafeGet();
@@ -71,16 +81,15 @@ namespace
 				bSuccess = false;
 			}
 #endif
-
-			if (!((TotalTime / TotalTimeTimerRaw) > 0.98 && (TotalTime / TotalTimeTimerRaw) < 1.02))
+			if (!((TotalTime / TotalTimeTimerRaw) > fp64(1.0) / g_AllowedDiff && (TotalTime / TotalTimeTimerRaw) < g_AllowedDiff))
 			{
-				DMibConErrOut("TotalTime: {}, TotalTimeTimerRaw: {}{\n}", TotalTime << TotalTimeTimerRaw);
+				DMibConErrOut("TotalTime: {}, TotalTimeTimerRaw: {} = {}{\n}", TotalTime << TotalTimeTimerRaw << (TotalTime / TotalTimeTimerRaw));
 				bSuccess = false;
 			}
 
-			if (!((TotalTimeTimer / TotalTimeTimerRaw) > 0.98 && (TotalTimeTimer / TotalTimeTimerRaw) < 1.02))
+			if (!((TotalTimeTimer / TotalTimeTimerRaw) > fp64(1.0) / g_AllowedDiff && (TotalTimeTimer / TotalTimeTimerRaw) < g_AllowedDiff))
 			{
-				DMibConErrOut("TotalTimeTimer: {}, TotalTimeTimerRaw: {}{\n}", TotalTimeTimer << TotalTimeTimerRaw);
+				DMibConErrOut("TotalTimeTimer: {}, TotalTimeTimerRaw: {} = {}{\n}", TotalTimeTimer << TotalTimeTimerRaw << (TotalTimeTimer / TotalTimeTimerRaw));
 				bSuccess = false;
 			}
 
@@ -96,6 +105,9 @@ namespace
 			{
 				if (fg_TestReportFlags() & ETestReportFlag_ProcessRecursive)
 				{
+#ifdef DMalteribTimeTestWithPrecision
+					NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision();
+#endif
 					bool bRetVal = f_UnstableTimerTest([] {	NMib::NTime::CSystem_Time::fs_EnableSafeTimer(); });
 					NMib::NTest::fg_TestSetReturnValue(bRetVal ? 0 : 1);
 				}
@@ -118,9 +130,12 @@ namespace
 					{
 						if (fg_TestReportFlags() & ETestReportFlag_ProcessRecursive)
 						{
+#ifdef DMalteribTimeTestWithPrecision
+							NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision();
+#endif
 							for (mint i = 0; i < 5; ++i)
 							{
-								NMib::NTime::CSystem_Time::fs_MakeSafeTimerWrap(0.4f, iWrapPos);
+								NMib::NTime::CSystem_Time::fs_MakeSafeTimerWrap(g_CheckTime * 0.4f, iWrapPos);
 								DMibTestPath(NMib::NStr::fg_Format("Wrap {}", i));
 								bool bRetVal = f_UnstableTimerTest([] {	NMib::NTime::CSystem_Time::fs_EnableSafeTimer();});
 								if (!bRetVal)
@@ -140,19 +155,22 @@ namespace
 					{
 						if (fg_TestReportFlags() & ETestReportFlag_ProcessRecursive)
 						{
+#ifdef DMalteribTimeTestWithPrecision
+							NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision();
+#endif
 							for (mint i = 0; i < 5; ++i)
 							{
 								NMib::NTime::CSystem_Time::fs_MakeSafeTimerWrap(0.0f, iWrapPos);
-								NMib::NSys::fg_Thread_Sleep(0.1f);
+								NMib::NSys::fg_Thread_Sleep(g_CheckTime * 0.1f);
 								DMibTestPath(NMib::NStr::fg_Format("Wrap {}", i));
 								bool bRetVal = f_UnstableTimerTest
 									(
 										[]
 										{
 											NMib::NTime::CTime::fs_NowUTC();
-											NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(-0.5f);
+											NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(-g_CheckTime * 0.5f);
 											NMib::NTime::CTime::fs_NowUTC();
-											NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(0.5f);
+											NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(g_CheckTime * 0.5f);
 											NMib::NTime::CTime::fs_NowUTC();
 										}
 										, false
@@ -176,9 +194,12 @@ namespace
 					{
 						if (fg_TestReportFlags() & ETestReportFlag_ProcessRecursive)
 						{
+#ifdef DMalteribTimeTestWithPrecision
+							NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision();
+#endif
 							for (mint i = 0; i < 5; ++i)
 							{
-								NMib::NTime::CSystem_Time::fs_MakeSafeTimerWrap(0.4f, iWrapPos);
+								NMib::NTime::CSystem_Time::fs_MakeSafeTimerWrap(g_CheckTime * 0.4f, iWrapPos);
 								DMibTestPath(NMib::NStr::fg_Format("Wrap {}", i));
 								bool bRetVal = f_UnstableTimerTest([] {	}, false);
 								if (!bRetVal)
@@ -200,6 +221,9 @@ namespace
 			{
 				if (fg_TestReportFlags() & ETestReportFlag_ProcessRecursive)
 				{
+#ifdef DMalteribTimeTestWithPrecision
+					NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision();
+#endif
 					for (mint i = 0; i < 5; ++i)
 					{
 						DMibTestPath(NMib::NStr::fg_Format("Wrap {}", i));
@@ -208,9 +232,9 @@ namespace
 								[]
 								{
 									NMib::NTime::CTime::fs_NowUTC();
-									NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(-0.1f);
+									NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(-g_CheckTime * 0.1f);
 									NMib::NTime::CTime::fs_NowUTC();
-									NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(0.1f);
+									NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(g_CheckTime * 0.1f);
 									NMib::NTime::CTime::fs_NowUTC();
 								}
 								, false
@@ -234,6 +258,9 @@ namespace
 			{
 				if (fg_TestReportFlags() & ETestReportFlag_ProcessRecursive)
 				{
+#ifdef DMalteribTimeTestWithPrecision
+					NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision();
+#endif
 					bool bRetVal = f_UnstableTimerTest([] {	NMib::NTime::NPlatform::fg_MakeTimerUnstable(NMib::NTime::NPlatform::EUnstableTimerMode_AlwaysZero); });
 					NMib::NTest::fg_TestSetReturnValue(bRetVal ? 0 : 1);
 				}
@@ -251,6 +278,9 @@ namespace
 			{
 				if (fg_TestReportFlags() & ETestReportFlag_ProcessRecursive)
 				{
+#ifdef DMalteribTimeTestWithPrecision
+					NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision();
+#endif
 					bool bRetVal = f_UnstableTimerTest([] {	NMib::NTime::NPlatform::fg_MakeTimerUnstable(NMib::NTime::NPlatform::EUnstableTimerMode_AlwaysNegative); });
 					NMib::NTest::fg_TestSetReturnValue(bRetVal ? 0 : 1);
 				}
@@ -268,6 +298,9 @@ namespace
 			{
 				if (fg_TestReportFlags() & ETestReportFlag_ProcessRecursive)
 				{
+#ifdef DMalteribTimeTestWithPrecision
+					NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision();
+#endif
 					bool bRetVal = f_UnstableTimerTest([] {	NMib::NTime::NPlatform::fg_MakeTimerUnstable(NMib::NTime::NPlatform::EUnstableTimerMode_AlwaysMaxInt); });
 					NMib::NTest::fg_TestSetReturnValue(bRetVal ? 0 : 1);
 				}
@@ -285,6 +318,9 @@ namespace
 			{
 				if (fg_TestReportFlags() & ETestReportFlag_ProcessRecursive)
 				{
+#ifdef DMalteribTimeTestWithPrecision
+					NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision();
+#endif
 					bool bRetVal = f_UnstableTimerTest([] {	NMib::NTime::NPlatform::fg_MakeTimerUnstable(NMib::NTime::NPlatform::EUnstableTimerMode_OnceZero); });
 					NMib::NTest::fg_TestSetReturnValue(bRetVal ? 0 : 1);
 				}
@@ -302,6 +338,9 @@ namespace
 			{
 				if (fg_TestReportFlags() & ETestReportFlag_ProcessRecursive)
 				{
+#ifdef DMalteribTimeTestWithPrecision
+					NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision();
+#endif
 					bool bRetVal = f_UnstableTimerTest([] {	NMib::NTime::NPlatform::fg_MakeTimerUnstable(NMib::NTime::NPlatform::EUnstableTimerMode_OnceMaxInt); });
 					NMib::NTest::fg_TestSetReturnValue(bRetVal ? 0 : 1);
 				}
@@ -319,6 +358,9 @@ namespace
 			{
 				if (fg_TestReportFlags() & ETestReportFlag_ProcessRecursive)
 				{
+#ifdef DMalteribTimeTestWithPrecision
+					NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision();
+#endif
 					bool bRetVal = f_UnstableTimerTest([] {	NMib::NTime::NPlatform::fg_MakeTimerUnstable(NMib::NTime::NPlatform::EUnstableTimerMode_OnceNegative); });
 					NMib::NTest::fg_TestSetReturnValue(bRetVal ? 0 : 1);
 				}
