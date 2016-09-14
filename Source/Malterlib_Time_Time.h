@@ -299,6 +299,13 @@ namespace NMib
 			bint operator < (const CTime &_Other) const
 			{
 // TODO: enable and fix asserts	DMibSafeCheck(f_IsValid() && _Other.f_IsValid(), "Must be valid");
+				if (!f_IsValid())
+				{
+					if (_Other.f_IsValid())
+						return true;
+				}
+				else if (!_Other.f_IsValid())
+					return false;
 				if (m_Seconds < _Other.m_Seconds)
 					return true;
 				else if (m_Seconds > _Other.m_Seconds)
@@ -524,6 +531,7 @@ namespace NMib
 
 			struct CFormatOptions
 			{
+				uint32 m_Components = 0;
 				bool m_bDateOnly = false;
 				bool m_bFullPrecision = false;
 				ch32 m_DateSeparator = '-';
@@ -531,8 +539,8 @@ namespace NMib
 				ch32 m_SecondSeparator = '.';
 			};
 			
-			template <typename tf_COption>
-			bool f_FormatParseOption(CFormatOptions &_Options, tf_COption &_Option) const;
+			template <typename tf_COption, typename tf_CArgs>
+			bool f_FormatParseOption(CFormatOptions &_Options, tf_COption &_Option, tf_CArgs &_Args) const;
 
 			template <typename tf_CStr, typename tf_COptions>
 			void f_Format(tf_CStr &_FormatInto, tf_COptions const &_Options) const;
@@ -1638,8 +1646,8 @@ namespace NMib
 			}
 		};
 
-		template <typename tf_COption>
-		bool CTime::f_FormatParseOption(CFormatOptions &_Options, tf_COption &_Option) const
+		template <typename tf_COption, typename tf_CArgs>
+		bool CTime::f_FormatParseOption(CFormatOptions &_Options, tf_COption &_Option, tf_CArgs &_Args) const
 		{
 			switch (_Option.m_FormatTypes.m_Format1)
 			{
@@ -1649,6 +1657,9 @@ namespace NMib
 					{
 					case 'F':
 						_Options.m_bFullPrecision = true;
+						return true;
+					case 'C':
+						_Options.m_Components = _Option.f_GetData_aint_NotSigned(_Args.m_Formatter, 0);
 						return true;
 					case 'D':
 						_Options.m_bDateOnly = true;
@@ -1725,8 +1736,35 @@ namespace NMib
 				CChar DateSeparator[] = {static_cast<CChar>(_Options.m_LocalOptions.m_DateSeparator), 0};
 				CChar TimeSeparator[] = {static_cast<CChar>(_Options.m_LocalOptions.m_TimeSeparator), 0};
 				CChar SecondSeparator[] = {static_cast<CChar>(_Options.m_LocalOptions.m_SecondSeparator), 0};
+				
+				ch8 const *pFormatStr;
+				switch (_Options.m_LocalOptions.m_Components)
+				{
+				default:
+				case 0:
+					pFormatStr = "{}{}{sj2,sf0}{}{sj2,sf0} {sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj*,sf0}";
+					break;
+				case 1:
+					pFormatStr = "{}";
+					break;
+				case 2:
+					pFormatStr = "{}{}{sj2,sf0}";
+					break;
+				case 3:
+					pFormatStr = "{}{}{sj2,sf0}{}{sj2,sf0}";
+					break;
+				case 4:
+					pFormatStr = "{}{}{sj2,sf0}{}{sj2,sf0} {sj2,sf0}";
+					break;
+				case 5:
+					pFormatStr = "{}{}{sj2,sf0}{}{sj2,sf0} {sj2,sf0}{}{sj2,sf0}";
+					break;
+				case 6:
+					pFormatStr = "{}{}{sj2,sf0}{}{sj2,sf0} {sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}";
+					break;
+				}
 
-				_FormatInto += typename tf_CStr::CFormat("{}{}{sj2,sf0}{}{sj2,sf0} {sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj*,sf0}") 
+				_FormatInto += typename tf_CStr::CFormat(pFormatStr) 
 					<< DateTime.m_Year 
 					<< DateSeparator
 					<< DateTime.m_Month

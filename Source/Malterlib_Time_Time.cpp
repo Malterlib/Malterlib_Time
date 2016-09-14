@@ -123,6 +123,8 @@ namespace NMib
 		CTime CTime::f_ToUTC() const
 		{
 			CTime Ret = *this;
+			if (!Ret.f_IsValid())
+				return Ret;
 			CTimeSpan UTCOffset;
 			CSystem_Time::fs_TimeGetUTCOffset(&UTCOffset);
 			Ret -= UTCOffset;
@@ -132,6 +134,8 @@ namespace NMib
 		CTime CTime::f_ToLocal() const
 		{
 			CTime Ret = *this;
+			if (!Ret.f_IsValid())
+				return Ret;
 			CTimeSpan UTCOffset;
 			CSystem_Time::fs_TimeGetUTCOffset(&UTCOffset);
 			Ret += UTCOffset;
