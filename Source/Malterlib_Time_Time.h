@@ -299,13 +299,6 @@ namespace NMib
 			bint operator < (const CTime &_Other) const
 			{
 // TODO: enable and fix asserts	DMibSafeCheck(f_IsValid() && _Other.f_IsValid(), "Must be valid");
-				if (!f_IsValid())
-				{
-					if (_Other.f_IsValid())
-						return true;
-				}
-				else if (!_Other.f_IsValid())
-					return false;
 				if (m_Seconds < _Other.m_Seconds)
 					return true;
 				else if (m_Seconds > _Other.m_Seconds)
