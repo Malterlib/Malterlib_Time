@@ -191,6 +191,18 @@ namespace NMib
 			return m_pTime->f_GetSeconds() - 237148622167132800;
 		}
 		
+		uint64 CTimeConvert_BabylonianCommon::f_UnixMinutes() const
+		{
+			return f_UnixSeconds() / 60;
+		}
+		
+		CTime CTimeConvert_BabylonianCommon::fs_FromCreateFromUnixMinutes(uint64 _Minutes)
+		{
+			CTime Ret;
+			Ret.f_SetSeconds(237148622167132800 + _Minutes * 60);
+			return Ret;
+		}		
+		
 		CTime CTimeConvert_BabylonianCommon::fs_FromCreateFromUnixSeconds(uint64 _Seconds)
 		{
 			CTime Ret;
