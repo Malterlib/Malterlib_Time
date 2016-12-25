@@ -2,6 +2,7 @@
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #include <Mib/Core/Core>
+#include <Mib/Core/PlatformSpecific/PosixErrNo>
 
 #include "../Malterlib_Time_Platform.h"
 
@@ -11,11 +12,27 @@
 
 void NMib::NTime::NPlatform::fg_TimeRaw_GetUTCOffset(NTime::CTimeSpan *_pTimeOffset)
 {
+#if 1
+	time_t rawtime;
+	time (&rawtime);
+	tm *pTime = localtime(&rawtime);
+	if (!pTime)
+	{
+		int ErrNo = errno;
+		DMibError(NMib::NPlatform::fg_FormatErrno("localtime (get utf offset)", ErrNo));
+	}
+	
+	int64 Diff = 0;
+	if (pTime)
+		Diff = pTime->tm_gmtoff;
+	*_pTimeOffset = NTime::CTimeSpanConvert::fs_CreateSpan(0, 0, 0, 0, Diff);
+#else
 	CFTimeZoneRef TimeZone = CFTimeZoneCopySystem();
 	CFAbsoluteTime Now = CFAbsoluteTimeGetCurrent();
 	int64 Diff = int64(CFTimeZoneGetSecondsFromGMT(TimeZone, Now));
 	
 	*_pTimeOffset = NTime::CTimeSpanConvert::fs_CreateSpan(0, 0, 0, 0, Diff);
+#endif
 }
 
 void NMib::NTime::NPlatform::fg_TimeRaw_GetNow(NMib::NTime::CTime *_pTime)
