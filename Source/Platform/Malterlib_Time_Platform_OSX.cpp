@@ -13,13 +13,14 @@
 void NMib::NTime::NPlatform::fg_TimeRaw_GetUTCOffset(NTime::CTimeSpan *_pTimeOffset)
 {
 #if 1
-	time_t rawtime;
-	time (&rawtime);
-	tm *pTime = localtime(&rawtime);
+	time_t RawTime;
+	time (&RawTime);
+	tm ResultBuffer;
+	tm *pTime = localtime_r(&RawTime, &ResultBuffer);
 	if (!pTime)
 	{
 		int ErrNo = errno;
-		DMibError(NMib::NPlatform::fg_FormatErrno("localtime (get utf offset)", ErrNo));
+		DMibError(NMib::NPlatform::fg_FormatErrno("localtime_r (get utf offset)", ErrNo));
 	}
 	
 	int64 Diff = 0;
