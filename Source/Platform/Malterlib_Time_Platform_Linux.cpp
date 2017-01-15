@@ -16,7 +16,7 @@ void NMib::NTime::NPlatform::fg_TimeRaw_GetUTCOffset(NTime::CTimeSpan *_pTimeOff
 	if (!pTime)
 	{
 		int ErrNo = errno;
-		DMibError(fg_FormatErrno("localtime_r (get utf offset)", ErrNo));
+		DMibError(::NMib::NPlatform::fg_FormatErrno("localtime_r (get utf offset)", ErrNo));
 	}
 	
 	int64 Diff = 0;
