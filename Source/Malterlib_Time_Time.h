@@ -527,6 +527,7 @@ namespace NMib
 				uint32 m_Components = 0;
 				bool m_bDateOnly = false;
 				bool m_bFullPrecision = false;
+				ch32 m_DateTimeSeparator = ' ';
 				ch32 m_DateSeparator = '-';
 				ch32 m_TimeSeparator = ':';
 				ch32 m_SecondSeparator = '.';
@@ -1696,6 +1697,10 @@ namespace NMib
 						case 's':
 							_Options.m_SecondSeparator = _Option.m_pDataStart[1];
 							return true;
+						case 'B':
+						case 'b':
+							_Options.m_DateTimeSeparator = _Option.m_pDataStart[1];
+							return true;
 						}
 					}
 				}
@@ -1753,13 +1758,14 @@ namespace NMib
 				CChar DateSeparator[] = {static_cast<CChar>(_Options.m_LocalOptions.m_DateSeparator), 0};
 				CChar TimeSeparator[] = {static_cast<CChar>(_Options.m_LocalOptions.m_TimeSeparator), 0};
 				CChar SecondSeparator[] = {static_cast<CChar>(_Options.m_LocalOptions.m_SecondSeparator), 0};
+				CChar DateTimeSeparator[] = {static_cast<CChar>(_Options.m_LocalOptions.m_DateTimeSeparator), 0};
 				
 				ch8 const *pFormatStr;
 				switch (_Options.m_LocalOptions.m_Components)
 				{
 				default:
 				case 0:
-					pFormatStr = "{}{}{sj2,sf0}{}{sj2,sf0} {sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj*,sf0}";
+					pFormatStr = "{}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj*,sf0}";
 					break;
 				case 1:
 					pFormatStr = "{}";
@@ -1771,13 +1777,13 @@ namespace NMib
 					pFormatStr = "{}{}{sj2,sf0}{}{sj2,sf0}";
 					break;
 				case 4:
-					pFormatStr = "{}{}{sj2,sf0}{}{sj2,sf0} {sj2,sf0}";
+					pFormatStr = "{}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}";
 					break;
 				case 5:
-					pFormatStr = "{}{}{sj2,sf0}{}{sj2,sf0} {sj2,sf0}{}{sj2,sf0}";
+					pFormatStr = "{}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}";
 					break;
 				case 6:
-					pFormatStr = "{}{}{sj2,sf0}{}{sj2,sf0} {sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}";
+					pFormatStr = "{}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}";
 					break;
 				}
 
@@ -1787,6 +1793,7 @@ namespace NMib
 					<< DateTime.m_Month
 					<< DateSeparator
 					<< DateTime.m_DayOfMonth
+					<< DateTimeSeparator
 					<< DateTime.m_Hour 
 					<< TimeSeparator
 					<< DateTime.m_Minute 
