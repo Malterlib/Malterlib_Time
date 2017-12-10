@@ -533,13 +533,8 @@ namespace NMib
 				ch32 m_SecondSeparator = '.';
 			};
 			
-#ifdef DCompiler_MSVC
-			template <typename tf_COption>
-			bool f_FormatParseOption(CFormatOptions &_Options, tf_COption &_Option) const;
-#else
 			template <typename tf_COption, typename tf_CArgs>
 			bool f_FormatParseOption(CFormatOptions &_Options, tf_COption &_Option, tf_CArgs &_Args) const;
-#endif
 
 			template <typename tf_CStr, typename tf_COptions>
 			void f_Format(tf_CStr &_FormatInto, tf_COptions const &_Options) const;
@@ -1650,17 +1645,13 @@ namespace NMib
 		template 
 		<
 			typename tf_COption
-#ifndef DCompiler_MSVC
 			, typename tf_CArgs
-#endif
 		>
 		bool CTime::f_FormatParseOption
 			(
 				CFormatOptions &_Options
 				, tf_COption &_Option
-#ifndef DCompiler_MSVC
 				, tf_CArgs &_Args
-#endif
 			) const
 		{
 			switch (_Option.m_FormatTypes.m_Format1)
@@ -1673,11 +1664,7 @@ namespace NMib
 						_Options.m_bFullPrecision = true;
 						return true;
 					case 'C':
-#ifndef DCompiler_MSVC
 						_Options.m_Components = _Option.f_GetData_aint_NotSigned(_Args.m_Formatter, 0);
-#else
-						DMibFastCheck(false); // Broken comppiler
-#endif
 						return true;
 					case 'D':
 						_Options.m_bDateOnly = true;
