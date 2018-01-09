@@ -46,11 +46,25 @@ void NMib::NTime::NPlatform::fg_TimeRaw_GetNow(NMib::NTime::CTime *_pTime)
 	*_pTime = EpochStart + CTimeSpanConvert_BabylonianCommon::fs_CreateSpan(0, 0, 0, 0, Seconds, Fraction);
 }
 
+fp64 NMib::NTime::NPlatform::fg_TimeRaw_Resolution()
+{
+	return fg_Max(fp64(1.0/1000000.0), fg_TimerRaw_PreciseResolution());
+}
+
 int64 NMib::NTime::NPlatform::fg_TimerRaw_PreciseGet()
 {
 	return mach_absolute_time();
 }
 
+fp64 NMib::NTime::NPlatform::fg_TimerRaw_PreciseResolution()
+{
+	return fp64(1.0) / fp64(fg_TimerRaw_SafeFrequency());
+}
+
+fp64 NMib::NTime::NPlatform::fg_TimerRaw_SafeResolution()
+{
+	return fp64(1.0) / fp64(fg_TimerRaw_SafeFrequency());
+}
 
 int64 NMib::NTime::NPlatform::fg_TimerRaw_SafeFrequency()
 {

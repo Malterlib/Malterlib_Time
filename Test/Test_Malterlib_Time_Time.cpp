@@ -1,4 +1,4 @@
-﻿// Copyright © 2015 Hansoft AB 
+// Copyright © 2015 Hansoft AB 
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #define DMalteribTimeTestWithPrecision
@@ -164,6 +164,7 @@ namespace
 			DMibTestSuite("Time precision")
 			{
 				NMib::NTime::CTime Now = NMib::NTime::CTime::fs_NowUTC();
+				NMib::NSys::fg_Thread_Sleep(NMib::NTime::NPlatform::fg_TimeRaw_Resolution());
 				NMib::NTime::CTime Now2 = NMib::NTime::CTime::fs_NowUTC();
 				DMibTest(DMibExpr(Now) != DMibExpr(Now2)); // This can fail on OSX until we have ported Windows code inte general system
 				

@@ -76,6 +76,17 @@ int64 NMib::NTime::NPlatform::fg_TimerRaw_PreciseFrequency()
 	return Temp.QuadPart;
 }
 
+
+fp64 NMib::NTime::NPlatform::fg_TimerRaw_PreciseResolution()
+{
+	return fp64(1.0) / fp64(fg_TimerRaw_SafeFrequency());
+}
+
+fp64 NMib::NTime::NPlatform::fg_TimerRaw_SafeResolution()
+{
+	return fp64(1.0) / fp64(fg_TimerRaw_SafeFrequency());
+}
+
 extern bool g_bAggregatesDestroyed;
 
 namespace
@@ -211,3 +222,7 @@ void NMib::NTime::NPlatform::fg_TimeRaw_GetNow(NMib::NTime::CTime *_pTime)
 	*_pTime = CurrentTime;
 }
 
+fp64 NMib::NTime::NPlatform::fg_TimeRaw_Resolution()
+{
+	return fg_Min(fp64(1.0/10000000.0), fg_TimerRaw_PreciseResolution());
+}

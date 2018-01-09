@@ -1,4 +1,4 @@
-﻿// Copyright © 2015 Hansoft AB 
+// Copyright © 2015 Hansoft AB 
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #pragma once
@@ -33,11 +33,15 @@ namespace NMib
 			int64 fg_TimerRaw_SafeGet();
 			int64 fg_TimerRaw_SafeFrequency();
 
+			fp64 fg_TimerRaw_PreciseResolution();
+			fp64 fg_TimerRaw_SafeResolution();
+
 			int64 fg_Timer_Cycles();
 			int64 fg_Timer_CyclesFast();
         
 			void fg_TimeRaw_GetNow(NTime::CTime *_pTime);
 			void fg_TimeRaw_GetUTCOffset(NTime::CTimeSpan *_pTimeOffset);
+			fp64 fg_TimeRaw_Resolution();
 		}
 	}
 }

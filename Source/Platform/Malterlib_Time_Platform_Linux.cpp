@@ -35,11 +35,32 @@ void NMib::NTime::NPlatform::fg_TimeRaw_GetNow(NMib::NTime::CTime *_pTime)
 	*_pTime = EpochStart + CTimeSpanConvert_BabylonianCommon::fs_CreateSpan(0, 0, 0, 0, Seconds, Fraction);
 }
 
+fp64 NMib::NTime::NPlatform::fg_TimeRaw_Resolution()
+{
+	timespec Time;
+	clock_getres(CLOCK_REALTIME, &Time);
+	return (fp64)Time.tv_sec + fp64(Time.tv_nsec) / fp64(1000000000);
+}
+
 int64 NMib::NTime::NPlatform::fg_TimerRaw_PreciseGet()
 {
 	timespec Time;
 	clock_gettime(CLOCK_MONOTONIC, &Time);
 	return (int64)Time.tv_sec * 1000000000 + int64(Time.tv_nsec);
+}
+
+fp64 NMib::NTime::NPlatform::fg_TimerRaw_PreciseResolution()
+{
+	timespec Time;
+	clock_getres(CLOCK_MONOTONIC, &Time);
+	return (fp64)Time.tv_sec + fp64(Time.tv_nsec) / fp64(1000000000);
+}
+
+fp64 NMib::NTime::NPlatform::fg_TimerRaw_SafeResolution()
+{
+	timespec Time;
+	clock_getres(CLOCK_MONOTONIC, &Time);
+	return (fp64)Time.tv_sec + fp64(Time.tv_nsec) / fp64(1000000000);
 }
 
 int64 NMib::NTime::NPlatform::fg_TimerRaw_PreciseFrequency()
