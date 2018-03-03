@@ -758,6 +758,8 @@ namespace NMib
 			static CTime fs_FromCreateFromUnixSeconds(uint64 _Seconds);
 			uint64 f_UnixMinutes() const;
 			static CTime fs_FromCreateFromUnixMinutes(uint64 _Minutes);
+			fp64 f_UnixSecondsFraction() const;
+			static CTime fs_FromCreateFromUnixSecondsFraction(fp64 _Seconds);
 		protected:
 
             static void fsp_AddTime(CTime &_AddResult, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, fp64 _Fraction = 0)

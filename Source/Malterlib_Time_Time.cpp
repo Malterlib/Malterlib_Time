@@ -1,4 +1,4 @@
-﻿// Copyright © 2015 Hansoft AB 
+// Copyright © 2015 Hansoft AB 
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 namespace NMib
@@ -207,6 +207,19 @@ namespace NMib
 		{
 			CTime Ret;
 			Ret.f_SetSeconds(237148622167132800 + _Seconds);
+			return Ret;
+		}
+
+		fp64 CTimeConvert_BabylonianCommon::f_UnixSecondsFraction() const
+		{
+			return fp64(m_pTime->f_GetSeconds() - 237148622167132800) + m_pTime->f_GetFraction();
+		}
+
+		CTime CTimeConvert_BabylonianCommon::fs_FromCreateFromUnixSecondsFraction(fp64 _Seconds)
+		{
+			CTime Ret;
+			Ret.f_SetSeconds(237148622167132800 + _Seconds.f_ToUnsignedInt());
+			Ret.f_SetFraction(_Seconds.f_Fraction());
 			return Ret;
 		}
 	}
