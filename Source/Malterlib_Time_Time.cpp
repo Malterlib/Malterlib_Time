@@ -113,6 +113,22 @@ namespace NMib
 			return (NMib::NStr::CStr::CFormat("{} {} {} {sj2,sf0}:{sj2,sf0}:{sj2,sf0} {}") << Days[DateTime.m_DayOfWeek] << Months[DateTime.m_Month-1] << DateTime.m_DayOfMonth << DateTime.m_Hour << DateTime.m_Minute << DateTime.m_Second << DateTime.m_Year).f_GetStr();
 		}
 
+		NMib::NStr::CStr fg_GetISO8601TimeStr(CTime const &_Time)
+		{
+			using namespace NMib::NStr;
+
+			auto DateTime = CTimeConvert{_Time}.f_ExtractDateTime();
+
+			return "{}{sj2,sf0}{sj2,sf0}T{sj2,sf0}{sj2,sf0}{sj2,sf0}Z"_f
+				<< DateTime.m_Year
+				<< DateTime.m_Month
+				<< DateTime.m_DayOfMonth
+				<< DateTime.m_Hour
+				<< DateTime.m_Minute
+				<< DateTime.m_Second
+			;
+		}
+
 		CTimeSpan CTimeSpan::fs_UTCOffset()
 		{
 			CTimeSpan UTCOffset;

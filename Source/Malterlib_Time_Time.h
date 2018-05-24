@@ -1563,7 +1563,7 @@ namespace NMib
 		NMib::NStr::CStr fg_GetFullTimeStr(CTime const &_Time);		
 		bint fg_ParseFullTimeStr(CTime &_Time, NMib::NStr::CStr const& _Str);
 		NMib::NStr::CStr fg_GetAscTimeStr(CTime const &_Time); // Same format as std. C lib's asctime. NOT LOCALISED (deliberate)
-
+		NMib::NStr::CStr fg_GetISO8601TimeStr(CTime const &_Time);
 
 		class CStopWatch
 		{
