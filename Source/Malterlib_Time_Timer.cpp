@@ -1,64 +1,55 @@
-﻿// Copyright © 2015 Hansoft AB 
+// Copyright © 2015 Hansoft AB 
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #include <Mib/Core/Core>
 
-namespace NMib
+namespace NMib::NTime
 {
-
-	namespace NTime
+	CCyclesMin::CCorrection::CCorrection(bint _bSetCorrection)
 	{
-
-		CCyclesMin::CCorrection::CCorrection(bint _bSetCorrection)
+		if (_bSetCorrection)
 		{
-			if (_bSetCorrection)
+			CCyclesMin Timer;
+			for (mint i = 0; i < 10; ++i)
 			{
-				CCyclesMin Timer;
-				for (mint i = 0; i < 10; ++i)
-				{
-					Timer.f_Start();
-					Timer.f_StopNonCorrected();
-				}
-				m_Correction = Timer.m_MinCycles.f_ToInt();
+				Timer.f_Start();
+				Timer.f_StopNonCorrected();
 			}
-			else
-				m_Correction = 0;
+			m_Correction = Timer.m_MinCycles.f_ToInt();
 		}
-
-		CCyclesMin::CCorrection CCyclesMin::ms_Correction2(0);
-		CCyclesMin::CCorrection CCyclesMin::ms_Correction(1);
-
-
-		CTimerTraceScope::CTimerTraceScope(const ch8 *_pName)
-		{
-			m_pName = _pName;
-
-			m_Timer.f_Start();
-		}
-
-		CTimerTraceScope::~CTimerTraceScope()
-		{
-			m_Timer.f_Stop();
-
-			DMibTraceSafe("Timer {}: {} s" DMibNewLine, m_pName << m_Timer.f_GetTime());
-		}
-
-		CTimerConOutScope::CTimerConOutScope(const ch8 *_pName)
-		{
-			m_pName = _pName;
-
-			m_Timer.f_Start();
-		}
-
-		CTimerConOutScope::~CTimerConOutScope()
-		{
-			m_Timer.f_Stop();
-
-			DMibConErrOut("Timer {}: {} s" DMibNewLine, m_pName << m_Timer.f_GetTime());
-		}
-
-
+		else
+			m_Correction = 0;
 	}
 
-}
+	CCyclesMin::CCorrection CCyclesMin::ms_Correction2(0);
+	CCyclesMin::CCorrection CCyclesMin::ms_Correction(1);
 
+
+	CTimerTraceScope::CTimerTraceScope(const ch8 *_pName)
+	{
+		m_pName = _pName;
+
+		m_Timer.f_Start();
+	}
+
+	CTimerTraceScope::~CTimerTraceScope()
+	{
+		m_Timer.f_Stop();
+
+		DMibTraceSafe("Timer {}: {} s" DMibNewLine, m_pName << m_Timer.f_GetTime());
+	}
+
+	CTimerConOutScope::CTimerConOutScope(const ch8 *_pName)
+	{
+		m_pName = _pName;
+
+		m_Timer.f_Start();
+	}
+
+	CTimerConOutScope::~CTimerConOutScope()
+	{
+		m_Timer.f_Stop();
+
+		DMibConErrOut("Timer {}: {} s" DMibNewLine, m_pName << m_Timer.f_GetTime());
+	}
+}

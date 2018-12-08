@@ -103,7 +103,7 @@ namespace
 		}
 	};
 
-	NMib::NAggregate::TCAggregate<CIncreaseTimerPrecision> g_IncreaseTimerPrecision;
+	NMib::NStorage::TCAggregate<CIncreaseTimerPrecision> g_IncreaseTimerPrecision;
 
 	NMib::NAtomic::TCAtomicAggregate<uint64> g_SafeTimerFullPrecision = {DAggregateInit};
 }
@@ -188,7 +188,7 @@ int64 NMib::NTime::NPlatform::fg_TimerRaw_SafeFrequency()
 void NMib::NTime::NPlatform::fg_TimeRaw_GetUTCOffset(NTime::CTimeSpan *_pTimeOffset)
 {
 	TIME_ZONE_INFORMATION TimeZone;
-	NMem::fg_MemClear(TimeZone);
+	NMemory::fg_MemClear(TimeZone);
 	uint32 CurrentDaylight = GetTimeZoneInformation(&TimeZone); // If this fails the bias will be 0 hours because we cleaned the TimeZone...
 	if (CurrentDaylight == TIME_ZONE_ID_DAYLIGHT)
 		*_pTimeOffset = NTime::CTimeSpanConvert::fs_CreateMinuteSpan((-TimeZone.Bias) + (-TimeZone.DaylightBias));
