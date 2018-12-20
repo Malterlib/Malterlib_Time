@@ -24,7 +24,7 @@ namespace NMib::NTime
 			, m_Fraction(0)
 		{
 #ifdef DMibDebuggerHelpers
-			(void)&CTimeSpan::fsp_DebugStr;
+			static_assert(TCInstantiateValue<&CTimeSpan::fsp_DebugStr>::mc_Value);
 #endif
 		}
 		explicit CTimeSpan(int64 _Value, uint64 _Fraction)
@@ -32,7 +32,7 @@ namespace NMib::NTime
 			, m_Fraction(_Fraction)
 		{
 #ifdef DMibDebuggerHelpers
-			(void)&CTimeSpan::fsp_DebugStr;
+			static_assert(TCInstantiateValue<&CTimeSpan::fsp_DebugStr>::mc_Value);
 #endif
 		}
 		CTimeSpan()
@@ -40,7 +40,7 @@ namespace NMib::NTime
 			m_Seconds = constant_int64(0x7fffffffffffffff); // InvalidTime
 			m_Fraction = 0;
 #ifdef DMibDebuggerHelpers
-			(void)&CTimeSpan::fsp_DebugStr;
+			static_assert(TCInstantiateValue<&CTimeSpan::fsp_DebugStr>::mc_Value);
 #endif
 		}
 
@@ -272,6 +272,9 @@ namespace NMib::NTime
 			: m_Seconds(_Seconds)
 			, m_Fraction(_Fraction)
 		{
+#ifdef DMibDebuggerHelpers
+			static_assert(TCInstantiateValue<&CTime::fsp_DebugStr>::mc_Value);
+#endif
 		}
 	public:
 		CTime()
@@ -279,7 +282,7 @@ namespace NMib::NTime
 			m_Seconds = constant_uint64(0xffffffffffffffff); // InvalidTime
 			m_Fraction = 0;
 #ifdef DMibDebuggerHelpers
-			(void)&CTime::fsp_DebugStr;
+			static_assert(TCInstantiateValue<&CTime::fsp_DebugStr>::mc_Value);
 #endif
 		}
 
