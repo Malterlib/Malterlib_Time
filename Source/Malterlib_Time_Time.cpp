@@ -98,6 +98,16 @@ namespace NMib::NTime
 		return true;
 	}
 
+	int32 fg_GetAscMonthNumber(NStr::CStr const &_Month)
+	{
+		static const char *Months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+		for (mint i = 0; i < 12; ++i)
+		{
+			if (_Month == Months[i])
+				return i + 1;
+		}
+		return -1;
+	}
 
 	// Same format as std. C lib's asctime.
 	NMib::NStr::CStr fg_GetAscTimeStr(CTime const &_Time)
@@ -182,15 +192,15 @@ namespace NMib::NTime
 
 	uint64 CTimeConvert_BabylonianCommon::f_UnixMilliseconds() const
 	{
-		uint64 Return = (m_pTime->f_GetSeconds() - 237148622167132800) * 1000;
+		uint64 Return = (m_pTime->f_GetSeconds() - constant_int64(237148622167132800)) * constant_int64(1000);
 		Return += (m_pTime->f_GetFraction() * 1000.0).f_ToIntRound();
 		return Return;
 	}
 
 	CTime CTimeConvert_BabylonianCommon::fs_FromCreateFromUnixMilliseconds(uint64 _Milliseconds)
 	{
-		uint64 Seconds = _Milliseconds / 1000;
-		uint64 Fraction = (_Milliseconds - Seconds * 1000);
+		uint64 Seconds = _Milliseconds / constant_int64(1000);
+		uint64 Fraction = (_Milliseconds - Seconds * constant_int64(1000));
 
 		CTime Ret;
 		Ret.f_SetSeconds(237148622167132800 + Seconds);
