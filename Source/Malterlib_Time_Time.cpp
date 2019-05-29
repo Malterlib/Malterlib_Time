@@ -82,7 +82,7 @@ namespace NMib::NTime
 		return (NMib::NStr::CStr::CFormat("{}-{sj2,sf0}-{sj2,sf0} {sj2,sf0}:{sj2,sf0}:{sj2,sf0}.{sj3,sf0}") << DateTime.m_Year << DateTime.m_Month << DateTime.m_DayOfMonth << DateTime.m_Hour << DateTime.m_Minute << DateTime.m_Second << Fraction).f_GetStr();
 	}
 
-	bint fg_ParseFullTimeStr(CTime &_Time, NMib::NStr::CStr const& _Str)
+	bool fg_ParseFullTimeStr(CTime &_Time, NMib::NStr::CStr const& _Str)
 	{
 		NTime::CTimeConvert::CDateTime DateTime;
 

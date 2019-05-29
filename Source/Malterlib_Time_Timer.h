@@ -47,12 +47,12 @@ namespace NMib::NTime
 			return (fp64(m_Time)) / CSystem_Time::fs_TimerFrequencyFp();
 		}
 
-		bint operator < (CTimer const &_Other) const
+		bool operator < (CTimer const &_Other) const
 		{
 			return m_Time < _Other.m_Time;
 		}
 
-		bint operator == (CTimer const &_Other) const
+		bool operator == (CTimer const &_Other) const
 		{
 			return m_Time == _Other.m_Time;
 		}
@@ -86,7 +86,7 @@ namespace NMib::NTime
 		}
 	};
 
-	template <bint t_bDoCorrection>
+	template <bool t_bDoCorrection>
 	class TCCycles
 	{
 	public:
@@ -157,12 +157,12 @@ namespace NMib::NTime
 		static CCorrection ms_CorrectionStartAccumulate;
 		static CCorrection ms_CorrectionNonCorrected;
 
-		bint operator < (TCCycles const &_Other) const
+		bool operator < (TCCycles const &_Other) const
 		{
 			return m_Time < _Other.m_Time;
 		}
 
-		bint operator == (TCCycles const &_Other) const
+		bool operator == (TCCycles const &_Other) const
 		{
 			return m_Time == _Other.m_Time;
 		}
@@ -233,7 +233,7 @@ namespace NMib::NTime
 		void f_Construct()
 		{
 		}
-		void f_Construct(bint _bStart)
+		void f_Construct(bool _bStart)
 		{
 			if (_bStart)
 				f_Start();
@@ -267,7 +267,7 @@ namespace NMib::NTime
 		{
 			f_Construct();
 		}
-		CClock(bint _bStart)
+		CClock(bool _bStart)
 		{
 			f_Construct(_bStart);
 		}
@@ -287,7 +287,7 @@ namespace NMib::NTime
 		void f_Construct()
 		{
 		}
-		void f_Construct(bint _bStart)
+		void f_Construct(bool _bStart)
 		{
 			if (_bStart)
 				f_Start();
@@ -321,7 +321,7 @@ namespace NMib::NTime
 		{
 			f_Construct();
 		}
-		CClockRaw(bint _bStart)
+		CClockRaw(bool _bStart)
 		{
 			f_Construct(_bStart);
 		}
@@ -341,7 +341,7 @@ namespace NMib::NTime
 		void f_Construct()
 		{
 		}
-		void f_Construct(bint _bStart)
+		void f_Construct(bool _bStart)
 		{
 			if (_bStart)
 				f_Start();
@@ -380,7 +380,7 @@ namespace NMib::NTime
 		{
 			f_Construct();
 		}
-		CCyclesClock(bint _bStart)
+		CCyclesClock(bool _bStart)
 		{
 			f_Construct(_bStart);
 		}
@@ -399,7 +399,7 @@ namespace NMib::NTime
 		int64 m_Time;
 		int64 m_LastTime;
 
-		inline_small void f_Start(bint _bAccumulate = false)
+		inline_small void f_Start(bool _bAccumulate = false)
 		{
 			if (_bAccumulate)
 				m_Time -= CSystem_Time::fs_GetTimerValue();
@@ -413,7 +413,7 @@ namespace NMib::NTime
 			m_LastTime = m_Time;
 		}
 
-		inline_small void f_Delta(bint _bAccumulate = false)
+		inline_small void f_Delta(bool _bAccumulate = false)
 		{
 			if (_bAccumulate)
 			{
@@ -676,7 +676,7 @@ namespace NMib::NTime
 		{
 		public:
 			int64 m_Correction;
-			CCorrection(bint _bSetCorrection);
+			CCorrection(bool _bSetCorrection);
 		};
 
 		static CCorrection ms_Correction;
@@ -743,7 +743,7 @@ namespace NMib::NTime
 #		define DScopeTimerMin(_Timer) DMibScopeTimerMin(_Timer)
 #	endif
 
-	template <bint t_bDoCorrection>
+	template <bool t_bDoCorrection>
 	TCCycles<t_bDoCorrection>::CCorrection::CCorrection(aint _CorrectionType)
 	{
 		if (_CorrectionType)
@@ -784,10 +784,10 @@ namespace NMib::NTime
 			m_Correction = 0;
 	}
 
-	template <bint t_bDoCorrection>
+	template <bool t_bDoCorrection>
 	typename TCCycles<t_bDoCorrection>::CCorrection TCCycles<t_bDoCorrection>::ms_CorrectionNonCorrected(0);
-	template <bint t_bDoCorrection>
+	template <bool t_bDoCorrection>
 	typename TCCycles<t_bDoCorrection>::CCorrection TCCycles<t_bDoCorrection>::ms_CorrectionStart(1);
-	template <bint t_bDoCorrection>
+	template <bool t_bDoCorrection>
 	typename TCCycles<t_bDoCorrection>::CCorrection TCCycles<t_bDoCorrection>::ms_CorrectionStartAccumulate(2);
 }

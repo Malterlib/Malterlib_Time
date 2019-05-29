@@ -64,15 +64,15 @@ namespace NMib::NTime
 			fp64 m_TimeSpeed;
 			fp64 m_TimeSpeedReciprocal;
 
-			bint m_bTimeInitDone;
-			bint m_bUsedTimeSpeed;
+			bool m_bTimeInitDone;
+			bool m_bUsedTimeSpeed;
 			mutable NThread::CMutual m_TimerValLock;
 
 			mutable NThread::CMutual m_Lock;
 
 	#ifdef DMibSafeTimerAvailable
 			mutable NThread::CMutual m_LockSafeTimer;
-			mutable bint m_bUseSafeTimer;
+			mutable bool m_bUseSafeTimer;
 			mutable int64 m_SafeTimerVal;
 			mutable uint64 m_SafeTimerLast;
 			fp64 m_SafeTimerFrequencyReciprocal;
@@ -87,10 +87,10 @@ namespace NMib::NTime
 			int64 fp_GetTimerFreq() const;
 			int64 fp_GetTimerValInternal() const;
 			void fp_TimeInit();
-			void fp_TimerUpdate(int64 _CurrentTimer, NTime::CTime &_Time, bint _bRecursive);
+			void fp_TimerUpdate(int64 _CurrentTimer, NTime::CTime &_Time, bool _bRecursive);
 
 			void f_TimeGetUTCOffset(NTime::CTimeSpan *_pUTCOffset) const;
-			void f_TimeGetNow(NTime::CTime *_pTime, bint _bRecursive = false) const;
+			void f_TimeGetNow(NTime::CTime *_pTime, bool _bRecursive = false) const;
 			void f_SetTimeSpeed(fp64 _Multiplier, NTime::CTime const *_pOptionalTime, NTime::CTimeSpan const *_pTimeZone);
 			void f_DisableTimeSpeed();
 			fp64 f_GetTimeSpeed() const;
@@ -347,7 +347,7 @@ namespace NMib::NTime
 			m_bTimeInitDone = true;
 		}
 
-		void CSubSystem_Time::fp_TimerUpdate(int64 _CurrentTimer, NTime::CTime &_Time, bint _bRecursive)
+		void CSubSystem_Time::fp_TimerUpdate(int64 _CurrentTimer, NTime::CTime &_Time, bool _bRecursive)
 		{
 			if (m_bUsedTimeSpeed || _bRecursive)
 				return;
@@ -483,7 +483,7 @@ namespace NMib::NTime
 	#endif
 		}
 
-		void CSubSystem_Time::f_TimeGetNow(NTime::CTime *_pTime, bint _bRecursive) const
+		void CSubSystem_Time::f_TimeGetNow(NTime::CTime *_pTime, bool _bRecursive) const
 		{
 			if (!m_TimerFrequency)
 				fg_RemoveQualifiers(*this).fp_TimeInit();

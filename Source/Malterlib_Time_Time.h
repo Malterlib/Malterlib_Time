@@ -44,7 +44,7 @@ namespace NMib::NTime
 #endif
 		}
 
-		bint f_IsValid() const
+		bool f_IsValid() const
 		{
 			return m_Seconds != constant_int64(0x7fffffffffffffff);
 		}
@@ -176,12 +176,12 @@ namespace NMib::NTime
 			return *this;
 		}
 
-		bint operator == (const CTimeSpan &_Other) const
+		bool operator == (const CTimeSpan &_Other) const
 		{
 			return (m_Seconds == _Other.m_Seconds) && (m_Fraction == _Other.m_Fraction);
 		}
 
-		bint operator < (const CTimeSpan &_Other) const
+		bool operator < (const CTimeSpan &_Other) const
 		{
 			if (m_Seconds < _Other.m_Seconds)
 				return true;
@@ -286,17 +286,17 @@ namespace NMib::NTime
 #endif
 		}
 
-		bint f_IsValid() const
+		bool f_IsValid() const
 		{
 			return m_Seconds != constant_uint64(0xffffffffffffffff);
 		}
 
-		bint operator == (const CTime &_Other) const
+		bool operator == (const CTime &_Other) const
 		{
 			return (m_Seconds == _Other.m_Seconds) && (m_Fraction == _Other.m_Fraction);
 		}
 
-		bint operator < (const CTime &_Other) const
+		bool operator < (const CTime &_Other) const
 		{
 // TODO: enable and fix asserts	DMibSafeCheck(f_IsValid() && _Other.f_IsValid(), "Must be valid");
 			if (m_Seconds < _Other.m_Seconds)
@@ -817,7 +817,7 @@ namespace NMib::NTime
 			aint m_Minute;
 			aint m_Second;
 			fp64 m_Fraction;
-			bint m_bIsLeapYear;
+			bool m_bIsLeapYear;
 		};
 
 
@@ -877,7 +877,7 @@ namespace NMib::NTime
 			return Days;
 		}
 
-		template <aint t_StopAtStage, bint t_bExtractMonth>
+		template <aint t_StopAtStage, bool t_bExtractMonth>
 		void fp_ExtractDateTimeAD(CDateTime &_Dest, int64 _Seconds) const
 		{
 			uint64 Seconds = _Seconds;
@@ -894,7 +894,7 @@ namespace NMib::NTime
 			Seconds += (YearSub / 100) * 86400;	// Not a leap year every 100 years
 			Seconds -= (YearSub / 400) * 86400;	// A leap year every 400 years despite 100 year rule
 
-			bint bIsLeapYear = fsp_IsLeapYear(_Dest.m_Year);
+			bool bIsLeapYear = fsp_IsLeapYear(_Dest.m_Year);
 			if (bIsLeapYear)
 			{
 				if (Seconds >= 366 * 86400)
@@ -985,7 +985,7 @@ namespace NMib::NTime
 			_Dest.m_Fraction = m_pTime->f_GetFraction();
 		}
 
-		template <aint t_StopAtStage, bint t_bExtractMonth>
+		template <aint t_StopAtStage, bool t_bExtractMonth>
 		void fp_ExtractDateTimeBC(CDateTime &_Dest) const
 		{
 			CDateTime DateTime;
@@ -1054,7 +1054,7 @@ namespace NMib::NTime
 
 			Seconds -= DayOfYear * 86400;
 
-			bint bIsLeapYear = fsp_IsLeapYear(_Dest.m_Year);
+			bool bIsLeapYear = fsp_IsLeapYear(_Dest.m_Year);
 			aint PassedLeapDay = 0;
 			aint DayOfYearMonth = DayOfYear;
 
@@ -1102,7 +1102,7 @@ namespace NMib::NTime
 			_Dest.m_Fraction = m_pTime->f_GetFraction();
 		}
 
-		template <aint t_StopAtStage, bint t_bExtractMonth>
+		template <aint t_StopAtStage, bool t_bExtractMonth>
 		void fp_ExtractDateTime(CDateTime &_Dest) const
 		{
 			uint64 Seconds = m_pTime->f_GetSeconds();
@@ -1561,7 +1561,7 @@ namespace NMib::NTime
 	typedef CTimeSpanConvert_BabylonianCommon CTimeSpanConvert;
 
 	NMib::NStr::CStr fg_GetFullTimeStr(CTime const &_Time);
-	bint fg_ParseFullTimeStr(CTime &_Time, NMib::NStr::CStr const& _Str);
+	bool fg_ParseFullTimeStr(CTime &_Time, NMib::NStr::CStr const& _Str);
 	NMib::NStr::CStr fg_GetAscTimeStr(CTime const &_Time); // Same format as std. C lib's asctime. NOT LOCALISED (deliberate)
 	int32 fg_GetAscMonthNumber(NStr::CStr const &_Month); // Same format as std. C lib's asctime. NOT LOCALISED (deliberate)
 	NMib::NStr::CStr fg_GetISO8601TimeStr(CTime const &_Time);
@@ -1577,7 +1577,7 @@ namespace NMib::NTime
 		{
 		}
 
-		CStopWatch(bint _bStart)
+		CStopWatch(bool _bStart)
 		{
 			if (_bStart)
 				f_Start();
@@ -1622,7 +1622,7 @@ namespace NMib::NTime
 			f_Start();
 		}
 
-		CTimeout(fp64 _nSeconds, bint _bStart)
+		CTimeout(fp64 _nSeconds, bool _bStart)
 			: m_Timeout(CTimeSpanConvert::fs_CreateSpanFromSeconds(_nSeconds))
 		{
 			f_Start();
@@ -1633,13 +1633,13 @@ namespace NMib::NTime
 			m_StartedAt = CTime::fs_NowUTC();
 		}
 
-		bint f_TimedOut() const
+		bool f_TimedOut() const
 		{
 			CTimeSpan Elapsed = CTime::fs_NowUTC() - m_StartedAt;
 			return Elapsed >= m_Timeout;
 		}
 
-		bint operator!() const
+		bool operator!() const
 		{
 			return !f_TimedOut();
 		}

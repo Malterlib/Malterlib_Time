@@ -1,4 +1,4 @@
-// Copyright © 2015 Hansoft AB 
+// Copyright © 2015 Hansoft AB
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #define DMalteribTimeTestWithPrecision
@@ -11,7 +11,7 @@ static fp64 const g_CheckTime = 1.0;
 static fp64 const g_AllowedDiff = 1.02;
 #endif
 
-namespace 
+namespace
 {
 	class CTime_Tests : public NMib::NTest::CTest
 	{
@@ -156,8 +156,8 @@ namespace
 					DMibTest(DMibExpr(StrFullTime) == DMibExpr("2011-01-13 18:02:00.000"));
 
 					NMib::NTime::CTime ReadTime;
-					bint bReadOK = NMib::NTime::fg_ParseFullTimeStr(ReadTime, StrFullTime);
-					DMibTest(DMibExpr(bReadOK) == DMibExpr((bint)true));
+					bool bReadOK = NMib::NTime::fg_ParseFullTimeStr(ReadTime, StrFullTime);
+					DMibTest(DMibExpr(bReadOK) == DMibExpr(true));
 					DMibTest(DMibExpr(ReadTime) == DMibExpr(Test));
 				}
 			};
@@ -167,19 +167,19 @@ namespace
 				NMib::NSys::fg_Thread_Sleep(NMib::NTime::NPlatform::fg_TimeRaw_Resolution());
 				NMib::NTime::CTime Now2 = NMib::NTime::CTime::fs_NowUTC();
 				DMibTest(DMibExpr(Now) != DMibExpr(Now2)); // This can fail on OSX until we have ported Windows code inte general system
-				
+
 				NMib::NTime::CTime Start = NMib::NTime::CTime::fs_NowUTC();
 				auto TimerStart = NMib::NTime::CSystem_Time::fs_GetTimerValue();
 				NMib::NSys::fg_Thread_Sleep(0.1f);
 				NMib::NTime::CTime End = NMib::NTime::CTime::fs_NowUTC();
 				auto TimerEnd = NMib::NTime::CSystem_Time::fs_GetTimerValue();
-				
+
 				fp64 TotalTime = (End - Start).f_GetSecondsFraction();
 				fp64 TotalTimeTimer = fp64(TimerEnd - TimerStart) / NMib::NTime::CSystem_Time::fs_TimerFrequencyFp();
-				
+
 				DMibTest((DMibExpr(TotalTime) / DMibExpr(TotalTimeTimer)) > DMibExpr(fp64(1.0)/g_AllowedDiff) && (DMibExpr(TotalTime) / DMibExpr(TotalTimeTimer)) < DMibExpr(g_AllowedDiff));
 			};
-			
+
 			DMibTestSuite("Time speed")
 			{
 				fp64 TimeSpeed = 2.0;
@@ -193,16 +193,16 @@ namespace
 				NMib::NTime::CTime End = NMib::NTime::CTime::fs_NowUTC();
 				NMib::NTime::CTime EndRaw;
 				NMib::NTime::NPlatform::fg_TimeRaw_GetNow(&EndRaw);
-				
+
 				fp64 TotalTime = (End - Start).f_GetSecondsFraction();
 				fp64 TotalTimeRaw = (EndRaw - StartRaw).f_GetSecondsFraction();
-				
-				
-				
+
+
+
 				DMibTest((DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) > DMibExpr(TimeSpeed / g_AllowedDiff) && (DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) < DMibExpr(TimeSpeed * g_AllowedDiff));
-				
+
 				NMib::NTime::CSystem_Time::fs_DisableTimeSpeed();
-				
+
 			};
 
 			DMibTestSuite("Timer speed")
@@ -216,14 +216,14 @@ namespace
 
 				int64 End = NMib::NTime::CSystem_Time::fs_GetTimerValue();
 				int64 EndRaw = NMib::NTime::NPlatform::fg_TimerRaw_PreciseGet();
-				
+
 				fp64 TotalTime = fp64(End - Start);
 				fp64 TotalTimeRaw = fp64(EndRaw - StartRaw);
-				
+
 				DMibTest((DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) > DMibExpr(TimeSpeed / g_AllowedDiff) && (DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) < DMibExpr(TimeSpeed * g_AllowedDiff));
-				
+
 				NMib::NTime::CSystem_Time::fs_DisableTimeSpeed();
-				
+
 			};
 
 			DMibTestSuite("Time change notifications")
@@ -246,7 +246,7 @@ namespace
 					DMibLock(Lock);
 					DMibExpect(Reason, ==, "Set time speed");
 				}
-				
+
 				NMib::NTime::CSystem_Time::fs_DisableTimeSpeed();
 				{
 					DMibLock(Lock);

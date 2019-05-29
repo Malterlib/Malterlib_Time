@@ -5,7 +5,7 @@
 
 namespace NMib::NTime
 {
-	CCyclesMin::CCorrection::CCorrection(bint _bSetCorrection)
+	CCyclesMin::CCorrection::CCorrection(bool _bSetCorrection)
 	{
 		if (_bSetCorrection)
 		{
