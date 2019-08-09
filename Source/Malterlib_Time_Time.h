@@ -919,7 +919,7 @@ namespace NMib::NTime
 
 			_Dest.m_bIsLeapYear = bIsLeapYear;
 
-			if (t_StopAtStage == 1)
+			if constexpr (t_StopAtStage == 1)
 				return;
 
 			aint DayOfYear = Seconds / 86400;
@@ -927,12 +927,12 @@ namespace NMib::NTime
 			_Dest.m_DayOfWeek = fsp_GetWeekDay(_Dest.m_Year, DayOfYear);
 			_Dest.m_DayOfYear = DayOfYear;
 
-			if (t_StopAtStage == 2)
+			if constexpr (t_StopAtStage == 2)
 				return;
 
 			Seconds -= DayOfYear * 86400;
 
-			if (t_bExtractMonth)
+			if constexpr (t_bExtractMonth)
 			{
 				aint PassedLeapDay = 0;
 				aint DayOfYearMonth = DayOfYear;
@@ -955,7 +955,7 @@ namespace NMib::NTime
 
 				++_Dest.m_Month;
 
-				if (t_StopAtStage == 3)
+				if constexpr (t_StopAtStage == 3)
 					return;
 
 				if (PassedLeapDay && _Dest.m_Month == 2)
@@ -963,23 +963,23 @@ namespace NMib::NTime
 				else
 					_Dest.m_DayOfMonth = DayOfYearMonth - fsp_GetDayOfYearFromMonth(_Dest.m_Month-1) + 1;
 
-				if (t_StopAtStage == 4)
+				if constexpr (t_StopAtStage == 4)
 					return;
 			}
 
 			_Dest.m_Hour = Seconds / 3600;
 
-			if (t_StopAtStage == 5)
+			if constexpr (t_StopAtStage == 5)
 				return;
 			Seconds -= _Dest.m_Hour * 3600;
 
 			_Dest.m_Minute = Seconds / 60;
-			if (t_StopAtStage == 6)
+			if constexpr (t_StopAtStage == 6)
 				return;
 			Seconds -= _Dest.m_Minute * 60;
 
 			_Dest.m_Second = Seconds;
-			if (t_StopAtStage == 7)
+			if constexpr (t_StopAtStage == 7)
 				return;
 
 			_Dest.m_Fraction = m_pTime->f_GetFraction();
@@ -1042,14 +1042,14 @@ namespace NMib::NTime
 				}
 			}
 
-			if (t_StopAtStage == 1)
+			if constexpr (t_StopAtStage == 1)
 				return;
 
 			aint DayOfYear = Seconds / 86400;
 
 			_Dest.m_DayOfWeek = fsp_GetWeekDay(_Dest.m_Year, DayOfYear);
 
-			if (t_StopAtStage == 2)
+			if constexpr (t_StopAtStage == 2)
 				return;
 
 			Seconds -= DayOfYear * 86400;
@@ -1076,27 +1076,27 @@ namespace NMib::NTime
 
 			++_Dest.m_Month;
 
-			if (t_StopAtStage == 3)
+			if constexpr (t_StopAtStage == 3)
 				return;
 
 			_Dest.m_DayOfMonth = DayOfYearMonth - fsp_GetDayOfYearFromMonth(_Dest.m_Month-1) + 1;
 
-			if (t_StopAtStage == 4)
+			if constexpr (t_StopAtStage == 4)
 				return;
 
 			_Dest.m_Hour = Seconds / 3600;
 
-			if (t_StopAtStage == 5)
+			if constexpr (t_StopAtStage == 5)
 				return;
 			Seconds -= _Dest.m_Hour * 3600;
 
 			_Dest.m_Minute = Seconds / 60;
-			if (t_StopAtStage == 6)
+			if constexpr (t_StopAtStage == 6)
 				return;
 			Seconds -= _Dest.m_Minute * 60;
 
 			_Dest.m_Second = Seconds;
-			if (t_StopAtStage == 7)
+			if constexpr (t_StopAtStage == 7)
 				return;
 
 			_Dest.m_Fraction = m_pTime->f_GetFraction();
@@ -1409,11 +1409,11 @@ namespace NMib::NTime
 			CTimeConvert_ProlepticGreogrian::CDateTime DateTime;
 			CTimeConvert_ProlepticGreogrian Convert(*m_pTime);
 
-			if (t_StopAtStage < 0)
+			if constexpr (t_StopAtStage < 0)
 				Convert.fp_ExtractDateTime<-1, false>(DateTime);
 			else
 			{
-				if (t_StopAtStage > 1)
+				if constexpr (t_StopAtStage > 1)
 					Convert.fp_ExtractDateTime<4+t_StopAtStage, false>(DateTime);
 				else
 					Convert.fp_ExtractDateTime<2, false>(DateTime);

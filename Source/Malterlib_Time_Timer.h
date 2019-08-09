@@ -117,7 +117,7 @@ namespace NMib::NTime
 
 		inline_small void f_Stop()
 		{
-			if (t_bDoCorrection)
+			if constexpr (t_bDoCorrection)
 				m_Time += NPlatform::fg_Timer_Cycles() - ms_CorrectionStart.m_Correction;
 			else
 				m_Time += NPlatform::fg_Timer_Cycles();
@@ -125,7 +125,7 @@ namespace NMib::NTime
 
 		inline_small void f_StopAccumulate()
 		{
-			if (t_bDoCorrection)
+			if constexpr (t_bDoCorrection)
 				m_Time += NPlatform::fg_Timer_Cycles() - ms_CorrectionStartAccumulate.m_Correction;
 			else
 				m_Time += NPlatform::fg_Timer_Cycles();
@@ -134,7 +134,7 @@ namespace NMib::NTime
 
 		inline_small void f_StopNonCorrected()
 		{
-			if (t_bDoCorrection)
+			if constexpr (t_bDoCorrection)
 				m_Time += NPlatform::fg_Timer_Cycles() - ms_CorrectionNonCorrected.m_Correction;
 			else
 				m_Time += NPlatform::fg_Timer_Cycles();
