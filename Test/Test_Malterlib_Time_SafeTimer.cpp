@@ -27,7 +27,7 @@ namespace
 			bool bRetVal = NMib::NProcess::CProcessLaunch::fs_LaunchBlock
 				(
 					NMib::NFile::CFile::fs_GetProgramPath()
-					, NMib::NContainer::fg_CreateVector<NMib::NStr::CStr>("--Tests", fg_TestGetCurrentPath(), "--TestResults", "(All", "ProcessRecursive)")
+					, NMib::NContainer::fg_CreateVector<NMib::NStr::CStr>("--test", fg_TestGetCurrentPath(), "--filter-results", "[\"All\"]", "--process-recursive")
 					, StdOut
 					, _oError
 					, ExitCode
