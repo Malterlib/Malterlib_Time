@@ -48,10 +48,10 @@ namespace
 				NMib::NTime::NPlatform::fg_TimerRaw_SafeGet();
 			}
 
+			_fTamperWithTime();
 			NMib::NTime::CTime Start = NMib::NTime::CTime::fs_NowUTC();
 			auto TimerStart = NMib::NTime::NPlatform::fg_TimerRaw_SafeGet();
 			Clock.f_Start();
-			_fTamperWithTime();
 			{
 				// Precache
 				NMib::NTime::CTime::fs_NowUTC();
