@@ -103,9 +103,8 @@ namespace
 		}
 	};
 
-	NMib::NStorage::TCAggregate<CIncreaseTimerPrecision> g_IncreaseTimerPrecision;
-
-	NMib::NAtomic::TCAtomicAggregate<uint64> g_SafeTimerFullPrecision = {DAggregateInit};
+	constinit NMib::NStorage::TCAggregate<CIncreaseTimerPrecision> g_IncreaseTimerPrecision;
+	constinit NMib::NAtomic::TCAtomicAggregate<uint64> g_SafeTimerFullPrecision = {DAggregateInit};
 }
 
 

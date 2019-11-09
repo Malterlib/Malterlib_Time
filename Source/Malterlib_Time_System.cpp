@@ -113,7 +113,7 @@ namespace NMib::NTime
 			~CSubSystem_Time();
 		};
 
-		TCSubSystem<CSubSystem_Time, ESubSystemDestruction_Last> g_MalterlibSubSystem_Time = {DAggregateInit};
+		constinit TCSubSystem<CSubSystem_Time, ESubSystemDestruction_Last> g_MalterlibSubSystem_Time = {DAggregateInit};
 
 		CSubSystem_Time *CSubSystem_Time::ms_pThis = nullptr;
 
