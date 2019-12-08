@@ -5,9 +5,9 @@ Import "../Core/Lib_Malterlib.MTarget"
 
 %Group "{Malterlib}/{Lib_Malterlib_Time}"
 {
-	%Group Time
+	%Group "Time"
 	{
-		%Group Include
+		%Group "Include"
 		{
 			Compile.Type "C++"
 			{
@@ -16,7 +16,7 @@ Import "../Core/Lib_Malterlib.MTarget"
 			%File "Include/Mib/Time/^*"
 		}
 		%File "Source/*"
-		%Group Platform
+		%Group "Platform"
 		{
 			%File "Source/Platform/*"
 			{
@@ -26,7 +26,7 @@ Import "../Core/Lib_Malterlib.MTarget"
 				}
 			}
 		}
-		%Group Documentation
+		%Group "Documentation"
 		{
 			%File "Documentation/*"
 		}
