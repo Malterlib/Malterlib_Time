@@ -1,8 +1,15 @@
-// Copyright © 2015 Hansoft AB 
+// Copyright © 2015 Hansoft AB
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #include <Mib/Core/Core>
 #include "Malterlib_Time_System.h"
+
+#if defined(DCompiler_clang) && (defined(DArchitecture_arm64) || defined(DArchitecture_arm64e))
+namespace NMib::NTime::NPlatform
+{
+	mint g_CyclesScale = 1;
+}
+#endif
 
 namespace NMib::NTime
 {
@@ -177,6 +184,28 @@ namespace NMib::NTime
 
 		void CSubSystem_Time::f_MeasureCycleFrequency()
 		{
+		#if defined(DPlatformFamily_OSX) && (defined(DArchitecture_arm64) || defined(DArchitecture_arm64e))
+			auto NativeFrequency = NPlatform::fg_TimerRaw_PreciseFrequency();
+
+			uint64 WantedFrequency = NPlatform::fg_TimerRaw_GetCPUFrequency();
+
+			if (WantedFrequency == 0)
+				WantedFrequency = 3200000000LL; // Apple M1 max frequency
+
+			if (NativeFrequency < WantedFrequency)
+			{
+				NPlatform::g_CyclesScale = WantedFrequency / NativeFrequency;
+				m_CyclesFrequency = NativeFrequency * NPlatform::g_CyclesScale;
+				m_CyclesFrequencyFp = m_CyclesFrequency;
+				m_CyclesFrequencyReciprocal = fp64(1.0) / m_CyclesFrequencyFp;
+			}
+			else
+			{
+				m_CyclesFrequency = NativeFrequency;
+				m_CyclesFrequencyFp = m_CyclesFrequency;
+				m_CyclesFrequencyReciprocal = fp64(1.0) / m_CyclesFrequencyFp;
+			}
+		#else
 			// Measure correction and precache instruction cache
 			uint64 TimerCorrection = TCLimitsInt<uint64>::mc_Max;
 			uint64 CyclesCorrection = TCLimitsInt<uint64>::mc_Max;
@@ -211,11 +240,13 @@ namespace NMib::NTime
 				if ((End - Start) >= 100 && (EndTimer - StartTimer) >= TimeToSpend)
 					break;
 			}
+
 			uint64 Cycles = End - Start;
 			uint64 Timer = EndTimer - StartTimer;
 			m_CyclesFrequencyFp = fp64(Cycles) / (fp64(Timer) / fp64(NPlatform::fg_TimerRaw_PreciseFrequency()));
 			m_CyclesFrequency = m_CyclesFrequencyFp.f_ToIntRound();
 			m_CyclesFrequencyReciprocal = fp64(1.0) / m_CyclesFrequencyFp;
+		#endif
 		}
 
 		int64 CSubSystem_Time::fp_GetTimerFreq() const

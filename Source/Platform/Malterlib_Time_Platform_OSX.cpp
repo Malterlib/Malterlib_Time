@@ -79,8 +79,13 @@ int64 NMib::NTime::NPlatform::fg_TimerRaw_SafeGet()
 
 int64 NMib::NTime::NPlatform::fg_TimerRaw_PreciseFrequency()
 {
-	mach_timebase_info_data_t tb = { 0 };
-	mach_timebase_info(&tb);
-	return (1000000000LL * tb.numer) / tb.denom;
+	mach_timebase_info_data_t TimeBase = { 0 };
+	mach_timebase_info(&TimeBase);
+	return (1000000000LL * TimeBase.denom) / TimeBase.numer;
 }
 
+int64 NMib::NTime::NPlatform::fg_TimerRaw_GetCPUFrequency()
+{
+	// TODO: Find a way to implement this
+	return 0;
+}

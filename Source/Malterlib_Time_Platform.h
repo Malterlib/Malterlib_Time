@@ -25,6 +25,7 @@ namespace NMib::NTime::NPlatform
 
 	int64 fg_TimerRaw_PreciseGet();
 	int64 fg_TimerRaw_PreciseFrequency();
+	int64 fg_TimerRaw_GetCPUFrequency();
 	void fg_TimerRaw_SafeIncreasePrecision();
 	int64 fg_TimerRaw_SafeGet();
 	int64 fg_TimerRaw_SafeFrequency();
