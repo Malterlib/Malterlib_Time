@@ -355,6 +355,11 @@ namespace NMib::NTime
 			m_StartTime = NPlatform::fg_Timer_CyclesFast();
 		}
 
+		inline_small void f_Start(mint _Offset)
+		{
+			m_StartTime = NPlatform::fg_Timer_CyclesFast() - _Offset;
+		}
+
 		int64 f_GetCycles() const
 		{
 			return NPlatform::fg_Timer_CyclesFast() - m_StartTime;
