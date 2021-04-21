@@ -22,7 +22,7 @@ Import "../Core/Lib_Malterlib.MTarget"
 			{
 				Compile.Disabled true
 				{
-					!PlatformFamily "@(PlatformFamilyFromFile)"
+					!PlatformFamily PlatformFamilyFromFile
 				}
 			}
 		}
@@ -41,20 +41,13 @@ Import "../Core/Lib_Malterlib.MTarget"
 
 Property
 {
-	MalterlibLibrary_Time true
-	{
-		&
-		{
-			MalterlibLibrary_Time ""
-			MalterlibLibrary_All true
-		}
-	}
-	MalterlibSubLibraries "Time;@(MalterlibSubLibraries)"
+	MalterlibLibrary_Time define bool = MalterlibLibrary_All
+	MalterlibSubLibraries =+ "Time"
 	{
 		!!MalterlibLibrary_Time true
 	}
-//	MalterlibSubLibrarySeparate_Lib_Malterlib_Time true
-	MalterlibIncludeRoots "@('Include'->MakeAbsolute());@(MalterlibIncludeRoots)"
+//	MalterlibSubLibrarySeparate_Lib_Malterlib_Time define bool = true
+	MalterlibIncludeRoots =+ "Include"->MakeAbsolute()
 	{
 		!!MalterlibLibrary_Time true
 	}
@@ -64,7 +57,7 @@ Property
 {
 	!!MalterlibEnableInternalTests true
 	
-	MalterlibTests "Malterlib_Time;@(MalterlibTests)"
-	MalterlibTestFiles_Malterlib_Time "@('Test/*'->MakeAbsolute())"
+	MalterlibTests =+ "Malterlib_Time"
+	MalterlibTestFiles_Malterlib_Time define [type(CEntity)] = ["Test/*"->MakeAbsolute()]
 }
 
