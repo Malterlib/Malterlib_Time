@@ -176,22 +176,7 @@ namespace NMib::NTime
 			return *this;
 		}
 
-		bool operator == (const CTimeSpan &_Other) const
-		{
-			return (m_Seconds == _Other.m_Seconds) && (m_Fraction == _Other.m_Fraction);
-		}
-
-		bool operator < (const CTimeSpan &_Other) const
-		{
-			if (m_Seconds < _Other.m_Seconds)
-				return true;
-			else if (m_Seconds > _Other.m_Seconds)
-				return false;
-			else if (m_Fraction < _Other.m_Fraction)
-				return true;
-
-			return false;
-		}
+		auto operator <=> (const CTimeSpan &_Other) const = default;
 
 		int64 f_GetSeconds() const
 		{
@@ -291,23 +276,7 @@ namespace NMib::NTime
 			return m_Seconds != constant_uint64(0xffffffffffffffff);
 		}
 
-		bool operator == (const CTime &_Other) const
-		{
-			return (m_Seconds == _Other.m_Seconds) && (m_Fraction == _Other.m_Fraction);
-		}
-
-		bool operator < (const CTime &_Other) const
-		{
-// TODO: enable and fix asserts	DMibSafeCheck(f_IsValid() && _Other.f_IsValid(), "Must be valid");
-			if (m_Seconds < _Other.m_Seconds)
-				return true;
-			else if (m_Seconds > _Other.m_Seconds)
-				return false;
-			else if (m_Fraction < _Other.m_Fraction)
-				return true;
-
-			return false;
-		}
+		auto operator <=> (const CTime &_Other) const = default;
 
 		CTime& operator += (const CTimeSpan &_Other)
 		{

@@ -47,15 +47,7 @@ namespace NMib::NTime
 			return (fp64(m_Time)) / CSystem_Time::fs_TimerFrequencyFp();
 		}
 
-		bool operator < (CTimer const &_Other) const
-		{
-			return m_Time < _Other.m_Time;
-		}
-
-		bool operator == (CTimer const &_Other) const
-		{
-			return m_Time == _Other.m_Time;
-		}
+		auto operator <=> (CTimer const &_Other) const = default;
 
 		CTimer &operator -= (CTimer const &_Other)
 		{
@@ -157,15 +149,7 @@ namespace NMib::NTime
 		static CCorrection ms_CorrectionStartAccumulate;
 		static CCorrection ms_CorrectionNonCorrected;
 
-		bool operator < (TCCycles const &_Other) const
-		{
-			return m_Time < _Other.m_Time;
-		}
-
-		bool operator == (TCCycles const &_Other) const
-		{
-			return m_Time == _Other.m_Time;
-		}
+		auto operator <=> (TCCycles const &_Other) const = default;
 
 		TCCycles &operator -= (TCCycles const &_Other)
 		{
