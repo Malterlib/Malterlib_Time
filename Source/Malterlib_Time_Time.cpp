@@ -197,7 +197,7 @@ namespace NMib::NTime
 		return Return;
 	}
 
-	CTime CTimeConvert_BabylonianCommon::fs_FromCreateFromUnixMilliseconds(uint64 _Milliseconds)
+	CTime CTimeConvert_BabylonianCommon::fs_FromUnixMilliseconds(uint64 _Milliseconds)
 	{
 		uint64 Seconds = _Milliseconds / constant_int64(1000);
 		uint64 Fraction = (_Milliseconds - Seconds * constant_int64(1000));
@@ -219,14 +219,14 @@ namespace NMib::NTime
 		return f_UnixSeconds() / 60;
 	}
 
-	CTime CTimeConvert_BabylonianCommon::fs_FromCreateFromUnixMinutes(uint64 _Minutes)
+	CTime CTimeConvert_BabylonianCommon::fs_FromUnixMinutes(uint64 _Minutes)
 	{
 		CTime Ret;
 		Ret.f_SetSeconds(237148622167132800 + _Minutes * 60);
 		return Ret;
 	}
 
-	CTime CTimeConvert_BabylonianCommon::fs_FromCreateFromUnixSeconds(uint64 _Seconds)
+	CTime CTimeConvert_BabylonianCommon::fs_FromUnixSeconds(uint64 _Seconds)
 	{
 		CTime Ret;
 		Ret.f_SetSeconds(237148622167132800 + _Seconds);
@@ -238,7 +238,7 @@ namespace NMib::NTime
 		return fp64(m_pTime->f_GetSeconds() - 237148622167132800) + m_pTime->f_GetFraction();
 	}
 
-	CTime CTimeConvert_BabylonianCommon::fs_FromCreateFromUnixSecondsFraction(fp64 _Seconds)
+	CTime CTimeConvert_BabylonianCommon::fs_FromUnixSecondsFraction(fp64 _Seconds)
 	{
 		CTime Ret;
 		Ret.f_SetSeconds(237148622167132800 + _Seconds.f_ToUnsignedInt());
