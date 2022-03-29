@@ -1024,13 +1024,11 @@ namespace NMib::NTime
 			Seconds -= DayOfYear * 86400;
 
 			bool bIsLeapYear = fsp_IsLeapYear(_Dest.m_Year);
-			aint PassedLeapDay = 0;
 			aint DayOfYearMonth = DayOfYear;
 
 			if (bIsLeapYear && DayOfYear >= 59)
 			{
 				--DayOfYearMonth;
-				PassedLeapDay = 1;
 			}
 
 			_Dest.m_Month = 11;
