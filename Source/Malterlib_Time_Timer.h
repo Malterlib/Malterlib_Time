@@ -226,9 +226,11 @@ namespace NMib::NTime
 		{
 		}
 
-		inline_small void f_Start()
+		inline_small fp64 f_Start()
 		{
+			auto LastStart = m_StartTime;
 			m_StartTime = CSystem_Time::fs_GetTimerValue();
+			return m_StartTime - LastStart;
 		}
 
 		// In seconds
