@@ -679,12 +679,12 @@ namespace NMib::NTime
 
 		only_parameters_aliased fp32 operator / ( const CCyclesMin &_Other) const
 		{
-			return fp64(m_MinCycles) / fp64(_Other.m_MinCycles);
+			return m_MinCycles / _Other.m_MinCycles;
 		}
 
 		only_parameters_aliased CCyclesMin &operator /= ( const fp64 &_Other)
 		{
-			m_MinCycles = fp64(((fp64(m_MinCycles) / _Other) * 100.0).f_ToIntRound()) / 100.0;
+			m_MinCycles = m_MinCycles / _Other;
 			return *this;
 		}
 
@@ -692,7 +692,7 @@ namespace NMib::NTime
 		{
 			CCyclesMin Ret;
 			Ret.m_CurrentCycles = m_CurrentCycles;
-			Ret.m_MinCycles = fp64(((fp64(m_MinCycles) * _Other) * 100.0).f_ToIntRound()) / 100.0;
+			Ret.m_MinCycles = m_MinCycles * _Other;
 
 			return Ret;
 		}
