@@ -191,7 +191,7 @@ namespace NMib::NTime
 
 		void CSubSystem_Time::f_MeasureCycleFrequency()
 		{
-		#if defined(DPlatformFamily_OSX) && (defined(DArchitecture_arm64) || defined(DArchitecture_arm64e))
+		#if defined(DPlatformFamily_macOS) && (defined(DArchitecture_arm64) || defined(DArchitecture_arm64e))
 			auto NativeFrequency = NPlatform::fg_TimerRaw_PreciseFrequency();
 
 			uint64 WantedFrequency = NPlatform::fg_TimerRaw_GetCPUFrequency();
