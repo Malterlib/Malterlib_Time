@@ -596,12 +596,12 @@ namespace NMib::NTime
 		}
 
 		template <typename t_CFormatter>
-		int f_GetStringFormatType(t_CFormatter &_Formatter);
+		auto f_GetStringFormatType(t_CFormatter &_Formatter) -> decltype(NStr::fg_GetStringFormatType(_Formatter, fg_ByValue(f_GetTime())));
 
 		template <typename t_CFormatter>
 		auto f_CreateStringFormatter(t_CFormatter &_Formatter) const -> decltype(NStr::fg_CreateStringFormatter(_Formatter, fsp_GetMinCycles()))
 		{
-			return NStr::fg_CreateStringFormatter(_Formatter, m_MinCycles);
+			return NStr::fg_CreateStringFormatter(_Formatter, fg_ByValue(f_GetTime()));
 		}
 
 	};
