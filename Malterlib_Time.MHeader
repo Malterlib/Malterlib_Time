@@ -41,12 +41,12 @@ Import "../Core/Lib_Malterlib.MTarget"
 
 Property
 {
-	MalterlibLibrary_Time define bool = MalterlibLibrary_All
+	MalterlibLibrary_Time: bool = MalterlibLibrary_All
 	MalterlibSubLibraries =+ "Time"
 	{
 		!!MalterlibLibrary_Time true
 	}
-//	MalterlibSubLibrarySeparate_Lib_Malterlib_Time define bool = true
+//	MalterlibSubLibrarySeparate_Lib_Malterlib_Time: bool = true
 	MalterlibIncludeRoots =+ "Include"->MakeAbsolute()
 	{
 		!!MalterlibLibrary_Time true
@@ -58,6 +58,6 @@ Property
 	!!MalterlibEnableInternalTests true
 	
 	MalterlibTests =+ "Malterlib_Time"
-	MalterlibTestFiles_Malterlib_Time define [type(CEntity)] = ["Test/*"->MakeAbsolute()]
+	MalterlibTestFiles_Malterlib_Time: [type(CEntity)] = ["Test/*"->MakeAbsolute()]
 }
 
