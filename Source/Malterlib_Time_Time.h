@@ -1770,13 +1770,13 @@ namespace NMib::NStream
 	class TCBinaryStreamTypeReference<t_CStream, NTime::CTime>
 	{
 	public:
-		static void fs_Feed(t_CStream &_Stream, NTime::CTime const &_Data)
+		static constexpr void fs_Feed(t_CStream &_Stream, NTime::CTime const &_Data)
 		{
 			_Stream << _Data.f_GetSeconds();
 			_Stream << _Data.f_GetFractionInt();
 		}
 
-		static void fs_Consume(t_CStream &_Stream, NTime::CTime &_Data)
+		static constexpr void fs_Consume(t_CStream &_Stream, NTime::CTime &_Data)
 		{
 			uint64 Temp;
 			_Stream >> Temp;
@@ -1790,13 +1790,13 @@ namespace NMib::NStream
 	class TCBinaryStreamTypeReference<t_CStream, NTime::CTimeSpan>
 	{
 	public:
-		static void fs_Feed(t_CStream &_Stream, NTime::CTimeSpan const &_Data)
+		static constexpr void fs_Feed(t_CStream &_Stream, NTime::CTimeSpan const &_Data)
 		{
 			_Stream << _Data.f_GetSeconds();
 			_Stream << _Data.f_GetFractionInt();
 		}
 
-		static void fs_Consume(t_CStream &_Stream, NTime::CTimeSpan &_Data)
+		static constexpr void fs_Consume(t_CStream &_Stream, NTime::CTimeSpan &_Data)
 		{
 			uint64 Temp;
 			_Stream >> Temp;
