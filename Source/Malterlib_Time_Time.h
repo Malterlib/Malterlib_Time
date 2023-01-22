@@ -849,6 +849,7 @@ namespace NMib::NTime
 		template <aint t_StopAtStage, bool t_bExtractMonth>
 		void fp_ExtractDateTimeAD(CDateTime &_Dest, int64 _Seconds) const
 		{
+			DMibFastCheck(_Seconds >= 0);
 			uint64 Seconds = _Seconds;
 
 			_Dest.m_Year = (Seconds / 31556952);
@@ -913,7 +914,7 @@ namespace NMib::NTime
 				}
 
 				_Dest.m_Month = 11;
-				for (aint i = 0; i < 12; ++i)
+				for (aint i = 1; i < 12; ++i)
 				{
 					if (DayOfYearMonth < fsp_GetDayOfYearFromMonth(i))
 					{
