@@ -236,9 +236,15 @@ namespace NMib::NTime
 		{
 			return f_GetTime();
 		}
+
 		fp64 f_GetTime() const
 		{
 			return (fp64(CSystem_Time::fs_GetTimerValue() - m_StartTime)) / CSystem_Time::fs_TimerFrequencyFp();
+		}
+
+		void f_AddOffset(fp64 _Offset)
+		{
+			m_StartTime += (_Offset * CSystem_Time::fs_TimerFrequencyFp()).f_ToInt();
 		}
 	};
 
@@ -260,7 +266,6 @@ namespace NMib::NTime
 		{
 			m_StartTime = _ToMove.m_StartTime;
 		}
-
 	};
 
 	class CClockRawAggregate
