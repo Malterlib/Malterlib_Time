@@ -509,6 +509,24 @@ namespace NMib::NTime
 		void f_Format(tf_CStr &_FormatInto, tf_COptions const &_Options) const;
 	};
 
+	namespace NPrivate
+	{
+		template <typename tf_CType>
+		struct TCIsTime
+		{
+			constexpr static bool mc_bValue = false;
+		};
+
+		template <>
+		struct TCIsTime<CTime>
+		{
+			constexpr static bool mc_bValue = true;
+		};
+	}
+
+	template <typename tf_CType>
+	concept cIsTime = NPrivate::TCIsTime<typename NTraits::TCRemoveReferenceAndQualifiers<tf_CType>::CType>::mc_bValue;
+
 	class CTimeSpanConvert_BabylonianCommon
 	{
 	protected:
@@ -1762,6 +1780,25 @@ namespace NMib::NTime
 				<< Decimals
 			;
 		}
+	}
+}
+
+namespace NMib
+{
+	template <typename tf_CLeft, typename tf_CRight>
+	NTime::CTime fg_Max(tf_CLeft &&_Left, tf_CRight &&_Right)
+		requires (NTime::cIsTime<tf_CLeft> && NTime::cIsTime<tf_CRight>)
+	{
+		if (_Left.f_IsValid())
+		{
+			if (_Right.f_IsValid())
+			{
+				if (_Left < _Right)
+					return _Right;
+			}
+			return _Left;
+		}
+		return _Right;
 	}
 }
 

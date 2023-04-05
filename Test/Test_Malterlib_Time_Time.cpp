@@ -253,6 +253,63 @@ namespace
 					DMibExpect(Reason, ==, "Disable time speed");
 				}
 			};
+
+			DMibTestSuite("Comparison")
+			{
+				using namespace NMib;
+				using namespace NMib::NTime;
+				CTime Time1 = CTimeConvert::fs_CreateTime(2023, 4, 5);
+				CTime Time2 = CTimeConvert::fs_CreateTime(2023, 5, 5);
+				CTime TimeInvalid;
+				CTime StartOfTime = CTime::fs_StartOfTime();
+				CTime EndOfTime = CTime::fs_EndOfTime();
+
+				DMibExpect(Time1, <, Time2);
+				DMibExpect(Time2, >, Time1);
+				DMibExpect(Time1, ==, Time1);
+
+				DMibExpect(Time1, <, TimeInvalid);
+				DMibExpect(TimeInvalid, >, Time1);
+				DMibExpect(TimeInvalid, ==, TimeInvalid);
+
+				DMibExpect(fg_Max(Time1, Time2), ==, Time2);
+				DMibExpect(fg_Min(Time1, Time2), ==, Time1);
+				DMibExpect(fg_Max(Time2, Time1), ==, Time2);
+				DMibExpect(fg_Min(Time2, Time1), ==, Time1);
+
+				DMibExpect(fg_Max(Time1, TimeInvalid), ==, Time1);
+				DMibExpect(fg_Min(Time1, TimeInvalid), ==, Time1);
+				DMibExpect(fg_Max(TimeInvalid, Time1), ==, Time1);
+				DMibExpect(fg_Min(TimeInvalid, Time1), ==, Time1);
+
+				DMibExpect(fg_Max(StartOfTime, TimeInvalid), ==, StartOfTime);
+				DMibExpect(fg_Min(StartOfTime, TimeInvalid), ==, StartOfTime);
+				DMibExpect(fg_Max(TimeInvalid, StartOfTime), ==, StartOfTime);
+				DMibExpect(fg_Min(TimeInvalid, StartOfTime), ==, StartOfTime);
+
+				DMibExpect(fg_Max(EndOfTime, TimeInvalid), ==, EndOfTime);
+				DMibExpect(fg_Min(EndOfTime, TimeInvalid), ==, EndOfTime);
+				DMibExpect(fg_Max(TimeInvalid, EndOfTime), ==, EndOfTime);
+				DMibExpect(fg_Min(TimeInvalid, EndOfTime), ==, EndOfTime);
+
+				DMibExpect(fg_Max(fg_Const(Time1), TimeInvalid), ==, Time1);
+				DMibExpect(fg_Min(fg_Const(Time1), TimeInvalid), ==, Time1);
+
+				DMibExpect(fg_Max(Time1, fg_Const(TimeInvalid)), ==, Time1);
+				DMibExpect(fg_Min(Time1, fg_Const(TimeInvalid)), ==, Time1);
+
+				DMibExpect(fg_Max(fg_Const(Time1), fg_Const(TimeInvalid)), ==, Time1);
+				DMibExpect(fg_Min(fg_Const(Time1), fg_Const(TimeInvalid)), ==, Time1);
+
+				DMibExpect(fg_Max(fg_TempCopy(Time1), TimeInvalid), ==, Time1);
+				DMibExpect(fg_Min(fg_TempCopy(Time1), TimeInvalid), ==, Time1);
+
+				DMibExpect(fg_Max(Time1, fg_TempCopy(TimeInvalid)), ==, Time1);
+				DMibExpect(fg_Min(Time1, fg_TempCopy(TimeInvalid)), ==, Time1);
+
+				DMibExpect(fg_Max(fg_TempCopy(Time1), fg_TempCopy(TimeInvalid)), ==, Time1);
+				DMibExpect(fg_Min(fg_TempCopy(Time1), fg_TempCopy(TimeInvalid)), ==, Time1);
+			};
 		}
 	};
 }
