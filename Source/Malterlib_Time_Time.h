@@ -1552,6 +1552,8 @@ namespace NMib::NTime
 	int32 fg_GetAscMonthNumber(NStr::CStr const &_Month); // Same format as std. C lib's asctime. NOT LOCALISED (deliberate)
 	NMib::NStr::CStr fg_GetISO8601TimeStr(CTime const &_Time);
 
+	NMib::NStr::CStr fg_SecondsDurationToHumanReadable(fp64 const &_Seconds);
+
 	class CStopWatch
 	{
 	protected:
