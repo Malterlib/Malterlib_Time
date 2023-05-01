@@ -510,7 +510,6 @@ namespace NMib::NTime
 
 	class CTimerMin
 	{
-		static int64 const &fsp_GetMinCycles();
 	public:
 		CTimerMin()
 		{
@@ -604,7 +603,7 @@ namespace NMib::NTime
 		auto f_GetStringFormatType(t_CFormatter &_Formatter) -> decltype(NStr::fg_GetStringFormatType(_Formatter, fg_ByValue(f_GetTime())));
 
 		template <typename t_CFormatter>
-		auto f_CreateStringFormatter(t_CFormatter &_Formatter) const -> decltype(NStr::fg_CreateStringFormatter(_Formatter, fsp_GetMinCycles()))
+		auto f_CreateStringFormatter(t_CFormatter &_Formatter) const -> decltype(NStr::fg_CreateStringFormatter(_Formatter, fg_ByValue(f_GetTime())))
 		{
 			return NStr::fg_CreateStringFormatter(_Formatter, fg_ByValue(f_GetTime()));
 		}
