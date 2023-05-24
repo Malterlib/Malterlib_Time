@@ -57,7 +57,7 @@ namespace NMib
 	}
 }
 
-#if defined(DCompiler_clang) && (defined(DArchitecture_arm64) || defined(DArchitecture_arm64e))
+#if (defined(DArchitecture_arm64) || defined(DArchitecture_arm64e))
 namespace NMib::NTime::NPlatform
 {
 	extern mint g_CyclesScale;

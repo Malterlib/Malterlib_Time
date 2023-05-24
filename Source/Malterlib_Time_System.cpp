@@ -5,7 +5,7 @@
 #include <Mib/Thread/AtomicSingleWriter>
 #include "Malterlib_Time_System.h"
 
-#if defined(DCompiler_clang) && (defined(DArchitecture_arm64) || defined(DArchitecture_arm64e))
+#if (defined(DArchitecture_arm64) || defined(DArchitecture_arm64e))
 namespace NMib::NTime::NPlatform
 {
 	mint g_CyclesScale = 1;
@@ -191,10 +191,10 @@ namespace NMib::NTime
 
 		void CSubSystem_Time::f_MeasureCycleFrequency()
 		{
-		#if defined(DPlatformFamily_macOS) && (defined(DArchitecture_arm64) || defined(DArchitecture_arm64e))
-			auto NativeFrequency = NPlatform::fg_TimerRaw_PreciseFrequency();
-
-			uint64 WantedFrequency = NPlatform::fg_TimerRaw_GetCPUFrequency();
+		#if (defined(DArchitecture_arm64) || defined(DArchitecture_arm64e))
+			auto NativeFrequency = NPlatform::fg_Timer_CyclesRawFrequency();
+			
+			int64 WantedFrequency = (int64)NPlatform::fg_TimerRaw_GetCPUFrequency();
 
 			if (WantedFrequency == 0)
 				WantedFrequency = 3200000000LL; // Apple M1 max frequency

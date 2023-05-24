@@ -35,6 +35,7 @@ namespace NMib::NTime::NPlatform
 
 	int64 fg_Timer_Cycles();
 	int64 fg_Timer_CyclesFast();
+	int64 fg_Timer_CyclesRawFrequency();
 
 	void fg_TimeRaw_GetNow(NTime::CTime *_pTime);
 	void fg_TimeRaw_GetUTCOffset(NTime::CTimeSpan *_pTimeOffset);

@@ -89,3 +89,17 @@ int64 NMib::NTime::NPlatform::fg_TimerRaw_GetCPUFrequency()
 	// TODO: Find a way to implement this
 	return 0;
 }
+
+int64 NMib::NTime::NPlatform::fg_Timer_CyclesRawFrequency()
+{
+#if defined(DArchitecture_arm64) || defined(DArchitecture_arm64e)
+	mint Frequency;
+	asm volatile ("mrs %0, CNTFRQ_EL0" : "=r" (Frequency));
+	if (Frequency)
+		return Frequency;
+	else
+		return fg_TimerRaw_PreciseFrequency();
+#else
+	return fg_TimerRaw_PreciseFrequency();
+#endif
+}

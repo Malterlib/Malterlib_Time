@@ -2,6 +2,7 @@
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #include <Mib/Core/Core>
+#include <Mib/Core/PlatformSpecific/WindowsRegistry>
 
 #include "../Malterlib_Time_Platform.h"
 
@@ -9,19 +10,29 @@
 
 inline_never int64 NMib::NTime::NPlatform::fg_Timer_Cycles()
 {
-#if 1
-   int dummy[4];           // For unused returns 
-   volatile int DontSkip;  // Volatile to prevent optimizing 
-   int64 clock;          // Time 
-   __cpuid(dummy, 0);      // Serialize 
-   DontSkip = dummy[0];    // Prevent optimizing away cpuid 
-   clock = __rdtsc();      // Read time 
-   __cpuid(dummy, 0);      // Serialize again 
-   DontSkip = dummy[0];    // Prevent optimizing away cpuid 
-   return clock; 
+#ifndef DArchitecture_arm64
+	int64 Ret;          // Time
+	int Dummy[4];           // For unused returns
+	volatile int DontSkip;  // Volatile to prevent optimizing
+	__cpuid(Dummy, 0);      // Serialize
+	DontSkip = Dummy[0];    // Prevent optimizing away cpuid
+#if defined(DArchitecture_x86) || defined(DArchitecture_x64)
+	Ret = __rdtsc();     // Read time
+#else
+	#error "Implement this";
+#endif
+	__cpuid(Dummy, 0);      // Serialize again
+	DontSkip = Dummy[0];    // Prevent optimizing away cpuid
+	return Ret;
 #else
 	NMib::NAtomic::fg_MemoryFence();
-	int64 Ret = __rdtsc();
+#if defined(DArchitecture_x86) || defined(DArchitecture_x64)
+	int64 Ret = __rdtsc(); 
+#elif defined(DArchitecture_arm64)
+	int64 Ret = _ReadStatusReg(DMibArm64_CNTVCT_EL0) * g_CyclesScale;
+#else
+	#error "Implement this";
+#endif
 	NMib::NAtomic::fg_MemoryFence();
 	return Ret;
 #endif
@@ -225,3 +236,25 @@ fp64 NMib::NTime::NPlatform::fg_TimeRaw_Resolution()
 {
 	return fg_Min(fp64(1.0/10000000.0), fg_TimerRaw_PreciseResolution());
 }
+
+int64 NMib::NTime::NPlatform::fg_TimerRaw_GetCPUFrequency()
+{
+	if (NMib::NPlatform::CWin32_Registry Registry; auto Frequency = Registry.f_Read_uint32("HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", "~MHz", 0))
+		return Frequency * 1'000'000;
+
+	return 0;
+}
+
+int64 NMib::NTime::NPlatform::fg_Timer_CyclesRawFrequency()
+{
+#if defined(DArchitecture_arm64) || defined(DArchitecture_arm64e)
+	int64 Return = _ReadStatusReg(DMibArm64_CNTFRQ_EL0);
+	if (Return)
+		return Return;
+	else
+		return fg_TimerRaw_PreciseFrequency();
+#else
+	return fg_TimerRaw_PreciseFrequency();
+#endif
+}
+
