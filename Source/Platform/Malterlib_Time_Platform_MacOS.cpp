@@ -8,6 +8,7 @@
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <sys/time.h>
+#include <sys/sysctl.h>
 #include <mach/mach_time.h>
 
 void NMib::NTime::NPlatform::fg_TimeRaw_GetUTCOffset(NTime::CTimeSpan *_pTimeOffset)
@@ -86,7 +87,18 @@ int64 NMib::NTime::NPlatform::fg_TimerRaw_PreciseFrequency()
 
 int64 NMib::NTime::NPlatform::fg_TimerRaw_GetCPUFrequency()
 {
-	// TODO: Find a way to implement this
+	NStr::CFStr1024 Name;
+	size_t DataSize = 1023;
+	int Ret = sysctlbyname("machdep.cpu.brand_string", Name.f_GetStr(1023), &DataSize, nullptr, 0);
+
+	if (Ret == 0)
+	{
+		if (Name.f_Find(" M2 ") >= 0 || Name.f_EndsWith("M2"))
+			return 3'500'000'000;
+		else if (Name.f_Find(" M1 ") >= 0 || Name.f_EndsWith("M1"))
+			return 3'200'000'000;
+	}
+
 	return 0;
 }
 
