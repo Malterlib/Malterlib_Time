@@ -253,6 +253,13 @@ namespace NMib::NTime
 		constexpr auto c_AverageYear = 365.2425_days;
 		constexpr auto c_AverageMonth = 30.436875_days;
 
+		if (_Seconds.f_IsNan())
+			return {};
+		else if (_Seconds == fp64::fs_Inf())
+			return "Infinity";
+		else if (_Seconds == fp64::fs_NegInf())
+			return "Negative Infinity";
+
 		if (_Seconds > c_AverageYear)
 		{
 			fp64 Years = (_Seconds / c_AverageYear);
