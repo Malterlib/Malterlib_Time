@@ -8,6 +8,7 @@
 
 #include <Windows.h>
 
+#ifndef DCompiler_clang
 inline_never int64 NMib::NTime::NPlatform::fg_Timer_Cycles()
 {
 #ifndef DArchitecture_arm64
@@ -37,7 +38,7 @@ inline_never int64 NMib::NTime::NPlatform::fg_Timer_Cycles()
 	return Ret;
 #endif
 }
-
+#endif
 
 #if DMibConfig_Tests_Enable
 
@@ -71,6 +72,8 @@ int64 NMib::NTime::NPlatform::fg_TimerRaw_PreciseGet()
 	case NMib::NTime::NPlatform::EUnstableTimerMode_OnceNegative:
 		gs_UnstableTimerMode = NMib::NTime::NPlatform::EUnstableTimerMode_Off;
 		return TCLimitsInt<int64>::mc_Min;
+	case NMib::NTime::NPlatform::EUnstableTimerMode_Off:
+		break;
 	}
 
 #endif
