@@ -40,6 +40,9 @@ namespace NMib::NTime::NPlatform
 	void fg_TimeRaw_GetNow(NTime::CTime *_pTime);
 	void fg_TimeRaw_GetUTCOffset(NTime::CTimeSpan *_pTimeOffset);
 	fp64 fg_TimeRaw_Resolution();
+
+	NTime::CTime fg_TimeRaw_ToLocal(NTime::CTime const &_Time);
+	NTime::CTime fg_TimeRaw_ToUtc(NTime::CTime const &_Time);
 }
 
 #if defined(DCompiler_clang)

@@ -2,6 +2,9 @@
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #include <Mib/Core/Core>
+#include <Mib/Core/PlatformSpecific/WindowsError>
+#include <Mib/Core/PlatformSpecific/WindowsFile>
+#include <Mib/Core/PlatformSpecific/WindowsOptional>
 #include <Mib/Core/PlatformSpecific/WindowsRegistry>
 
 #include "../Malterlib_Time_Platform.h"
@@ -207,6 +210,78 @@ void NMib::NTime::NPlatform::fg_TimeRaw_GetUTCOffset(NTime::CTimeSpan *_pTimeOff
 		*_pTimeOffset = NTime::CTimeSpanConvert::fs_CreateMinuteSpan((-TimeZone.Bias) + (-TimeZone.DaylightBias));
 	else
 		*_pTimeOffset = NTime::CTimeSpanConvert::fs_CreateMinuteSpan((-TimeZone.Bias));
+}
+
+NMib::NTime::CTime NMib::NTime::NPlatform::fg_TimeRaw_ToLocal(CTime const &_Time)
+{
+	auto DateTime = NTime::CTimeConvert(_Time).f_ExtractDateTime();
+
+	if (DateTime.m_Year < 1601 || DateTime.m_Year > 30826)
+		return _Time;
+
+	SYSTEMTIME Time;
+	NFile::NPlatform::fg_MalterlibTimeToSystemTime(DateTime, Time);
+
+	SYSTEMTIME LocalTime;
+
+	if (NLocal::g_OptionalFunctions.m_fSystemTimeToTzSpecificLocalTimeEx)
+	{
+		if (!NLocal::g_OptionalFunctions.m_fSystemTimeToTzSpecificLocalTimeEx(nullptr, &Time, &LocalTime))
+			DMibErrorSystemImp((NStr::CFStr256::CFormat("Windows returned an error from SystemTimeToTzSpecificLocalTimeEx: {}") << NMib::NPlatform::fg_Win32_GetLastErrorStr()).f_GetStr());
+		return NFile::NPlatform::fg_SystemTimeToMalterlibTime(LocalTime);
+	}
+
+	TIME_ZONE_INFORMATION *pTimeZoneInfo = nullptr;
+
+	TIME_ZONE_INFORMATION TimeZoneInfo;
+	if (NLocal::g_OptionalFunctions.m_fGetTimeZoneInformationForYear)
+	{
+		if (!NLocal::g_OptionalFunctions.m_fGetTimeZoneInformationForYear(Time.wYear, nullptr, &TimeZoneInfo))
+			DMibErrorSystemImp((NStr::CFStr256::CFormat("Windows returned an error from GetTimeZoneInformationForYear: {}") << NMib::NPlatform::fg_Win32_GetLastErrorStr()).f_GetStr());
+		
+		pTimeZoneInfo = &TimeZoneInfo;
+	}
+
+	if (!SystemTimeToTzSpecificLocalTime(pTimeZoneInfo, &Time, &LocalTime))
+		DMibErrorSystemImp((NStr::CFStr256::CFormat("Windows returned an error from SystemTimeToTzSpecificLocalTime: {}") << NMib::NPlatform::fg_Win32_GetLastErrorStr()).f_GetStr());
+
+	return NFile::NPlatform::fg_SystemTimeToMalterlibTime(LocalTime);
+}
+
+NMib::NTime::CTime NMib::NTime::NPlatform::fg_TimeRaw_ToUtc(CTime const &_Time)
+{
+	auto DateTime = NTime::CTimeConvert(_Time).f_ExtractDateTime();
+
+	if (DateTime.m_Year < 1601 || DateTime.m_Year > 30826)
+		return _Time;
+
+	SYSTEMTIME Time;
+	NFile::NPlatform::fg_MalterlibTimeToSystemTime(DateTime, Time);
+
+	SYSTEMTIME LocalTime;
+
+	if (NLocal::g_OptionalFunctions.m_fTzSpecificLocalTimeToSystemTimeEx)
+	{
+		if (!NLocal::g_OptionalFunctions.m_fTzSpecificLocalTimeToSystemTimeEx(nullptr, &Time, &LocalTime))
+			DMibErrorSystemImp((NStr::CFStr256::CFormat("Windows returned an error from SystemTimeToTzSpecificLocalTimeEx: {}") << NMib::NPlatform::fg_Win32_GetLastErrorStr()).f_GetStr());
+		return NFile::NPlatform::fg_SystemTimeToMalterlibTime(LocalTime);
+	}
+
+	TIME_ZONE_INFORMATION *pTimeZoneInfo = nullptr;
+
+	TIME_ZONE_INFORMATION TimeZoneInfo;
+	if (NLocal::g_OptionalFunctions.m_fGetTimeZoneInformationForYear)
+	{
+		if (!NLocal::g_OptionalFunctions.m_fGetTimeZoneInformationForYear(Time.wYear, nullptr, &TimeZoneInfo))
+			DMibErrorSystemImp((NStr::CFStr256::CFormat("Windows returned an error from GetTimeZoneInformationForYear: {}") << NMib::NPlatform::fg_Win32_GetLastErrorStr()).f_GetStr());
+		
+		pTimeZoneInfo = &TimeZoneInfo;
+	}
+
+	if (!TzSpecificLocalTimeToSystemTime(pTimeZoneInfo, &Time, &LocalTime))
+		DMibErrorSystemImp((NStr::CFStr256::CFormat("Windows returned an error from SystemTimeToTzSpecificLocalTime: {}") << NMib::NPlatform::fg_Win32_GetLastErrorStr()).f_GetStr());
+
+	return NFile::NPlatform::fg_SystemTimeToMalterlibTime(LocalTime);
 }
 
 namespace

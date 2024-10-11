@@ -2,26 +2,73 @@
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #include <Mib/Core/Core>
+#include <Mib/Contract/Contract>
 
 namespace NMib::NTime
 {
 	class CTimeSpanConvert_BabylonianCommon;
 	class CTime;
 
+	namespace NPrivate
+	{
+		struct CConst
+		{
+			constexpr static uint64 mc_SecondsInDay = 86'400;
+			constexpr static uint64 mc_SecondsInDayHalf = mc_SecondsInDay / 2;
+			constexpr static pfp64 mc_SecondsInDayFp = 86'400.0;
+			constexpr static uint64 mc_SecondsInHour = 3'600;
+			constexpr static uint64 mc_SecondsInHourHalf = mc_SecondsInHour / 2;
+			constexpr static pfp64 mc_SecondsInHourFp = 3'600.0;
+			constexpr static uint64 mc_SecondsInMinute = 60;
+			constexpr static uint64 mc_SecondsInMinuteHalf = mc_SecondsInMinute / 2;
+			constexpr static pfp64 mc_SecondsInMinuteFp = 60.0;
+
+			constexpr static uint64 mc_DaysInMedianYear = 365;
+			constexpr static uint64 mc_DaysInLeapYear = 366;
+
+			constexpr static uint64 mc_InvalidTimeSeconds = constant_uint64(0xffffffffffffffff);
+			constexpr static int64 mc_InvalidSpanSeconds = constant_int64(0x7fffffffffffffff);
+			constexpr static uint64 mc_InvalidFractionInt = constant_uint64(0xffffffffffffffff);
+
+			constexpr static uint64 mc_EndOfTime = mc_InvalidTimeSeconds - 1;
+
+			constexpr static uint64 mc_FractionDividend = 9'223'372'031'757'829'470; // Fraction of second one second is 9223372031757829470 (2006688023 * Cs-133)
+			constexpr static uint64 mc_FractionDividendHalf = mc_FractionDividend / 2;
+			constexpr static pfp64 mc_FractionDividendFp = 9'223'372'031'757'829'470.0;
+			constexpr static pfp64 mc_FractionDividendFpInv = 1.0 / mc_FractionDividendFp;
+
+			constexpr static uint64 mc_UnixEpochSeconds = constant_uint64(237'148'622'167'132'800);
+			constexpr static uint64 mc_YearZeroPlus1DaySeconds = constant_uint64(237'148'560'000'000'000);
+			constexpr static uint64 mc_YearOneBcSeconds = mc_YearZeroPlus1DaySeconds - mc_SecondsInDay;
+			constexpr static uint64 mc_YearOneAdSeconds = mc_YearOneBcSeconds + mc_SecondsInDay * mc_DaysInLeapYear;
+			constexpr static uint64 mc_YearTwoAdSeconds = mc_YearOneAdSeconds + mc_SecondsInDay * mc_DaysInMedianYear;
+
+			constexpr static uint64 mc_AverageSecondsInYear = constant_uint64(31'556'952);
+			constexpr static uint64 mc_SecondsInLeapYear = mc_SecondsInDay * mc_DaysInLeapYear;
+			constexpr static uint64 mc_YearOffset = constant_int64(7'514'938'800);
+			constexpr static int64 mc_MaxYear = ((mc_InvalidTimeSeconds - 1) - mc_YearOneBcSeconds) / mc_AverageSecondsInYear;
+			constexpr static int64 mc_MinYear = -int64(mc_YearOneBcSeconds / mc_AverageSecondsInYear);
+			constexpr static uint64 mc_YearOffsetSeconds = (mc_YearOffset * mc_AverageSecondsInYear) - mc_YearZeroPlus1DaySeconds;
+
+			static_assert(mc_MaxYear == constant_int64(577'039'110'548));
+			static_assert(mc_MinYear == constant_int64(-7'514'938'705));
+		};
+	}
+
 	class CTimeSpan
 	{
 		friend class CTimeSpanConvert_BabylonianCommon;
 		friend class CTime;
 	private:
-		int64 m_Seconds;  // Number of seconds in timespan
-		uint64 m_Fraction; // Fraction of second one second is 9223372031757829470 (2006688023 * Cs-133)
+		int64 m_Seconds = NPrivate::CConst::mc_InvalidSpanSeconds;
+		uint64 m_Fraction = 0;
+
 #ifdef DMibDebuggerHelpers
 		static ch8 const* fsp_DebugStr(void* _pTimeSpan);
 #endif
 	public:
 		explicit CTimeSpan(int64 _Value)
 			: m_Seconds (_Value)
-			, m_Fraction(0)
 		{
 #ifdef DMibDebuggerHelpers
 			static_assert(TCInstantiateValue<&CTimeSpan::fsp_DebugStr>::mc_Value);
@@ -37,8 +84,6 @@ namespace NMib::NTime
 		}
 		CTimeSpan()
 		{
-			m_Seconds = constant_int64(0x7fffffffffffffff); // InvalidTime
-			m_Fraction = 0;
 #ifdef DMibDebuggerHelpers
 			static_assert(TCInstantiateValue<&CTimeSpan::fsp_DebugStr>::mc_Value);
 #endif
@@ -46,7 +91,7 @@ namespace NMib::NTime
 
 		bool f_IsValid() const
 		{
-			return m_Seconds != constant_int64(0x7fffffffffffffff);
+			return m_Seconds != NPrivate::CConst::mc_InvalidSpanSeconds;
 		}
 
 		CTimeSpan operator + (const CTimeSpan &_Other) const
@@ -54,7 +99,7 @@ namespace NMib::NTime
 			CTimeSpan Ret;
 			Ret.m_Seconds = m_Seconds + _Other.m_Seconds;
 			uint64 FracAdd = _Other.m_Fraction;
-			uint64 Temp = constant_int64(9223372031757829470) - m_Fraction;
+			uint64 Temp = NPrivate::CConst::mc_FractionDividend - m_Fraction;
 			if (FracAdd >= Temp)
 			{
 				++Ret.m_Seconds;
@@ -76,7 +121,7 @@ namespace NMib::NTime
 			if (FracSub > Temp)
 			{
 				--Ret.m_Seconds;
-				Ret.m_Fraction = constant_int64(9223372031757829470) - (FracSub - Temp);
+				Ret.m_Fraction = NPrivate::CConst::mc_FractionDividend - (FracSub - Temp);
 			}
 			else
 				Ret.m_Fraction = Temp - FracSub;
@@ -100,9 +145,9 @@ namespace NMib::NTime
 			{
 				int128 TempFrac = m_Fraction;
 				TempFrac *= _nTimes;
-				int64 nSeconds = int64(TempFrac / int128(constant_int64(9223372031757829470)));
+				int64 nSeconds = int64(TempFrac / int128(NPrivate::CConst::mc_FractionDividend));
 				Ret.m_Seconds += nSeconds;
-				Ret.m_Fraction = uint64(TempFrac - int128(constant_int64(9223372031757829470)) * (int128)nSeconds);
+				Ret.m_Fraction = uint64(TempFrac - int128(NPrivate::CConst::mc_FractionDividend) * (int128)nSeconds);
 			}
 
 			return Ret;
@@ -111,10 +156,10 @@ namespace NMib::NTime
 		CTimeSpan operator / (int64 _nTimes) const
 		{
 			CTimeSpan Ret;
-			int128 Temp = (int128(m_Seconds) * int128(constant_int64(9223372031757829470)) + int128(m_Fraction)) / int128(_nTimes);
-			int64 nSeconds = int64(Temp / int128(constant_int64(9223372031757829470)));
+			int128 Temp = (int128(m_Seconds) * int128(NPrivate::CConst::mc_FractionDividend) + int128(m_Fraction)) / int128(_nTimes);
+			int64 nSeconds = int64(Temp / int128(NPrivate::CConst::mc_FractionDividend));
 			Ret.m_Seconds = nSeconds;
-			Ret.m_Fraction = uint64(Temp - int128(constant_int64(9223372031757829470)) * int128(nSeconds));
+			Ret.m_Fraction = uint64(Temp - int128(NPrivate::CConst::mc_FractionDividend) * int128(nSeconds));
 
 			return Ret;
 		}
@@ -123,7 +168,7 @@ namespace NMib::NTime
 		{
 			m_Seconds += _Other.m_Seconds;
 			uint64 FracAdd = _Other.m_Fraction;
-			uint64 Temp = constant_int64(9223372031757829470) - m_Fraction;
+			uint64 Temp = NPrivate::CConst::mc_FractionDividend - m_Fraction;
 			if (FracAdd >= Temp)
 			{
 				++m_Seconds;
@@ -144,7 +189,7 @@ namespace NMib::NTime
 			if (FracSub > Temp)
 			{
 				--m_Seconds;
-				m_Fraction = constant_int64(9223372031757829470) - (FracSub - Temp);
+				m_Fraction = NPrivate::CConst::mc_FractionDividend - (FracSub - Temp);
 			}
 			else
 				m_Fraction -= FracSub;
@@ -159,19 +204,19 @@ namespace NMib::NTime
 			{
 				int128 TempFrac = m_Fraction;
 				TempFrac *= _nTimes;
-				int64 nSeconds = fg_Convert<int64>(TempFrac / int128(constant_int64(9223372031757829470)));
+				int64 nSeconds = fg_Convert<int64>(TempFrac / int128(NPrivate::CConst::mc_FractionDividend));
 				m_Seconds += nSeconds;
-				m_Fraction = fg_Convert<int64>(TempFrac - int128(constant_int64(9223372031757829470)) * int128(nSeconds));
+				m_Fraction = fg_Convert<int64>(TempFrac - int128(NPrivate::CConst::mc_FractionDividend) * int128(nSeconds));
 			}
 
 			return *this;
 		}
 		CTimeSpan& operator /= (int64 _nTimes)
 		{
-			int128 Temp = (int128(m_Seconds) * int128(constant_int64(9223372031757829470)) + int128(m_Fraction)) / int128(_nTimes);
-			int64 nSeconds = fg_Convert<int64>(Temp / int128(constant_int64(9223372031757829470)));
+			int128 Temp = (int128(m_Seconds) * int128(NPrivate::CConst::mc_FractionDividend) + int128(m_Fraction)) / int128(_nTimes);
+			int64 nSeconds = fg_Convert<int64>(Temp / int128(NPrivate::CConst::mc_FractionDividend));
 			m_Seconds = nSeconds;
-			m_Fraction = fg_Convert<int64>(Temp - int128(constant_int64(9223372031757829470)) * int128(nSeconds));
+			m_Fraction = fg_Convert<int64>(Temp - int128(NPrivate::CConst::mc_FractionDividend) * int128(nSeconds));
 
 			return *this;
 		}
@@ -206,17 +251,17 @@ namespace NMib::NTime
 
 		fp64 f_GetFraction() const
 		{
-			return fp64(m_Fraction) * (1.0/9223372031757829470.0);
+			return fp64(m_Fraction) * NPrivate::CConst::mc_FractionDividendFpInv;
 		}
 
 		void f_SetFraction(fp64 _Fraction)
 		{
-			m_Fraction = (_Fraction * 9223372031757829470.0).f_ToUnsignedInt();
+			m_Fraction = (_Fraction * NPrivate::CConst::mc_FractionDividendFp).f_ToUnsignedInt();
 		}
 
 		fp64 f_GetSecondsFraction() const
 		{
-			return fp64(m_Seconds) + fp64(m_Fraction) * (1.0/9223372031757829470.0);
+			return fp64(m_Seconds) + fp64(m_Fraction) * NPrivate::CConst::mc_FractionDividendFpInv;
 		}
 
 		void f_SetSecondsFraction(fp64 _Seconds)
@@ -245,9 +290,8 @@ namespace NMib::NTime
 		friend class CTimeConvert_BabylonianCommon;
 		friend class CTimeConvert_ProlepticGreogrian;
 	private:
-		uint64 m_Seconds;  // Number of seconds since 30 billion years BC (Proleptic Gregorian). Hoping of universe beeing less than 30 billion years so we never need negative dates :)
-		uint64 m_Fraction; // Fraction of second one second is 9223372031757829470 (1003344011 * Cs-133(9192631770))
-
+		uint64 m_Seconds = NPrivate::CConst::mc_InvalidTimeSeconds; // Number of seconds since -7'514'938'706-11-23 (Gregorian Proleptic).
+		uint64 m_Fraction = 0;
 
 #ifdef DMibDebuggerHelpers
 		static ch8 const* fsp_DebugStr(void* _pTime);
@@ -264,8 +308,6 @@ namespace NMib::NTime
 	public:
 		CTime()
 		{
-			m_Seconds = constant_uint64(0xffffffffffffffff); // InvalidTime
-			m_Fraction = 0;
 #ifdef DMibDebuggerHelpers
 			static_assert(TCInstantiateValue<&CTime::fsp_DebugStr>::mc_Value);
 #endif
@@ -273,7 +315,7 @@ namespace NMib::NTime
 
 		bool f_IsValid() const
 		{
-			return m_Seconds != constant_uint64(0xffffffffffffffff);
+			return m_Seconds != NPrivate::CConst::mc_InvalidTimeSeconds;
 		}
 
 		auto operator <=> (const CTime &_Other) const = default;
@@ -282,7 +324,7 @@ namespace NMib::NTime
 		{
 			m_Seconds += _Other.m_Seconds;
 			uint64 FracAdd = _Other.m_Fraction;
-			uint64 Temp = constant_int64(9223372031757829470) - m_Fraction;
+			uint64 Temp = NPrivate::CConst::mc_FractionDividend - m_Fraction;
 			if (FracAdd >= Temp)
 			{
 				++m_Seconds;
@@ -302,7 +344,7 @@ namespace NMib::NTime
 			if (FracSub > Temp)
 			{
 				--m_Seconds;
-				m_Fraction = constant_int64(9223372031757829470) - (FracSub - Temp);
+				m_Fraction = NPrivate::CConst::mc_FractionDividend - (FracSub - Temp);
 			}
 			else
 				m_Fraction -= FracSub;
@@ -340,7 +382,7 @@ namespace NMib::NTime
 			if (FracSub > Temp)
 			{
 				--Ret.m_Seconds;
-				Ret.f_SetFractionInt(constant_int64(9223372031757829470) - (FracSub - Temp));
+				Ret.f_SetFractionInt(NPrivate::CConst::mc_FractionDividend - (FracSub - Temp));
 			}
 			else
 				Ret.f_SetFractionInt(Temp - FracSub);
@@ -360,7 +402,7 @@ namespace NMib::NTime
 			if (FracSub > Temp)
 			{
 				--Ret.m_Seconds;
-				Ret.m_Fraction = constant_int64(9223372031757829470) - (FracSub - Temp);
+				Ret.m_Fraction = NPrivate::CConst::mc_FractionDividend - (FracSub - Temp);
 			}
 			else
 				Ret.m_Fraction = Temp - FracSub;
@@ -374,7 +416,7 @@ namespace NMib::NTime
 			CTime Ret;
 			Ret.m_Seconds = m_Seconds + _Other.m_Seconds;
 			uint64 FracAdd = _Other.m_Fraction;
-			uint64 Temp = constant_int64(9223372031757829470) - m_Fraction;
+			uint64 Temp = NPrivate::CConst::mc_FractionDividend - m_Fraction;
 			if (FracAdd >= Temp)
 			{
 				++Ret.m_Seconds;
@@ -388,7 +430,7 @@ namespace NMib::NTime
 		CTime &operator ++ ()
 		{
 			DMibSafeCheck(f_IsValid(), "Must be valid");
-			if (m_Fraction == constant_int64(9223372031757829470) - 1)
+			if (m_Fraction == NPrivate::CConst::mc_FractionDividend - 1)
 			{
 				m_Fraction = 0;
 				++m_Seconds;
@@ -406,7 +448,7 @@ namespace NMib::NTime
 			DMibSafeCheck(f_IsValid(), "Must be valid");
 			if (m_Fraction == 0)
 			{
-				m_Fraction = constant_int64(9223372031757829470) - 1;
+				m_Fraction = NPrivate::CConst::mc_FractionDividend - 1;
 				--m_Seconds;
 			}
 			else
@@ -445,17 +487,19 @@ namespace NMib::NTime
 
 		fp64 f_GetFraction() const
 		{
-			return fp64(m_Fraction) * (1.0/9223372031757829470.0);
+			return fp64(m_Fraction) * NPrivate::CConst::mc_FractionDividendFpInv;
 		}
 
 		void f_SetFraction(fp64 _Fraction)
 		{
-			m_Fraction = (_Fraction * 9223372031757829470.0).f_ToUnsignedInt();
+			m_Fraction = (_Fraction * NPrivate::CConst::mc_FractionDividendFp).f_ToUnsignedInt();
 		}
 
 		CTime f_ToUTC() const;
-
 		CTime f_ToLocal() const;
+
+		CTime f_ToUtcLegacy() const;
+		CTime f_ToLocalLegacy() const;
 
 		static CTime fs_NowLocal();
 
@@ -464,8 +508,8 @@ namespace NMib::NTime
 		static CTime fs_EndOfTime()
 		{
 			CTime Ret;
-			Ret.m_Seconds = constant_uint64(0xfffffffffffffffe); // InvalidTime - 1
-			Ret.m_Fraction = constant_int64(9223372031757829469); // Almost Invalid
+			Ret.m_Seconds = NPrivate::CConst::mc_EndOfTime;
+			Ret.m_Fraction = NPrivate::CConst::mc_FractionDividend - 1;
 
 			return Ret;
 		}
@@ -473,8 +517,8 @@ namespace NMib::NTime
 		static CTime fs_StartOfTime()
 		{
 			CTime Ret;
-			Ret.m_Seconds = constant_uint64(0); //
-			Ret.m_Fraction = constant_int64(0); //
+			Ret.m_Seconds = 0;
+			Ret.m_Fraction = 0;
 
 			return Ret;
 		}
@@ -488,7 +532,7 @@ namespace NMib::NTime
 
 		fp64 f_GetSecondsFraction() const
 		{
-			return fp64(m_Seconds) + fp64(m_Fraction) * (1.0/9223372031757829470.0);
+			return fp64(m_Seconds) + fp64(m_Fraction) * NPrivate::CConst::mc_FractionDividendFpInv;
 		}
 
 		struct CFormatOptions
@@ -496,6 +540,7 @@ namespace NMib::NTime
 			uint32 m_Components = 0;
 			bool m_bDateOnly = false;
 			bool m_bFullPrecision = false;
+			bool m_bBcSuffix = false;
 			ch32 m_DateTimeSeparator = ' ';
 			ch32 m_DateSeparator = '-';
 			ch32 m_TimeSeparator = ':';
@@ -550,10 +595,10 @@ namespace NMib::NTime
 		{
 			CTimeSpan NewSpan;
 			int64 Seconds = _Seconds;
-			Seconds += _Minutes * 60;
-			Seconds += _Hours * 3600;
-			Seconds += _Days * 86400;
-			Seconds += _Weeks * 86400 * 7;
+			Seconds += _Minutes * NPrivate::CConst::mc_SecondsInMinute;
+			Seconds += _Hours * NPrivate::CConst::mc_SecondsInHour;
+			Seconds += _Days * NPrivate::CConst::mc_SecondsInDay;
+			Seconds += _Weeks * NPrivate::CConst::mc_SecondsInDay * 7;
 
 			NewSpan.f_SetSecondsNoFraction(Seconds);
 			NewSpan.f_SetFraction(_Fraction);
@@ -571,7 +616,7 @@ namespace NMib::NTime
 		static CTimeSpan fs_CreateDaySpan(int64 _Days)
 		{
 			CTimeSpan NewSpan;
-			NewSpan.f_SetSeconds(_Days * 86400);
+			NewSpan.f_SetSeconds(_Days * NPrivate::CConst::mc_SecondsInDay);
 			return NewSpan;
 		}
 
@@ -580,7 +625,7 @@ namespace NMib::NTime
 		static CTimeSpan fs_CreateHourSpan(int64 _Hours)
 		{
 			CTimeSpan NewSpan;
-			NewSpan.f_SetSeconds(_Hours * 3600);
+			NewSpan.f_SetSeconds(_Hours * NPrivate::CConst::mc_SecondsInHour);
 			return NewSpan;
 		}
 
@@ -588,7 +633,7 @@ namespace NMib::NTime
 		static CTimeSpan fs_CreateMinuteSpan(int64 _Minutes)
 		{
 			CTimeSpan NewSpan;
-			NewSpan.f_SetSeconds(_Minutes * 60);
+			NewSpan.f_SetSeconds(_Minutes * NPrivate::CConst::mc_SecondsInMinute);
 			return NewSpan;
 		}
 
@@ -607,17 +652,17 @@ namespace NMib::NTime
 
 		static CTimeSpan fs_CreateSpanFromDays(fp64 _Days)
 		{
-			return fs_CreateSpanFromSeconds(_Days * 86400.0);
+			return fs_CreateSpanFromSeconds(_Days * NPrivate::CConst::mc_SecondsInDayFp);
 		}
 
 		static CTimeSpan fs_CreateSpanFromHours(fp64 _Hours)
 		{
-			return fs_CreateSpanFromSeconds(_Hours * 3600.0);
+			return fs_CreateSpanFromSeconds(_Hours * NPrivate::CConst::mc_SecondsInHourFp);
 		}
 
 		static CTimeSpan fs_CreateSpanFromMinutes(fp64 _Minutes)
 		{
-			return fs_CreateSpanFromSeconds(_Minutes * 60.0);
+			return fs_CreateSpanFromSeconds(_Minutes * NPrivate::CConst::mc_SecondsInMinuteFp);
 		}
 
 		static CTimeSpan fs_CreateSpanFromSeconds(fp64 _Seconds)
@@ -644,42 +689,42 @@ namespace NMib::NTime
 
 		int64 f_GetWeeks() const
 		{
-			return m_pTime->f_GetSeconds() / (86400 * 7);
+			return m_pTime->f_GetSeconds() / (NPrivate::CConst::mc_SecondsInDay * 7);
 		}
 
 		fp64 f_GetWeeksFloat() const
 		{
-			return m_pTime->f_GetSecondsFraction() / fp64(86400 * 7);
+			return m_pTime->f_GetSecondsFraction() / fp64(NPrivate::CConst::mc_SecondsInDay * 7);
 		}
 
 		int64 f_GetDays() const
 		{
-			return m_pTime->f_GetSeconds() / (86400);
+			return m_pTime->f_GetSeconds() / (NPrivate::CConst::mc_SecondsInDay);
 		}
 
 		fp64 f_GetDaysFloat() const
 		{
-			return m_pTime->f_GetSecondsFraction() / fp64(86400);
+			return m_pTime->f_GetSecondsFraction() / fp64(NPrivate::CConst::mc_SecondsInDay);
 		}
 
 		int64 f_GetHours() const
 		{
-			return m_pTime->f_GetSeconds() / (3600);
+			return m_pTime->f_GetSeconds() / (NPrivate::CConst::mc_SecondsInHour);
 		}
 
 		fp64 f_GetHoursFloat() const
 		{
-			return m_pTime->f_GetSecondsFraction() / fp64(3600);
+			return m_pTime->f_GetSecondsFraction() / fp64(NPrivate::CConst::mc_SecondsInHour);
 		}
 
 		int64 f_GetMinutes() const
 		{
-			return m_pTime->f_GetSeconds() / (60);
+			return m_pTime->f_GetSeconds() / (NPrivate::CConst::mc_SecondsInMinute);
 		}
 
 		fp64 f_GetMinutesFloat() const
 		{
-			return m_pTime->f_GetSecondsFraction() / fp64(60);
+			return m_pTime->f_GetSecondsFraction() / fp64(NPrivate::CConst::mc_SecondsInMinute);
 		}
 
 		int64 f_GetSeconds() const
@@ -700,24 +745,24 @@ namespace NMib::NTime
 		aint f_GetHourOfDay() const
 		{
 			int64 Seconds = m_pTime->f_GetSeconds();
-			Seconds -=  (Seconds / 86400) * 86400;
-			return Seconds / 3600;
+			Seconds -= (Seconds / NPrivate::CConst::mc_SecondsInDay) * NPrivate::CConst::mc_SecondsInDay;
+			return Seconds / NPrivate::CConst::mc_SecondsInHour;
 		}
 
 		aint f_GetMinuteOfHour() const
 		{
 			int64 Seconds = m_pTime->f_GetSeconds();
-			Seconds -=  (Seconds / 86400) * 86400;
-			Seconds -=  (Seconds / 3600) * 3600;
-			return Seconds / 60;
+			Seconds -=  (Seconds / NPrivate::CConst::mc_SecondsInDay) * NPrivate::CConst::mc_SecondsInDay;
+			Seconds -=  (Seconds / NPrivate::CConst::mc_SecondsInHour) * NPrivate::CConst::mc_SecondsInHour;
+			return Seconds / NPrivate::CConst::mc_SecondsInMinute;
 		}
 
 		aint f_GetSecondOfMinute() const
 		{
 			int64 Seconds = m_pTime->f_GetSeconds();
-			Seconds -=  (Seconds / 86400) * 86400;
-			Seconds -=  (Seconds / 3600) * 3600;
-			Seconds -=  (Seconds / 60) * 60;
+			Seconds -=  (Seconds / NPrivate::CConst::mc_SecondsInDay) * NPrivate::CConst::mc_SecondsInDay;
+			Seconds -=  (Seconds / NPrivate::CConst::mc_SecondsInHour) * NPrivate::CConst::mc_SecondsInHour;
+			Seconds -=  (Seconds / NPrivate::CConst::mc_SecondsInMinute) * NPrivate::CConst::mc_SecondsInMinute;
 			return Seconds;
 		}
 	};
@@ -747,13 +792,16 @@ namespace NMib::NTime
 		static CTime fs_FromUnixMinutes(uint64 _Minutes);
 		fp64 f_UnixSecondsFraction() const;
 		static CTime fs_FromUnixSecondsFraction(fp64 _Seconds);
+
 	protected:
 
 		static void fsp_AddTime(CTime &_AddResult, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, fp64 _Fraction = 0)
 		{
-			_AddResult.m_Seconds += _Hour * 3600 + _Minute * 60 + _Second;
-			uint64 FracAdd = (_Fraction * 9223372031757829470.0).f_ToUnsignedInt();
-			uint64 Temp = constant_int64(9223372031757829470) - _AddResult.m_Fraction;
+			_AddResult.m_Seconds += _Hour * NPrivate::CConst::mc_SecondsInHour + _Minute * NPrivate::CConst::mc_SecondsInMinute + _Second;
+			uint64 FracAdd = (_Fraction * NPrivate::CConst::mc_FractionDividendFp).f_ToUnsignedInt();
+			if (FracAdd >= NPrivate::CConst::mc_FractionDividend)
+				FracAdd = NPrivate::CConst::mc_FractionDividend - 1;
+			uint64 Temp = NPrivate::CConst::mc_FractionDividend - _AddResult.m_Fraction;
 			if (FracAdd >= Temp)
 			{
 				++_AddResult.m_Seconds;
@@ -763,11 +811,11 @@ namespace NMib::NTime
 				_AddResult.m_Fraction += FracAdd;
 		}
 
-		static void fsp_AddTimeIntFrac(CTime &_AddResult, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, uint64 _Fraction = 0) // One second is 9223372031757829470 fraction
+		static void fsp_AddTimeIntFrac(CTime &_AddResult, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, uint64 _Fraction = 0)
 		{
-			_AddResult.m_Seconds += _Hour * 3600 + _Minute * 60 + _Second;
+			_AddResult.m_Seconds += _Hour * NPrivate::CConst::mc_SecondsInHour + _Minute * NPrivate::CConst::mc_SecondsInMinute + _Second;
 			uint64 FracAdd = _Fraction;
-			uint64 Temp = constant_int64(9223372031757829470) - _AddResult.m_Fraction;
+			uint64 Temp = NPrivate::CConst::mc_FractionDividend - _AddResult.m_Fraction;
 			if (FracAdd >= Temp)
 			{
 				++_AddResult.m_Seconds;
@@ -776,11 +824,15 @@ namespace NMib::NTime
 			else
 				_AddResult.m_Fraction += FracAdd;
 		}
-		constexpr static CTime fsp_AddTimeIntFracConstexr(CTime const &_Old, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, uint64 _Fraction = 0) // One second is 9223372031757829470 fraction
+		constexpr static CTime fsp_AddTimeIntFracConstexr(CTime const &_Old, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, uint64 _Fraction = 0)
 		{
-			return (_Fraction >= (constant_int64(9223372031757829470) - _Old.m_Fraction))
-				? CTime{_Old.m_Seconds + _Hour * 3600 + _Minute * 60 + _Second + 1, _Fraction - (constant_int64(9223372031757829470) - _Old.m_Fraction)}
-				: CTime{_Old.m_Seconds + _Hour * 3600 + _Minute * 60 + _Second, _Old.m_Fraction + _Fraction}
+			return (_Fraction >= (NPrivate::CConst::mc_FractionDividend - _Old.m_Fraction))
+				? CTime
+				{
+					_Old.m_Seconds + _Hour * NPrivate::CConst::mc_SecondsInHour + _Minute * NPrivate::CConst::mc_SecondsInMinute + _Second + 1
+					, _Fraction - (NPrivate::CConst::mc_FractionDividend - _Old.m_Fraction)
+				}
+				: CTime{_Old.m_Seconds + _Hour * NPrivate::CConst::mc_SecondsInHour + _Minute * NPrivate::CConst::mc_SecondsInMinute + _Second, _Old.m_Fraction + _Fraction}
 			;
 		}
 	};
@@ -795,7 +847,7 @@ namespace NMib::NTime
 		class CDateTime
 		{
 		public:
-			int64 m_Year;
+			int64 m_Year; // Note: 1 BC is year 0.
 			aint m_Month;
 			aint m_DayOfYear;
 			aint m_DayOfMonth;
@@ -804,9 +856,9 @@ namespace NMib::NTime
 			aint m_Minute;
 			aint m_Second;
 			fp64 m_Fraction;
+			uint64 m_FractionInt = NPrivate::CConst::mc_InvalidFractionInt;
 			bool m_bIsLeapYear;
 		};
-
 
 	private:
 		constexpr static const int32 ms_MonthDayOfYear[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
@@ -818,7 +870,7 @@ namespace NMib::NTime
 
 		constexpr static inline_small aint fsp_IsLeapYear(int64 _Year)
 		{
-			return !(_Year & 0x3) && ((_Year % 100) || (!(_Year % 400))) && _Year;
+			return !(_Year & 0x3) && ((_Year % 100) || (!(_Year % 400)));
 		}
 
 		constexpr static inline_small aint fsp_GetDayOfYearFromMonth(int64 _Year, aint _Month)
@@ -826,33 +878,35 @@ namespace NMib::NTime
 			return fsp_GetDayOfYearFromMonth(_Month) + (fsp_IsLeapYear(_Year) && _Month > 1 ? 1 : 0);
 		}
 
-		constexpr static int64 fsp_GetSecondsFromYear(int64 _Year)
+		inline_always constexpr static int64 fsp_GetSecondsFromYearConstexpr(int64 _Year)
 		{
+			DMibFastCheck(_Year >= NPrivate::CConst::mc_MinYear);
+			DMibFastCheck(_Year <= NPrivate::CConst::mc_MaxYear);
+
+			auto BasedYear = NPrivate::CConst::mc_YearOffset + _Year;
 			return
-				constant_int64(237148560000000000)	// Start at 0 AD
-				+ (_Year) * (365 * 86400)	// Days in normal year
+				(BasedYear) * (NPrivate::CConst::mc_DaysInMedianYear * NPrivate::CConst::mc_SecondsInDay)	// Days in normal year
+				- NPrivate::CConst::mc_YearOffsetSeconds
 				+
 				(
-					(_Year > 0)
-					?
-					(
-						((_Year-1) / 4) * 86400		// Leap year every 4 years
-						- ((_Year-1) / 100) * 86400	// Not a leap year every 100 years
-						+ ((_Year-1) / 400) * 86400	// A leap year every 400 years despite 100 year rule
-					)
-					:
-					(
-						+ ((_Year+1) / 4) * 86400		// Leap year every 4 years
-						- ((_Year+1) / 100) * 86400	// Not a leap year every 100 years
-						+ ((_Year+1) / 400) * 86400	// A leap year every 400 years despite 100 year rule
-					)
+					((BasedYear-1) / 4) * NPrivate::CConst::mc_SecondsInDay		// Leap year every 4 years
+					- ((BasedYear-1) / 100) * NPrivate::CConst::mc_SecondsInDay	// Not a leap year every 100 years
+					+ ((BasedYear-1) / 400) * NPrivate::CConst::mc_SecondsInDay	// A leap year every 400 years despite 100 year rule
 				)
 			;
 		}
 
+		static int64 fsp_GetSecondsFromYear(int64 _Year)
+		{
+			DMibRequire(_Year >= NPrivate::CConst::mc_MinYear);
+			DMibRequire(_Year <= NPrivate::CConst::mc_MaxYear);
+
+			return fsp_GetSecondsFromYearConstexpr(_Year);
+		}
+
 		static inline_medium aint fsp_GetWeekDay(int64 _Year, aint _DayOfYear)
 		{
-			int64 Days = _Year*365;
+			int64 Days = _Year * NPrivate::CConst::mc_DaysInMedianYear;
 			Days += (_Year-1) / 4;
 			Days -= (_Year-1) / 100;
 			Days += (_Year-1) / 400;
@@ -865,39 +919,55 @@ namespace NMib::NTime
 		}
 
 		template <aint t_StopAtStage, bool t_bExtractMonth>
-		void fp_ExtractDateTimeAD(CDateTime &_Dest, int64 _Seconds) const
+		void fp_ExtractDateTimeAD(CDateTime &_Dest, uint64 _Seconds) const
 		{
-			DMibFastCheck(_Seconds >= 0);
 			uint64 Seconds = _Seconds;
 
-			_Dest.m_Year = (Seconds / 31556952);
+			_Dest.m_Year = (Seconds / NPrivate::CConst::mc_AverageSecondsInYear);
 
-			int64 YearSub = _Dest.m_Year;
+			for (mint i = 0; i < 2; ++i)
+			{
+				uint64 YearSub = _Dest.m_Year;
 
-			if (YearSub > 0)
-				--YearSub;
+				if (YearSub > 0)
+					--YearSub;
 
-			Seconds -= _Dest.m_Year * (365 * 86400);	// Days in normal year
-			Seconds -= (YearSub / 4) * 86400;		// Leap year every 4 years
-			Seconds += (YearSub / 100) * 86400;	// Not a leap year every 100 years
-			Seconds -= (YearSub / 400) * 86400;	// A leap year every 400 years despite 100 year rule
+				Seconds -= uint64(_Dest.m_Year) * (NPrivate::CConst::mc_DaysInMedianYear * NPrivate::CConst::mc_SecondsInDay);	// Days in normal year
+				Seconds -= (YearSub / 4) * NPrivate::CConst::mc_SecondsInDay;	// Leap year every 4 years
+				Seconds += (YearSub / 100) * NPrivate::CConst::mc_SecondsInDay;	// Not a leap year every 100 years
+				Seconds -= (YearSub / 400) * NPrivate::CConst::mc_SecondsInDay;	// A leap year every 400 years despite 100 year rule
+				if (Seconds <= NPrivate::CConst::mc_SecondsInLeapYear)
+					break;
+				else if (Seconds <= NPrivate::CConst::mc_SecondsInLeapYear * 2)
+				{
+					Seconds = _Seconds;
+					++_Dest.m_Year;
+				}
+				else
+				{
+					Seconds = _Seconds;
+					--_Dest.m_Year;
+				}
+			}
+
+			DMibFastCheck(Seconds <= NPrivate::CConst::mc_SecondsInLeapYear);
 
 			bool bIsLeapYear = fsp_IsLeapYear(_Dest.m_Year);
 			if (bIsLeapYear)
 			{
-				if (Seconds >= 366 * 86400)
+				if (Seconds >= NPrivate::CConst::mc_DaysInLeapYear * NPrivate::CConst::mc_SecondsInDay)
 				{
 					_Dest.m_Year += 1;
-					Seconds -= 366 * 86400;
+					Seconds -= NPrivate::CConst::mc_DaysInLeapYear * NPrivate::CConst::mc_SecondsInDay;
 					bIsLeapYear = false;
 				}
 			}
 			else
 			{
-				if (Seconds >= 365 * 86400)
+				if (Seconds >= NPrivate::CConst::mc_DaysInMedianYear * NPrivate::CConst::mc_SecondsInDay)
 				{
 					_Dest.m_Year += 1;
-					Seconds -= 365 * 86400;
+					Seconds -= NPrivate::CConst::mc_DaysInMedianYear * NPrivate::CConst::mc_SecondsInDay;
 					if (!(_Dest.m_Year & 3))
 						bIsLeapYear = fsp_IsLeapYear(_Dest.m_Year);
 					else
@@ -910,7 +980,7 @@ namespace NMib::NTime
 			if constexpr (t_StopAtStage == 1)
 				return;
 
-			aint DayOfYear = Seconds / 86400;
+			aint DayOfYear = Seconds / NPrivate::CConst::mc_SecondsInDay;
 
 			_Dest.m_DayOfWeek = fsp_GetWeekDay(_Dest.m_Year, DayOfYear);
 			_Dest.m_DayOfYear = DayOfYear;
@@ -918,7 +988,7 @@ namespace NMib::NTime
 			if constexpr (t_StopAtStage == 2)
 				return;
 
-			Seconds -= DayOfYear * 86400;
+			Seconds -= DayOfYear * NPrivate::CConst::mc_SecondsInDay;
 
 			if constexpr (t_bExtractMonth)
 			{
@@ -955,137 +1025,35 @@ namespace NMib::NTime
 					return;
 			}
 
-			_Dest.m_Hour = Seconds / 3600;
+			_Dest.m_Hour = Seconds / NPrivate::CConst::mc_SecondsInHour;
 
 			if constexpr (t_StopAtStage == 5)
 				return;
-			Seconds -= _Dest.m_Hour * 3600;
+			Seconds -= _Dest.m_Hour * NPrivate::CConst::mc_SecondsInHour;
 
-			_Dest.m_Minute = Seconds / 60;
+			_Dest.m_Minute = Seconds / NPrivate::CConst::mc_SecondsInMinute;
 			if constexpr (t_StopAtStage == 6)
 				return;
-			Seconds -= _Dest.m_Minute * 60;
+			Seconds -= _Dest.m_Minute * NPrivate::CConst::mc_SecondsInMinute;
 
 			_Dest.m_Second = Seconds;
 			if constexpr (t_StopAtStage == 7)
 				return;
 
 			_Dest.m_Fraction = m_pTime->f_GetFraction();
+			_Dest.m_FractionInt = m_pTime->f_GetFractionInt();
 		}
 
 		template <aint t_StopAtStage, bool t_bExtractMonth>
-		void fp_ExtractDateTimeBC(CDateTime &_Dest) const
+		void fp_ExtractDateTimeBC(CDateTime &_Dest, uint64 _Seconds) const
 		{
-			CDateTime DateTime;
-			int64 Seconds = m_pTime->f_GetSeconds();
-			Seconds -= constant_int64(237148560000000000);
-
-			_Dest.m_Year = (Seconds / 31556952);
-
-			int64 YearSub = _Dest.m_Year;
-
-			++YearSub;
-
-			Seconds -= _Dest.m_Year * (365 * 86400);	// Days in normal year
-			Seconds -= (YearSub / 4) * 86400;		// Leap year every 4 years
-			Seconds += (YearSub / 100) * 86400;	// Not a leap year every 100 years
-			Seconds -= (YearSub / 400) * 86400;	// A leap year every 400 years despite 100 year rule
-
-			if (Seconds > 0)
-			{
-				if (fsp_IsLeapYear(_Dest.m_Year))
+			auto FixupYear = g_OnScopeExit / [&]()
 				{
-					if (Seconds >= 366 * 86400)
-					{
-						_Dest.m_Year += 1;
-						Seconds -= 366 * 86400;
-					}
+					_Dest.m_Year -= NPrivate::CConst::mc_YearOffset;
 				}
-				else
-				{
-					if (Seconds >= 365 * 86400)
-					{
-						_Dest.m_Year += 1;
-						Seconds -= 365 * 86400;
-					}
-				}
-			}
-			else if (Seconds < 0)
-			{
-				if (fsp_IsLeapYear(_Dest.m_Year))
-				{
-					if (Seconds <= -366 * 86400)
-					{
-						_Dest.m_Year -= 1;
-						Seconds += 366 * 86400;
-					}
-				}
-				else
-				{
-					if (Seconds <= -365 * 86400)
-					{
-						_Dest.m_Year -= 1;
-						Seconds += 365 * 86400;
-					}
-				}
-			}
+			;
 
-			if constexpr (t_StopAtStage == 1)
-				return;
-
-			aint DayOfYear = Seconds / 86400;
-
-			_Dest.m_DayOfWeek = fsp_GetWeekDay(_Dest.m_Year, DayOfYear);
-
-			if constexpr (t_StopAtStage == 2)
-				return;
-
-			Seconds -= DayOfYear * 86400;
-
-			bool bIsLeapYear = fsp_IsLeapYear(_Dest.m_Year);
-			aint DayOfYearMonth = DayOfYear;
-
-			if (bIsLeapYear && DayOfYear >= 59)
-			{
-				--DayOfYearMonth;
-			}
-
-			_Dest.m_Month = 11;
-			for (aint i = 0; i < 12; ++i)
-			{
-				if (DayOfYearMonth < fsp_GetDayOfYearFromMonth(i))
-				{
-					_Dest.m_Month = i - 1;
-					break;
-				}
-			}
-
-			++_Dest.m_Month;
-
-			if constexpr (t_StopAtStage == 3)
-				return;
-
-			_Dest.m_DayOfMonth = DayOfYearMonth - fsp_GetDayOfYearFromMonth(_Dest.m_Month-1) + 1;
-
-			if constexpr (t_StopAtStage == 4)
-				return;
-
-			_Dest.m_Hour = Seconds / 3600;
-
-			if constexpr (t_StopAtStage == 5)
-				return;
-			Seconds -= _Dest.m_Hour * 3600;
-
-			_Dest.m_Minute = Seconds / 60;
-			if constexpr (t_StopAtStage == 6)
-				return;
-			Seconds -= _Dest.m_Minute * 60;
-
-			_Dest.m_Second = Seconds;
-			if constexpr (t_StopAtStage == 7)
-				return;
-
-			_Dest.m_Fraction = m_pTime->f_GetFraction();
+			fp_ExtractDateTimeAD<t_StopAtStage, t_bExtractMonth>(_Dest, _Seconds + NPrivate::CConst::mc_YearOffsetSeconds);
 		}
 
 		template <aint t_StopAtStage, bool t_bExtractMonth>
@@ -1095,17 +1063,11 @@ namespace NMib::NTime
 
 			if (m_pTime->f_IsValid())
 			{
-				if (Seconds < constant_int64(237148560000000000))
-				{
-					NMemory::fg_ObjectSet((int64 *)&_Dest, 0, sizeof(_Dest)/sizeof(int64));
-					_Dest.m_Month = 1;
-					_Dest.m_DayOfMonth = 1;
-					// Not implemented for now
-	//					fp_ExtractDateTimeBC<t_StopAtStage>(_Dest, Seconds);
-				}
+				if (Seconds <= NPrivate::CConst::mc_YearTwoAdSeconds)
+					fp_ExtractDateTimeBC<t_StopAtStage, t_bExtractMonth>(_Dest, Seconds);
 				else
 				{
-					Seconds -= constant_int64(237148560000000000);
+					Seconds -= NPrivate::CConst::mc_YearZeroPlus1DaySeconds;
 					fp_ExtractDateTimeAD<t_StopAtStage, t_bExtractMonth>(_Dest, Seconds);
 				}
 			}
@@ -1115,7 +1077,6 @@ namespace NMib::NTime
 				_Dest.m_Month = 1;
 				_Dest.m_DayOfMonth = 1;
 			}
-
 		}
 
 	public:
@@ -1195,7 +1156,7 @@ namespace NMib::NTime
 
 		aint f_GetDayOfWeek() const
 		{
-			return ((m_pTime->f_GetSeconds() / 86400) + 1) % 7;
+			return ((m_pTime->f_GetSeconds() / NPrivate::CConst::mc_SecondsInDay) + 1) % 7;
 		}
 
 		aint f_GetDayOfMonth() const
@@ -1233,9 +1194,9 @@ namespace NMib::NTime
 
 		static CTime fs_GetYearZero()
 		{
-			uint64 Seconds = constant_int64(237148560000000000);	// Start at 0 AD
-			return CTime::fs_Create(Seconds);
+			return CTime::fs_Create(NPrivate::CConst::mc_YearOneBcSeconds);
 		}
+
 		static CTime fs_CreateTime(int64 _Year, aint _Month = 1, aint _DayOfMonth = 1, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, fp64 _Fraction = 0)
 		{
 			--_Month;
@@ -1245,21 +1206,45 @@ namespace NMib::NTime
 			DMibSafeCheck(_Hour >= 0 && _Hour <= 23, "Hour range check error");
 			DMibSafeCheck(_Minute >= 0 && _Minute <= 59, "Minute range check error");
 			DMibSafeCheck(_Second >= 0 && _Second <= 59, "Second range check error");
-			DMibSafeCheck(_Fraction >= 0.0 && _Fraction < 1.0, "Fraction range check error");
-			int64 Seconds = fsp_GetSecondsFromYear(_Year);
-			Seconds += fsp_GetDayOfYearFromMonth(_Year, _Month) * 86400;
-			Seconds += _DayOfMonth * 86400;
-			CTime NewTime{(uint64)Seconds, 0};
+			DMibSafeCheck(_Fraction >= 0.0 && _Fraction <= 1.0, "Fraction range check error");
+			uint64 Seconds = fsp_GetSecondsFromYear(_Year);
+			Seconds += fsp_GetDayOfYearFromMonth(_Year, _Month) * NPrivate::CConst::mc_SecondsInDay;
+			Seconds += _DayOfMonth * NPrivate::CConst::mc_SecondsInDay;
+			CTime NewTime{Seconds, 0};
 			fsp_AddTime(NewTime, _Hour, _Minute, _Second, _Fraction);
 			return NewTime;
 		}
+
+		static CTime fs_CreateTimeIntFrac(int64 _Year, aint _Month = 1, aint _DayOfMonth = 1, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, uint64 _FractionInt = 0)
+		{
+			--_Month;
+			--_DayOfMonth;
+			DMibSafeCheck(_Month >= 0 && _Month <= 11, "Month range check error");
+			DMibSafeCheck(_DayOfMonth >= 0 && _DayOfMonth <= fs_GetDaysInMonth(_Month), "Day of month range check error");
+			DMibSafeCheck(_Hour >= 0 && _Hour <= 23, "Hour range check error");
+			DMibSafeCheck(_Minute >= 0 && _Minute <= 59, "Minute range check error");
+			DMibSafeCheck(_Second >= 0 && _Second <= 59, "Second range check error");
+			DMibSafeCheck(_FractionInt >= 0 && _FractionInt < NPrivate::CConst::mc_FractionDividend, "Fraction range check error");
+			uint64 Seconds = fsp_GetSecondsFromYear(_Year);
+			Seconds += fsp_GetDayOfYearFromMonth(_Year, _Month) * NPrivate::CConst::mc_SecondsInDay;
+			Seconds += _DayOfMonth * NPrivate::CConst::mc_SecondsInDay;
+			CTime NewTime{Seconds, 0};
+			fsp_AddTimeIntFrac(NewTime, _Hour, _Minute, _Second, _FractionInt);
+			return NewTime;
+		}
+
 		constexpr static CTime fs_CreateTimeConstExpr(int64 _Year, aint _Month = 1, aint _DayOfMonth = 1, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, uint64 _Fraction = 0)
 		{
 			return fsp_AddTimeIntFracConstexr
 				(
 					CTime
 					{
-						uint64(fsp_GetSecondsFromYear(_Year) + fsp_GetDayOfYearFromMonth(_Year, _Month - 1) * 86400 + (_DayOfMonth - 1) * 86400)
+						uint64
+						(
+							fsp_GetSecondsFromYearConstexpr(_Year)
+							+ fsp_GetDayOfYearFromMonth(_Year, _Month - 1) * NPrivate::CConst::mc_SecondsInDay
+							+ (_DayOfMonth - 1) * NPrivate::CConst::mc_SecondsInDay
+						 )
 						, 0
 					}
 					, _Hour
@@ -1273,27 +1258,33 @@ namespace NMib::NTime
 
 		static CTime fs_CreateTime(const CDateTime &_DateTime)
 		{
-			return fs_CreateTime(_DateTime.m_Year, _DateTime.m_Month, _DateTime.m_DayOfMonth, _DateTime.m_Hour, _DateTime.m_Minute, _DateTime.m_Second, _DateTime.m_Fraction);
+			if (_DateTime.m_FractionInt != NPrivate::CConst::mc_InvalidFractionInt)
+				return fs_CreateTimeIntFrac(_DateTime.m_Year, _DateTime.m_Month, _DateTime.m_DayOfMonth, _DateTime.m_Hour, _DateTime.m_Minute, _DateTime.m_Second, _DateTime.m_FractionInt);
+			else
+				return fs_CreateTime(_DateTime.m_Year, _DateTime.m_Month, _DateTime.m_DayOfMonth, _DateTime.m_Hour, _DateTime.m_Minute, _DateTime.m_Second, _DateTime.m_Fraction);
 		}
 
 		static void fs_RoundTimeToSecondDown(NTime::CTime &_Time)
 		{
 			_Time.f_SetFractionInt(0);
 		}
+
 		static void fs_RoundTimeToMinuteDown(NTime::CTime &_Time)
 		{
 			uint64 Seconds = _Time.f_GetSeconds();
-			_Time.f_SetSeconds(Seconds - (Seconds % 60));
+			_Time.f_SetSeconds(Seconds - (Seconds % NPrivate::CConst::mc_SecondsInMinute));
 		}
+
 		static void fs_RoundTimeToHourDown(NTime::CTime &_Time)
 		{
 			uint64 Seconds = _Time.f_GetSeconds();
-			_Time.f_SetSeconds(Seconds - (Seconds % 3600));
+			_Time.f_SetSeconds(Seconds - (Seconds % NPrivate::CConst::mc_SecondsInHour));
 		}
+
 		static void fs_RoundTimeToDayDown(NTime::CTime &_Time)
 		{
 			uint64 Seconds = _Time.f_GetSeconds();
-			_Time.f_SetSeconds(Seconds - (Seconds % 86400));
+			_Time.f_SetSeconds(Seconds - (Seconds % NPrivate::CConst::mc_SecondsInDay));
 		}
 
 		static void fs_RoundTimeToSecondUp(NTime::CTime &_Time)
@@ -1301,73 +1292,78 @@ namespace NMib::NTime
 			if (_Time.f_GetFractionInt())
 				_Time.f_SetSeconds(_Time.f_GetSeconds() + 1);
 		}
+
 		static void fs_RoundTimeToMinuteUp(NTime::CTime &_Time)
 		{
 			uint64 Seconds = _Time.f_GetSeconds();
-			uint64 ModSeconds = Seconds % 60;
+			uint64 ModSeconds = Seconds % NPrivate::CConst::mc_SecondsInMinute;
 			Seconds = Seconds - ModSeconds;
 			if (ModSeconds || _Time.f_GetFractionInt())
-				Seconds += 60;
+				Seconds += NPrivate::CConst::mc_SecondsInMinute;
 			_Time.f_SetSeconds(Seconds);
 		}
+
 		static void fs_RoundTimeToHourUp(NTime::CTime &_Time)
 		{
 			uint64 Seconds = _Time.f_GetSeconds();
-			uint64 ModSeconds = Seconds % 3600;
+			uint64 ModSeconds = Seconds % NPrivate::CConst::mc_SecondsInHour;
 			Seconds = Seconds - ModSeconds;
 			if (ModSeconds || _Time.f_GetFractionInt())
-				Seconds += 3600;
+				Seconds += NPrivate::CConst::mc_SecondsInHour;
 			_Time.f_SetSeconds(Seconds);
 		}
+
 		static void fs_RoundTimeToDayUp(NTime::CTime &_Time)
 		{
 			uint64 Seconds = _Time.f_GetSeconds();
-			uint64 ModSeconds = Seconds % 86400;
+			uint64 ModSeconds = Seconds % NPrivate::CConst::mc_SecondsInDay;
 			Seconds = Seconds - ModSeconds;
 			if (ModSeconds || _Time.f_GetFractionInt())
-				Seconds += 86400;
+				Seconds += NPrivate::CConst::mc_SecondsInDay;
 			_Time.f_SetSeconds(Seconds);
 		}
 
 		static void fs_RoundTimeToSecondClosest(NTime::CTime &_Time)
 		{
 			uint64 Seconds = _Time.f_GetSeconds();
-			if (_Time.f_GetFractionInt() >= constant_int64(4611686015878914735))
+			if (_Time.f_GetFractionInt() >= NPrivate::CConst::mc_FractionDividendHalf)
 			{
 				++Seconds;
 			}
 			_Time.f_SetSeconds(Seconds);
 		}
+
 		static void fs_RoundTimeToMinuteClosest(NTime::CTime &_Time)
 		{
 			uint64 Seconds = _Time.f_GetSeconds();
-			uint64 ModSeconds = Seconds % 60;
+			uint64 ModSeconds = Seconds % NPrivate::CConst::mc_SecondsInMinute;
 			Seconds = Seconds - ModSeconds;
-			if (ModSeconds >= 30)
-				Seconds += 60;
+			if (ModSeconds >= NPrivate::CConst::mc_SecondsInMinuteHalf)
+				Seconds += NPrivate::CConst::mc_SecondsInMinute;
 			_Time.f_SetSeconds(Seconds);
 		}
+
 		static void fs_RoundTimeToHourClosest(NTime::CTime &_Time)
 		{
 			uint64 Seconds = _Time.f_GetSeconds();
-			uint64 ModSeconds = Seconds % 3600;
+			uint64 ModSeconds = Seconds % NPrivate::CConst::mc_SecondsInHour;
 			Seconds = Seconds - ModSeconds;
-			if (ModSeconds >= 1800)
-				Seconds += 3600;
+			if (ModSeconds >= NPrivate::CConst::mc_SecondsInHourHalf)
+				Seconds += NPrivate::CConst::mc_SecondsInHour;
 			_Time.f_SetSeconds(Seconds);
 
 		}
+
 		static void fs_RoundTimeToDayClosest(NTime::CTime &_Time)
 		{
 			uint64 Seconds = _Time.f_GetSeconds();
-			uint64 ModSeconds = Seconds % 86400;
+			uint64 ModSeconds = Seconds % NPrivate::CConst::mc_SecondsInDay;
 			Seconds = Seconds - ModSeconds;
-			if (ModSeconds >= 43200)
-				Seconds += 86400;
+			if (ModSeconds >= NPrivate::CConst::mc_SecondsInDayHalf)
+				Seconds += NPrivate::CConst::mc_SecondsInDay;
 			_Time.f_SetSeconds(Seconds);
 
 		}
-
 	};
 
 	class CTimeConvert_ISOWeek : public CTimeConvert_BabylonianCommon
@@ -1384,6 +1380,7 @@ namespace NMib::NTime
 			aint m_Hour;
 			aint m_Minute;
 			aint m_Second;
+			uint64 m_FractionInt = NPrivate::CConst::mc_InvalidFractionInt;
 			fp64 m_Fraction;
 		};
 
@@ -1416,6 +1413,7 @@ namespace NMib::NTime
 			_Dest.m_Minute = DateTime.m_Minute;
 			_Dest.m_Second = DateTime.m_Second;
 			_Dest.m_Fraction = DateTime.m_Fraction;
+			_Dest.m_FractionInt = DateTime.m_FractionInt;
 
 			if ((DateTime.m_DayOfYear + 1) <= (7 - DayOfWeekAtStartOfYear) && DayOfWeekAtStartOfYear > 3)
 			{
@@ -1427,7 +1425,7 @@ namespace NMib::NTime
 			}
 			else
 			{
-				int DaysInYear = DateTime.m_bIsLeapYear + 365;
+				int DaysInYear = DateTime.m_bIsLeapYear + NPrivate::CConst::mc_DaysInMedianYear;
 				if ((DaysInYear - _Dest.m_DayOfYear) < (4 - DateTime.m_DayOfWeek))
 				{
 					++_Dest.m_Year;
@@ -1473,7 +1471,7 @@ namespace NMib::NTime
 
 		aint f_GetDayOfWeek()
 		{
-			return ((m_pTime->f_GetSeconds() / 86400) + 1) % 7;
+			return ((m_pTime->f_GetSeconds() / NPrivate::CConst::mc_SecondsInDay) + 1) % 7;
 		}
 
 		aint f_GetDayOfYear()
@@ -1535,7 +1533,7 @@ namespace NMib::NTime
 			else
 				DaysToAdd += 7 - DayOfWeekAtStartOfYear;
 
-			NewTime += CTimeSpanConvert_BabylonianCommon::fs_CreateSpan(0, DaysToAdd);
+			NewTime += CTimeSpanConvert_BabylonianCommon::fs_CreateDaySpan(DaysToAdd);
 			fsp_AddTime(NewTime, _Hour, _Minute, _Second, _Fraction);
 
 			return NewTime;
@@ -1654,6 +1652,9 @@ namespace NMib::NTime
 				case 'F':
 					_Options.m_bFullPrecision = true;
 					return true;
+				case 'B':
+					_Options.m_bBcSuffix = true;
+					return true;
 				case 'C':
 					_Options.m_Components = _Option.f_GetData_aint_NotSigned(_Args.m_Formatter, 0);
 					return true;
@@ -1699,11 +1700,20 @@ namespace NMib::NTime
 		using CChar = typename tf_CStr::CChar;
 		NTime::CTimeConvert::CDateTime DateTime;
 		NTime::CTimeConvert(*this).f_ExtractDateTime(DateTime);
+		auto CorrectedYear = DateTime.m_Year;
+		ch8 const *pYearSuffix = "";
+		if (_Options.m_LocalOptions.m_bBcSuffix && CorrectedYear <= 0)
+		{
+			CorrectedYear = 1 - CorrectedYear;
+			pYearSuffix = "_BC";
+		}
+
 		if (_Options.m_LocalOptions.m_bDateOnly)
 		{
 			CChar DateSeparator[] = {static_cast<CChar>(_Options.m_LocalOptions.m_DateSeparator), 0};
-			_FormatInto += typename tf_CStr::CFormat("{}{}{sj2,sf0}{}{sj2,sf0}")
-				<< DateTime.m_Year
+			_FormatInto += typename tf_CStr::CFormat("{}{}{}{sj2,sf0}{}{sj2,sf0}")
+				<< CorrectedYear
+				<< pYearSuffix
 				<< DateSeparator
 				<< DateTime.m_Month
 				<< DateSeparator
@@ -1743,30 +1753,31 @@ namespace NMib::NTime
 			{
 			default:
 			case 0:
-				pFormatStr = "{}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj*,sf0}";
+				pFormatStr = "{}{}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj*,sf0}";
 				break;
 			case 1:
-				pFormatStr = "{}";
+				pFormatStr = "{}{}";
 				break;
 			case 2:
-				pFormatStr = "{}{}{sj2,sf0}";
+				pFormatStr = "{}{}{}{sj2,sf0}";
 				break;
 			case 3:
-				pFormatStr = "{}{}{sj2,sf0}{}{sj2,sf0}";
+				pFormatStr = "{}{}{}{sj2,sf0}{}{sj2,sf0}";
 				break;
 			case 4:
-				pFormatStr = "{}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}";
+				pFormatStr = "{}{}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}";
 				break;
 			case 5:
-				pFormatStr = "{}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}";
+				pFormatStr = "{}{}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}";
 				break;
 			case 6:
-				pFormatStr = "{}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}";
+				pFormatStr = "{}{}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}";
 				break;
 			}
 
 			_FormatInto += typename tf_CStr::CFormat(pFormatStr)
-				<< DateTime.m_Year
+				<< CorrectedYear
+				<< pYearSuffix
 				<< DateSeparator
 				<< DateTime.m_Month
 				<< DateSeparator
@@ -1865,22 +1876,22 @@ constexpr inline pfp64 operator ""_seconds(long double _Value)
 
 constexpr inline pfp64 operator ""_minutes(long double _Value)
 {
-	return _Value * 60.0;
+	return _Value * NMib::NTime::NPrivate::CConst::mc_SecondsInMinuteFp;
 }
 
 constexpr inline pfp64 operator ""_hours(long double _Value)
 {
-	return _Value * 60.0 * 60.0;
+	return _Value * NMib::NTime::NPrivate::CConst::mc_SecondsInHourFp;
 }
 
 constexpr inline pfp64 operator ""_days(long double _Value)
 {
-	return _Value * 60.0 * 60.0 * 24.0;
+	return _Value * NMib::NTime::NPrivate::CConst::mc_SecondsInDayFp;
 }
 
 constexpr inline pfp64 operator ""_weeks(long double _Value)
 {
-	return _Value * 60.0 * 60.0 * 24.0 * 7.0;
+	return _Value * NMib::NTime::NPrivate::CConst::mc_SecondsInDayFp * 7.0;
 }
 
 constexpr inline pfp64 operator ""_µs(unsigned long long _Value)
@@ -1900,20 +1911,20 @@ constexpr inline pfp64 operator ""_seconds(unsigned long long _Value)
 
 constexpr inline pfp64 operator ""_minutes(unsigned long long _Value)
 {
-	return pfp64(_Value) * 60.0;
+	return pfp64(_Value) * NMib::NTime::NPrivate::CConst::mc_SecondsInMinuteFp;
 }
 
 constexpr inline pfp64 operator ""_hours(unsigned long long _Value)
 {
-	return pfp64(_Value) * 60.0 * 60.0;
+	return pfp64(_Value) * NMib::NTime::NPrivate::CConst::mc_SecondsInHourFp;
 }
 
 constexpr inline pfp64 operator ""_days(unsigned long long _Value)
 {
-	return pfp64(_Value) * 60.0 * 60.0 * 24.0;
+	return pfp64(_Value) * NMib::NTime::NPrivate::CConst::mc_SecondsInDayFp;
 }
 
 constexpr inline pfp64 operator ""_weeks(unsigned long long _Value)
 {
-	return pfp64(_Value) * 60.0 * 60.0 * 24.0 * 7.0;
+	return pfp64(_Value) * NMib::NTime::NPrivate::CConst::mc_SecondsInDayFp * 7.0;
 }

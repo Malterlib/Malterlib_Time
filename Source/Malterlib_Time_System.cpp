@@ -100,6 +100,8 @@ namespace NMib::NTime
 
 			void f_TimeGetUTCOffset(NTime::CTimeSpan *_pUTCOffset) const;
 			void f_TimeGetNow(NTime::CTime *_pTime, bool _bRecursive = false) const;
+			NTime::CTime f_TimeToLocal(NTime::CTime const &_Time) const;
+			NTime::CTime f_TimeToUtc(NTime::CTime const &_Time) const;
 			void f_SetTimeSpeed(fp32 _Multiplier, NTime::CTime const *_pOptionalTime, NTime::CTimeSpan const *_pTimeZone);
 			void f_DisableTimeSpeed();
 			fp64 f_GetTimeSpeed() const;
@@ -478,6 +480,22 @@ namespace NMib::NTime
 			*_pUTCOffset = m_UTCOffset.f_Load();
 		}
 
+		NTime::CTime CSubSystem_Time::f_TimeToLocal(NTime::CTime const &_Time) const
+		{
+			if (m_bUsedTimeSpeed.f_Load(NAtomic::EMemoryOrder_Relaxed))
+				return _Time.f_ToLocalLegacy();
+
+			return NPlatform::fg_TimeRaw_ToLocal(_Time);
+		}
+
+		NTime::CTime CSubSystem_Time::f_TimeToUtc(NTime::CTime const &_Time) const
+		{
+			if (m_bUsedTimeSpeed.f_Load(NAtomic::EMemoryOrder_Relaxed))
+				return _Time.f_ToUtcLegacy();
+
+			return NPlatform::fg_TimeRaw_ToUtc(_Time);
+		}
+
 	#ifdef DMibSafeTimerAvailable
 	#if DMibConfig_Tests_Enable
 		void CSubSystem_Time::f_MakeSafeTimerWrap(fp64 _InSeconds, uint32 _Where)
@@ -755,6 +773,16 @@ namespace NMib::NTime
 	void CSystem_Time::fs_TimeGetNowUTC(NTime::CTime *_pTime)
 	{
 		return g_MalterlibSubSystem_Time->f_TimeGetNow(_pTime);
+	}
+
+	NTime::CTime CSystem_Time::fs_TimeToLocal(NTime::CTime const &_Time)
+	{
+		return g_MalterlibSubSystem_Time->f_TimeToLocal(_Time);
+	}
+
+	NTime::CTime CSystem_Time::fs_TimeToUtc(NTime::CTime const &_Time)
+	{
+		return g_MalterlibSubSystem_Time->f_TimeToUtc(_Time);
 	}
 
 	int64 CSystem_Time::fs_TimeResolution()

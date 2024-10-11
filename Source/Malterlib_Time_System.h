@@ -48,6 +48,8 @@ namespace NMib::NTime
 		static bool fs_GetTimeSimulating();
 		static void fs_TimeGetUTCOffset(NTime::CTimeSpan *_pUTCOffset);
 		static void fs_TimeGetNowUTC(NTime::CTime *_pTime);
+		static NTime::CTime fs_TimeToLocal(NTime::CTime const &_Time);
+		static NTime::CTime fs_TimeToUtc(NTime::CTime const &_Time);
 		static int64 fs_TimeResolution();
 	#ifdef DMibSafeTimerAvailable
 		#if DMibConfig_Tests_Enable

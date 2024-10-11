@@ -143,7 +143,7 @@ namespace NMib::NTime
 		return UTCOffset;
 	}
 
-	CTime CTime::f_ToUTC() const
+	CTime CTime::f_ToUtcLegacy() const
 	{
 		CTime Ret = *this;
 		if (!Ret.f_IsValid())
@@ -154,7 +154,7 @@ namespace NMib::NTime
 		return Ret;
 	}
 
-	CTime CTime::f_ToLocal() const
+	CTime CTime::f_ToLocalLegacy() const
 	{
 		CTime Ret = *this;
 		if (!Ret.f_IsValid())
@@ -163,6 +163,20 @@ namespace NMib::NTime
 		CSystem_Time::fs_TimeGetUTCOffset(&UTCOffset);
 		Ret += UTCOffset;
 		return Ret;
+	}
+
+	CTime CTime::f_ToUTC() const
+	{
+		if (!f_IsValid())
+			return *this;
+		return CSystem_Time::fs_TimeToUtc(*this);
+	}
+
+	CTime CTime::f_ToLocal() const
+	{
+		if (!f_IsValid())
+			return *this;
+		return CSystem_Time::fs_TimeToLocal(*this);
 	}
 
 	CTime CTime::fs_NowLocal()
@@ -192,7 +206,7 @@ namespace NMib::NTime
 
 	uint64 CTimeConvert_BabylonianCommon::f_UnixMilliseconds() const
 	{
-		uint64 Return = (m_pTime->f_GetSeconds() - constant_int64(237148622167132800)) * constant_int64(1000);
+		uint64 Return = (m_pTime->f_GetSeconds() - NPrivate::CConst::mc_UnixEpochSeconds) * constant_int64(1000);
 		Return += (m_pTime->f_GetFraction() * 1000.0).f_ToIntRound();
 		return Return;
 	}
@@ -203,7 +217,7 @@ namespace NMib::NTime
 		uint64 Fraction = (_Milliseconds - Seconds * constant_int64(1000));
 
 		CTime Ret;
-		Ret.f_SetSeconds(237148622167132800 + Seconds);
+		Ret.f_SetSeconds(NPrivate::CConst::mc_UnixEpochSeconds + Seconds);
 		Ret.f_SetFraction(fp64(Fraction) / 1000.0);
 
 		return Ret;
@@ -211,37 +225,37 @@ namespace NMib::NTime
 
 	uint64 CTimeConvert_BabylonianCommon::f_UnixSeconds() const
 	{
-		return m_pTime->f_GetSeconds() - 237148622167132800;
+		return m_pTime->f_GetSeconds() - NPrivate::CConst::mc_UnixEpochSeconds;
 	}
 
 	uint64 CTimeConvert_BabylonianCommon::f_UnixMinutes() const
 	{
-		return f_UnixSeconds() / 60;
+		return f_UnixSeconds() / NPrivate::CConst::mc_SecondsInMinute;
 	}
 
 	CTime CTimeConvert_BabylonianCommon::fs_FromUnixMinutes(uint64 _Minutes)
 	{
 		CTime Ret;
-		Ret.f_SetSeconds(237148622167132800 + _Minutes * 60);
+		Ret.f_SetSeconds(NPrivate::CConst::mc_UnixEpochSeconds + _Minutes * NPrivate::CConst::mc_SecondsInMinute);
 		return Ret;
 	}
 
 	CTime CTimeConvert_BabylonianCommon::fs_FromUnixSeconds(uint64 _Seconds)
 	{
 		CTime Ret;
-		Ret.f_SetSeconds(237148622167132800 + _Seconds);
+		Ret.f_SetSeconds(NPrivate::CConst::mc_UnixEpochSeconds + _Seconds);
 		return Ret;
 	}
 
 	fp64 CTimeConvert_BabylonianCommon::f_UnixSecondsFraction() const
 	{
-		return fp64(m_pTime->f_GetSeconds() - 237148622167132800) + m_pTime->f_GetFraction();
+		return fp64(m_pTime->f_GetSeconds() - NPrivate::CConst::mc_UnixEpochSeconds) + m_pTime->f_GetFraction();
 	}
 
 	CTime CTimeConvert_BabylonianCommon::fs_FromUnixSecondsFraction(fp64 _Seconds)
 	{
 		CTime Ret;
-		Ret.f_SetSeconds(237148622167132800 + _Seconds.f_ToUnsignedInt());
+		Ret.f_SetSeconds(NPrivate::CConst::mc_UnixEpochSeconds + _Seconds.f_ToUnsignedInt());
 		Ret.f_SetFraction(_Seconds.f_Fraction());
 		return Ret;
 	}

@@ -1,4 +1,4 @@
-﻿// Copyright © 2015 Hansoft AB 
+// Copyright © 2015 Hansoft AB 
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 /**	\namespace NMib::NTime
@@ -19,4 +19,9 @@ Option	| Description			| Indirection	| Example (2016-01-22 20:20:05.999999999999
 `tsd`	|Date separator			|No				|\code "{tsd+}" -> "2016+01+22 20:20:05.999"\endcode
 `tst`	|Time separator			|No				|\code "{tst+}" -> "2016-01-22 20+20+05.999"\endcode
 `tss`	|Second separator		|No				|\code "{tss+}" -> "2016-01-22 20:20:05+999"\endcode
+
+Option	| Description			| Indirection	| Example (-50-01-22 20:20:05.99999999999999999999)
+------	| -----------			| -----------	| ----------------
+`  `	|No options				|No				|\code "{}" -> "-50-01-22 20:20:05.999"\endcode
+`tb`	|Show BC suffix			|No				|\code "{}" -> "51_BC-01-22 20:20:05.999"\endcode
  */

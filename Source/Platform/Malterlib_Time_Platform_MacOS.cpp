@@ -24,27 +24,91 @@ void NMib::NTime::NPlatform::fg_TimeRaw_GetUTCOffset(NTime::CTimeSpan *_pTimeOff
 		DMibError(NMib::NPlatform::fg_FormatErrno("localtime_r (get utf offset)", ErrNo));
 	}
 	
-	int64 Diff = 0;
-	if (pTime)
-		Diff = pTime->tm_gmtoff;
-	*_pTimeOffset = NTime::CTimeSpanConvert::fs_CreateSpan(0, 0, 0, 0, Diff);
+	*_pTimeOffset = NTime::CTimeSpanConvert::fs_CreateSecondSpan(pTime->tm_gmtoff);
 #else
 	CFTimeZoneRef TimeZone = CFTimeZoneCopySystem();
 	CFAbsoluteTime Now = CFAbsoluteTimeGetCurrent();
 	int64 Diff = int64(CFTimeZoneGetSecondsFromGMT(TimeZone, Now));
 	
-	*_pTimeOffset = NTime::CTimeSpanConvert::fs_CreateSpan(0, 0, 0, 0, Diff);
+	*_pTimeOffset = NTime::CTimeSpanConvert::fs_CreateSecondSpan(Diff);
 #endif
+}
+
+NMib::NTime::CTime NMib::NTime::NPlatform::fg_TimeRaw_ToLocal(CTime const &_Time)
+{
+	if (_Time.f_GetSeconds() < NTime::NPrivate::CConst::mc_UnixEpochSeconds)
+		return _Time;
+
+	auto UnixSeconds = CTimeConvert(_Time).f_UnixSeconds();
+	if (UnixSeconds > uint64(TCLimitsInt<time_t>::mc_Max))
+		return _Time;
+
+	time_t RawTime = UnixSeconds;
+
+	tm ResultBuffer;
+	tm *pTime = localtime_r(&RawTime, &ResultBuffer);
+
+	if (!pTime)
+	{
+		int ErrNo = errno;
+		DMibError(NMib::NPlatform::fg_FormatErrno("localtime_r (get utf offset)", ErrNo));
+	}
+	
+	return CTimeConvert::fs_CreateTime(1900 + pTime->tm_year, pTime->tm_mon + 1, pTime->tm_mday, pTime->tm_hour, pTime->tm_min, pTime->tm_sec, _Time.f_GetFraction());
+}
+
+NMib::NTime::CTime NMib::NTime::NPlatform::fg_TimeRaw_ToUtc(CTime const &_Time)
+{
+	if (_Time.f_GetSeconds() < NTime::NPrivate::CConst::mc_UnixEpochSeconds)
+		return _Time;
+
+	auto UnixSeconds = CTimeConvert(_Time).f_UnixSeconds();
+	if (UnixSeconds > uint64(TCLimitsInt<time_t>::mc_Max))
+		return _Time;
+
+	time_t RawTime = UnixSeconds;
+
+	tm ResultBuffer;
+	tm *pTime = localtime_r(&RawTime, &ResultBuffer);
+
+	if (!pTime)
+	{
+		int ErrNo = errno;
+		DMibError(NMib::NPlatform::fg_FormatErrno("localtime_r (get utf offset)", ErrNo));
+	}
+
+	CTime Return = _Time - NTime::CTimeSpanConvert::fs_CreateSecondSpan(pTime->tm_gmtoff);
+	if (Return.f_GetSeconds() < NTime::NPrivate::CConst::mc_UnixEpochSeconds)
+		return _Time;
+
+	UnixSeconds = CTimeConvert(Return).f_UnixSeconds();
+	if (UnixSeconds > uint64(TCLimitsInt<time_t>::mc_Max))
+		return _Time;
+
+	auto LastOffset = pTime->tm_gmtoff;
+
+	RawTime = UnixSeconds;
+	pTime = localtime_r(&RawTime, &ResultBuffer);
+	if (!pTime)
+	{
+		int ErrNo = errno;
+		DMibError(NMib::NPlatform::fg_FormatErrno("localtime_r (get utf offset)", ErrNo));
+	}
+
+	if (pTime->tm_gmtoff != LastOffset)
+		Return += NTime::CTimeSpanConvert::fs_CreateSecondSpan(LastOffset - pTime->tm_gmtoff);
+
+	return Return;
 }
 
 void NMib::NTime::NPlatform::fg_TimeRaw_GetNow(NMib::NTime::CTime *_pTime)
 {
-	static CTime EpochStart = NTime::CTimeConvert::fs_CreateTime(1970, 1, 1);
 	timeval Time;
 	gettimeofday(&Time, nullptr);
 	int64 Seconds = Time.tv_sec;
 	fp64 Fraction = fp64(Time.tv_usec) / fp64(1000000);
-	*_pTime = EpochStart + CTimeSpanConvert_BabylonianCommon::fs_CreateSpan(0, 0, 0, 0, Seconds, Fraction);
+	*_pTime = CTimeConvert::fs_FromUnixSeconds(Seconds);
+	_pTime->f_SetFraction(Fraction);
 }
 
 fp64 NMib::NTime::NPlatform::fg_TimeRaw_Resolution()
