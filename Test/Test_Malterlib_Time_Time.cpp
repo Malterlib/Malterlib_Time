@@ -490,9 +490,15 @@ namespace
 					}
 				;
 
+#if defined(DMibDebug) || defined(DMibSanitizerEnabled)
+				fCheckTurnaround("Around 1BC", CTimeConvert::fs_GetYearZero() - CTimeSpanConvert::fs_CreateDaySpan(365) * 300, CTimeSpanConvert::fs_CreateDaySpan(365) * 600);
+				fCheckTurnaround("Around start of time", CTime::fs_StartOfTime() + CTimeSpanConvert::fs_CreateDaySpan(365), CTimeSpanConvert::fs_CreateDaySpan(365) * 600);
+				fCheckTurnaround("Around end of time", CTime::fs_EndOfTime() - CTimeSpanConvert::fs_CreateDaySpan(365) * 601, CTimeSpanConvert::fs_CreateDaySpan(365) * 600);
+#else
 				fCheckTurnaround("Around 1BC", CTimeConvert::fs_GetYearZero() - CTimeSpanConvert::fs_CreateDaySpan(365) * 3000, CTimeSpanConvert::fs_CreateDaySpan(365) * 6000);
 				fCheckTurnaround("Around start of time", CTime::fs_StartOfTime() + CTimeSpanConvert::fs_CreateDaySpan(365), CTimeSpanConvert::fs_CreateDaySpan(365) * 6000);
 				fCheckTurnaround("Around end of time", CTime::fs_EndOfTime() - CTimeSpanConvert::fs_CreateDaySpan(365) * 6001, CTimeSpanConvert::fs_CreateDaySpan(365) * 6000);
+#endif
 			};
 
 			DMibTestSuite("UTCConversion")
