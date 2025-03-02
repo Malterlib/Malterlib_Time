@@ -450,55 +450,60 @@ namespace
 						, "1-03-03 00:01"
 					)
 				;
+			};
 
+			DMibTestCategory("Turnaround")
+			{
 				auto fCheckTurnaround = [](CStr const &_Path, CTime const &_StartTime, CTimeSpan const &_Duration)
 					{
-						DMibTestPath(_Path);
-						CTime EndTime = _StartTime + _Duration;
-#ifdef DMibDebug
-						auto IterationSpan = CTimeSpanConvert::fs_CreateDaySpan(19);
-#else
-						auto IterationSpan = CTimeSpanConvert::fs_CreateDaySpan(1);
-#endif
+						DMibTestSuite(_Path)
 						{
-							DMibTestPath("Normal");
-							for (CTime Time = _StartTime; Time < EndTime; Time += IterationSpan)
+							CTime EndTime = _StartTime + _Duration;
+		#ifdef DMibDebug
+							auto IterationSpan = CTimeSpanConvert::fs_CreateDaySpan(19);
+		#else
+							auto IterationSpan = CTimeSpanConvert::fs_CreateDaySpan(1);
+		#endif
 							{
-								auto DateTime = CTimeConvert(Time).f_ExtractDateTime();
-								auto GeneratedTime = CTimeConvert::fs_CreateTime(DateTime);
-								DMibExpect(GeneratedTime, ==, Time)(ETestFlag_Aggregated);
+								DMibTestPath("Normal");
+								for (CTime Time = _StartTime; Time < EndTime; Time += IterationSpan)
+								{
+									auto DateTime = CTimeConvert(Time).f_ExtractDateTime();
+									auto GeneratedTime = CTimeConvert::fs_CreateTime(DateTime);
+									DMibExpect(GeneratedTime, ==, Time)(ETestFlag_Aggregated);
+								}
 							}
-						}
-						{
-							DMibTestPath("Minus1Second");
-							for (CTime Time = _StartTime - CTimeSpanConvert::fs_CreateSecondSpan(1); Time < EndTime; Time += IterationSpan)
 							{
-								auto DateTime = CTimeConvert(Time).f_ExtractDateTime();
-								auto GeneratedTime = CTimeConvert::fs_CreateTime(DateTime);
-								DMibExpect(GeneratedTime, ==, Time)(ETestFlag_Aggregated);
+								DMibTestPath("Minus1Second");
+								for (CTime Time = _StartTime - CTimeSpanConvert::fs_CreateSecondSpan(1); Time < EndTime; Time += IterationSpan)
+								{
+									auto DateTime = CTimeConvert(Time).f_ExtractDateTime();
+									auto GeneratedTime = CTimeConvert::fs_CreateTime(DateTime);
+									DMibExpect(GeneratedTime, ==, Time)(ETestFlag_Aggregated);
+								}
 							}
-						}
-						{
-							DMibTestPath("Plus1Second");
-							for (CTime Time = _StartTime + CTimeSpanConvert::fs_CreateSecondSpan(1); Time < EndTime; Time += IterationSpan)
 							{
-								auto DateTime = CTimeConvert(Time).f_ExtractDateTime();
-								auto GeneratedTime = CTimeConvert::fs_CreateTime(DateTime);
-								DMibExpect(GeneratedTime, ==, Time)(ETestFlag_Aggregated);
+								DMibTestPath("Plus1Second");
+								for (CTime Time = _StartTime + CTimeSpanConvert::fs_CreateSecondSpan(1); Time < EndTime; Time += IterationSpan)
+								{
+									auto DateTime = CTimeConvert(Time).f_ExtractDateTime();
+									auto GeneratedTime = CTimeConvert::fs_CreateTime(DateTime);
+									DMibExpect(GeneratedTime, ==, Time)(ETestFlag_Aggregated);
+								}
 							}
-						}
+						};
 					}
 				;
 
-#if defined(DMibDebug) || defined(DMibSanitizerEnabled)
+	#if defined(DMibDebug) || defined(DMibSanitizerEnabled)
 				fCheckTurnaround("Around 1BC", CTimeConvert::fs_GetYearZero() - CTimeSpanConvert::fs_CreateDaySpan(365) * 300, CTimeSpanConvert::fs_CreateDaySpan(365) * 600);
 				fCheckTurnaround("Around start of time", CTime::fs_StartOfTime() + CTimeSpanConvert::fs_CreateDaySpan(365), CTimeSpanConvert::fs_CreateDaySpan(365) * 600);
 				fCheckTurnaround("Around end of time", CTime::fs_EndOfTime() - CTimeSpanConvert::fs_CreateDaySpan(365) * 601, CTimeSpanConvert::fs_CreateDaySpan(365) * 600);
-#else
+	#else
 				fCheckTurnaround("Around 1BC", CTimeConvert::fs_GetYearZero() - CTimeSpanConvert::fs_CreateDaySpan(365) * 3000, CTimeSpanConvert::fs_CreateDaySpan(365) * 6000);
 				fCheckTurnaround("Around start of time", CTime::fs_StartOfTime() + CTimeSpanConvert::fs_CreateDaySpan(365), CTimeSpanConvert::fs_CreateDaySpan(365) * 6000);
 				fCheckTurnaround("Around end of time", CTime::fs_EndOfTime() - CTimeSpanConvert::fs_CreateDaySpan(365) * 6001, CTimeSpanConvert::fs_CreateDaySpan(365) * 6000);
-#endif
+	#endif
 			};
 
 			DMibTestSuite("UTCConversion")
