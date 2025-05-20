@@ -570,7 +570,7 @@ namespace NMib::NTime
 	}
 
 	template <typename tf_CType>
-	concept cIsTime = NPrivate::TCIsTime<typename NTraits::TCRemoveReferenceAndQualifiers<tf_CType>::CType>::mc_bValue;
+	concept cIsTime = NPrivate::TCIsTime<NTraits::TCRemoveReferenceAndQualifiers<tf_CType>>::mc_bValue;
 
 	class CTimeSpanConvert_BabylonianCommon
 	{
