@@ -180,8 +180,7 @@ namespace NMib::NTime
 		}
 	};
 
-	typedef TCCycles<true> CCycles;
-
+	using CCycles = TCCycles<true>;
 
 	class CTimerAbsolute
 	{

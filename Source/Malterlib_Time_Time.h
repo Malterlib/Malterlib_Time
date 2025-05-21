@@ -1541,8 +1541,8 @@ namespace NMib::NTime
 	};
 
 	// Default fo Proleptic Gregorian time
-	typedef CTimeConvert_ProlepticGreogrian CTimeConvert;
-	typedef CTimeSpanConvert_BabylonianCommon CTimeSpanConvert;
+	using CTimeConvert = CTimeConvert_ProlepticGreogrian;
+	using CTimeSpanConvert = CTimeSpanConvert_BabylonianCommon;
 
 	NMib::NStr::CStr fg_GetFullTimeStr(CTime const &_Time);
 	bool fg_ParseFullTimeStr(CTime &_Time, NMib::NStr::CStr const& _Str);
