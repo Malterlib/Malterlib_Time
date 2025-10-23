@@ -1,4 +1,4 @@
-// Copyright © 2015 Hansoft AB 
+// Copyright © 2015 Hansoft AB
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #include <Mib/Core/Core>
@@ -23,13 +23,13 @@ void NMib::NTime::NPlatform::fg_TimeRaw_GetUTCOffset(NTime::CTimeSpan *_pTimeOff
 		int ErrNo = errno;
 		DMibError(NMib::NPlatform::fg_FormatErrno("localtime_r (get utf offset)", ErrNo));
 	}
-	
+
 	*_pTimeOffset = NTime::CTimeSpanConvert::fs_CreateSecondSpan(pTime->tm_gmtoff);
 #else
 	CFTimeZoneRef TimeZone = CFTimeZoneCopySystem();
 	CFAbsoluteTime Now = CFAbsoluteTimeGetCurrent();
 	int64 Diff = int64(CFTimeZoneGetSecondsFromGMT(TimeZone, Now));
-	
+
 	*_pTimeOffset = NTime::CTimeSpanConvert::fs_CreateSecondSpan(Diff);
 #endif
 }
@@ -53,7 +53,7 @@ NMib::NTime::CTime NMib::NTime::NPlatform::fg_TimeRaw_ToLocal(CTime const &_Time
 		int ErrNo = errno;
 		DMibError(NMib::NPlatform::fg_FormatErrno("localtime_r (get utf offset)", ErrNo));
 	}
-	
+
 	return CTimeConvert::fs_CreateTime(1900 + pTime->tm_year, pTime->tm_mon + 1, pTime->tm_mday, pTime->tm_hour, pTime->tm_min, pTime->tm_sec, _Time.f_GetFraction());
 }
 
@@ -157,7 +157,13 @@ int64 NMib::NTime::NPlatform::fg_TimerRaw_GetCPUFrequency()
 
 	if (Ret == 0)
 	{
-		if (Name.f_Find(" M2 ") >= 0 || Name.f_EndsWith("M2"))
+		if (Name.f_Find(" M5 ") >= 0 || Name.f_EndsWith("M5"))
+			return 4'600'000'000;
+		else if (Name.f_Find(" M4 ") >= 0 || Name.f_EndsWith("M4"))
+			return 4'510'000'000;
+		else if (Name.f_Find(" M3 ") >= 0 || Name.f_EndsWith("M3"))
+			return 4'050'000'000;
+		else if (Name.f_Find(" M2 ") >= 0 || Name.f_EndsWith("M2"))
 			return 3'500'000'000;
 		else if (Name.f_Find(" M1 ") >= 0 || Name.f_EndsWith("M1"))
 			return 3'200'000'000;
