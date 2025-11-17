@@ -1,4 +1,4 @@
-// Copyright © 2015 Hansoft AB 
+// Copyright © 2015 Hansoft AB
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #include <Mib/Core/Core>
@@ -22,9 +22,15 @@ namespace NMib::NTime
 			constexpr static uint64 mc_SecondsInMinute = 60;
 			constexpr static uint64 mc_SecondsInMinuteHalf = mc_SecondsInMinute / 2;
 			constexpr static pfp64 mc_SecondsInMinuteFp = 60.0;
+			constexpr static pfp64 mc_SecondsInWeekFp = 604'800.0;
 
 			constexpr static uint64 mc_DaysInMedianYear = 365;
 			constexpr static uint64 mc_DaysInLeapYear = 366;
+
+			constexpr static int64 mc_SecondsInDaySigned = mc_SecondsInDay;
+			constexpr static int64 mc_SecondsInHourSigned = mc_SecondsInHour;
+			constexpr static int64 mc_SecondsInMinuteSigned = mc_SecondsInMinute;
+			constexpr static int64 mc_SecondsInWeekSigned = 604'800;
 
 			constexpr static uint64 mc_InvalidTimeSeconds = constant_uint64(0xffffffffffffffff);
 			constexpr static int64 mc_InvalidSpanSeconds = constant_int64(0x7fffffffffffffff);
@@ -45,7 +51,7 @@ namespace NMib::NTime
 
 			constexpr static uint64 mc_AverageSecondsInYear = constant_uint64(31'556'952);
 			constexpr static uint64 mc_SecondsInLeapYear = mc_SecondsInDay * mc_DaysInLeapYear;
-			constexpr static uint64 mc_YearOffset = constant_int64(7'514'938'800);
+			constexpr static uint64 mc_YearOffset = constant_uint64(7'514'938'800);
 			constexpr static int64 mc_MaxYear = ((mc_InvalidTimeSeconds - 1) - mc_YearOneBcSeconds) / mc_AverageSecondsInYear;
 			constexpr static int64 mc_MinYear = -int64(mc_YearOneBcSeconds / mc_AverageSecondsInYear);
 			constexpr static uint64 mc_YearOffsetSeconds = (mc_YearOffset * mc_AverageSecondsInYear) - mc_YearZeroPlus1DaySeconds;
@@ -595,10 +601,10 @@ namespace NMib::NTime
 		{
 			CTimeSpan NewSpan;
 			int64 Seconds = _Seconds;
-			Seconds += _Minutes * NPrivate::CConst::mc_SecondsInMinute;
-			Seconds += _Hours * NPrivate::CConst::mc_SecondsInHour;
-			Seconds += _Days * NPrivate::CConst::mc_SecondsInDay;
-			Seconds += _Weeks * NPrivate::CConst::mc_SecondsInDay * 7;
+			Seconds += _Minutes * NPrivate::CConst::mc_SecondsInMinuteSigned;
+			Seconds += _Hours * NPrivate::CConst::mc_SecondsInHourSigned;
+			Seconds += _Days * NPrivate::CConst::mc_SecondsInDaySigned;
+			Seconds += _Weeks * NPrivate::CConst::mc_SecondsInWeekSigned;
 
 			NewSpan.f_SetSecondsNoFraction(Seconds);
 			NewSpan.f_SetFraction(_Fraction);
@@ -616,16 +622,14 @@ namespace NMib::NTime
 		static CTimeSpan fs_CreateDaySpan(int64 _Days)
 		{
 			CTimeSpan NewSpan;
-			NewSpan.f_SetSeconds(_Days * NPrivate::CConst::mc_SecondsInDay);
+			NewSpan.f_SetSeconds(_Days * NPrivate::CConst::mc_SecondsInDaySigned);
 			return NewSpan;
 		}
-
-
 
 		static CTimeSpan fs_CreateHourSpan(int64 _Hours)
 		{
 			CTimeSpan NewSpan;
-			NewSpan.f_SetSeconds(_Hours * NPrivate::CConst::mc_SecondsInHour);
+			NewSpan.f_SetSeconds(_Hours * NPrivate::CConst::mc_SecondsInHourSigned);
 			return NewSpan;
 		}
 
@@ -633,7 +637,7 @@ namespace NMib::NTime
 		static CTimeSpan fs_CreateMinuteSpan(int64 _Minutes)
 		{
 			CTimeSpan NewSpan;
-			NewSpan.f_SetSeconds(_Minutes * NPrivate::CConst::mc_SecondsInMinute);
+			NewSpan.f_SetSeconds(_Minutes * NPrivate::CConst::mc_SecondsInMinuteSigned);
 			return NewSpan;
 		}
 
@@ -686,50 +690,53 @@ namespace NMib::NTime
 			return NewSpan;
 		}
 
-
 		int64 f_GetWeeks() const
 		{
-			return m_pTime->f_GetSeconds() / (NPrivate::CConst::mc_SecondsInDay * 7);
+			return f_GetSeconds() / NPrivate::CConst::mc_SecondsInWeekSigned;
 		}
 
 		fp64 f_GetWeeksFloat() const
 		{
-			return m_pTime->f_GetSecondsFraction() / fp64(NPrivate::CConst::mc_SecondsInDay * 7);
+			return m_pTime->f_GetSecondsFraction() / NPrivate::CConst::mc_SecondsInWeekFp;
 		}
 
 		int64 f_GetDays() const
 		{
-			return m_pTime->f_GetSeconds() / (NPrivate::CConst::mc_SecondsInDay);
+			return f_GetSeconds() / NPrivate::CConst::mc_SecondsInDaySigned;
 		}
 
 		fp64 f_GetDaysFloat() const
 		{
-			return m_pTime->f_GetSecondsFraction() / fp64(NPrivate::CConst::mc_SecondsInDay);
+			return m_pTime->f_GetSecondsFraction() / NPrivate::CConst::mc_SecondsInDayFp;
 		}
 
 		int64 f_GetHours() const
 		{
-			return m_pTime->f_GetSeconds() / (NPrivate::CConst::mc_SecondsInHour);
+			return f_GetSeconds() / NPrivate::CConst::mc_SecondsInHourSigned;
 		}
 
 		fp64 f_GetHoursFloat() const
 		{
-			return m_pTime->f_GetSecondsFraction() / fp64(NPrivate::CConst::mc_SecondsInHour);
+			return m_pTime->f_GetSecondsFraction() / NPrivate::CConst::mc_SecondsInHourFp;
 		}
 
 		int64 f_GetMinutes() const
 		{
-			return m_pTime->f_GetSeconds() / (NPrivate::CConst::mc_SecondsInMinute);
+			return f_GetSeconds() / NPrivate::CConst::mc_SecondsInMinuteSigned;
 		}
 
 		fp64 f_GetMinutesFloat() const
 		{
-			return m_pTime->f_GetSecondsFraction() / fp64(NPrivate::CConst::mc_SecondsInMinute);
+			return m_pTime->f_GetSecondsFraction() / NPrivate::CConst::mc_SecondsInMinuteFp;
 		}
 
 		int64 f_GetSeconds() const
 		{
-			return m_pTime->f_GetSeconds();
+			auto Seconds = m_pTime->f_GetSeconds();
+			if (Seconds < 0 && m_pTime->f_GetFractionInt() != 0)
+				return Seconds + 1;
+			else
+				return Seconds;
 		}
 
 		fp64 f_GetSecondsFloat() const
@@ -739,30 +746,34 @@ namespace NMib::NTime
 
 		fp64 f_GetFraction() const
 		{
-			return m_pTime->f_GetFraction();
+			auto Seconds = m_pTime->f_GetSeconds();
+			if (Seconds < 0)
+				return fp64(NPrivate::CConst::mc_FractionDividend - m_pTime->f_GetFractionInt()) * NPrivate::CConst::mc_FractionDividendFpInv;
+			else
+				return m_pTime->f_GetFraction();
 		}
 
 		aint f_GetHourOfDay() const
 		{
-			int64 Seconds = m_pTime->f_GetSeconds();
-			Seconds -= (Seconds / NPrivate::CConst::mc_SecondsInDay) * NPrivate::CConst::mc_SecondsInDay;
-			return Seconds / NPrivate::CConst::mc_SecondsInHour;
+			int64 Seconds = fg_Abs(f_GetSeconds());
+			Seconds -= (Seconds / NPrivate::CConst::mc_SecondsInDaySigned) * NPrivate::CConst::mc_SecondsInDaySigned;
+			return Seconds / NPrivate::CConst::mc_SecondsInHourSigned;
 		}
 
 		aint f_GetMinuteOfHour() const
 		{
-			int64 Seconds = m_pTime->f_GetSeconds();
-			Seconds -=  (Seconds / NPrivate::CConst::mc_SecondsInDay) * NPrivate::CConst::mc_SecondsInDay;
-			Seconds -=  (Seconds / NPrivate::CConst::mc_SecondsInHour) * NPrivate::CConst::mc_SecondsInHour;
-			return Seconds / NPrivate::CConst::mc_SecondsInMinute;
+			int64 Seconds = fg_Abs(f_GetSeconds());
+			Seconds -= (Seconds / NPrivate::CConst::mc_SecondsInDaySigned) * NPrivate::CConst::mc_SecondsInDaySigned;
+			Seconds -= (Seconds / NPrivate::CConst::mc_SecondsInHourSigned) * NPrivate::CConst::mc_SecondsInHourSigned;
+			return Seconds / NPrivate::CConst::mc_SecondsInMinuteSigned;
 		}
 
 		aint f_GetSecondOfMinute() const
 		{
-			int64 Seconds = m_pTime->f_GetSeconds();
-			Seconds -=  (Seconds / NPrivate::CConst::mc_SecondsInDay) * NPrivate::CConst::mc_SecondsInDay;
-			Seconds -=  (Seconds / NPrivate::CConst::mc_SecondsInHour) * NPrivate::CConst::mc_SecondsInHour;
-			Seconds -=  (Seconds / NPrivate::CConst::mc_SecondsInMinute) * NPrivate::CConst::mc_SecondsInMinute;
+			int64 Seconds = fg_Abs(f_GetSeconds());
+			Seconds -= (Seconds / NPrivate::CConst::mc_SecondsInDaySigned) * NPrivate::CConst::mc_SecondsInDaySigned;
+			Seconds -= (Seconds / NPrivate::CConst::mc_SecondsInHourSigned) * NPrivate::CConst::mc_SecondsInHourSigned;
+			Seconds -= (Seconds / NPrivate::CConst::mc_SecondsInMinuteSigned) * NPrivate::CConst::mc_SecondsInMinuteSigned;
 			return Seconds;
 		}
 	};
@@ -1891,7 +1902,7 @@ constexpr inline pfp64 operator ""_days(long double _Value)
 
 constexpr inline pfp64 operator ""_weeks(long double _Value)
 {
-	return _Value * NMib::NTime::NPrivate::CConst::mc_SecondsInDayFp * 7.0;
+	return _Value * NMib::NTime::NPrivate::CConst::mc_SecondsInWeekFp;
 }
 
 constexpr inline pfp64 operator ""_µs(unsigned long long _Value)
@@ -1926,5 +1937,5 @@ constexpr inline pfp64 operator ""_days(unsigned long long _Value)
 
 constexpr inline pfp64 operator ""_weeks(unsigned long long _Value)
 {
-	return pfp64(_Value) * NMib::NTime::NPrivate::CConst::mc_SecondsInDayFp * 7.0;
+	return pfp64(_Value) * NMib::NTime::NPrivate::CConst::mc_SecondsInWeekFp;
 }

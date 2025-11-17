@@ -549,7 +549,7 @@ namespace
 					if (UtcTime != Time)
 						DMibConOut2("{tc5} {tc5} {tc5}\n", Time, LocalTime, UtcTime);
 				}
-				
+
 				for (CTime Time = CTimeConvert::fs_CreateTime(2024); Time < CTimeConvert::fs_CreateTime(2025); Time += CTimeSpanConvert::fs_CreateMinuteSpan(15))
 				{
 					auto LocalTime = Time.f_ToLocal();
@@ -566,7 +566,67 @@ namespace
 						DMibConOut2("{tc5} {tc5} {tc5}\n", Time, LocalTime, UtcTime);
 				}
 			};
-			
+
+			DMibTestSuite("TimeSpan")
+			{
+ 				auto StartTime = CTimeConvert::fs_CreateTime(2001, 3, 14, 12, 53, 50, 0.5);
+				auto EndTime = CTimeConvert::fs_CreateTime(2002, 4, 15, 13, 54, 59, 0.6);
+				auto PositiveTimeSpan = EndTime - StartTime;
+				auto NegativeTimeSpan = StartTime - EndTime;
+
+				DMibExpect(StartTime + PositiveTimeSpan, ==, EndTime);
+				DMibExpect(EndTime + NegativeTimeSpan, ==, StartTime);
+				DMibExpect(EndTime - PositiveTimeSpan, ==, StartTime);
+				DMibExpect(StartTime - NegativeTimeSpan, ==, EndTime);
+
+				DMibExpect(PositiveTimeSpan, ==, -NegativeTimeSpan);
+				DMibExpect(-PositiveTimeSpan, ==, NegativeTimeSpan);
+
+				DMibExpect(CTimeSpanConvert::fs_CreateDaySpan(2).f_GetSeconds(), ==, 60 * 60 * 24 * 2);
+				DMibExpect(CTimeSpanConvert::fs_CreateDaySpan(-2).f_GetSeconds(), ==, -60 * 60 * 24 * 2);
+
+				DMibExpect(PositiveTimeSpan.f_GetSeconds(), ==, 34304469);
+				DMibExpect(PositiveTimeSpan.f_GetSecondsFraction(), ==, 34304469.1);
+				DMibExpect(NegativeTimeSpan.f_GetSeconds(), ==, -34304470);
+				DMibExpect(NegativeTimeSpan.f_GetSecondsFraction(), ==, -34304469.1);
+
+				DMibExpect(CTimeSpanConvert(PositiveTimeSpan).f_GetWeeks(), ==, 56);
+				DMibExpectTrue(CTimeSpanConvert(PositiveTimeSpan).f_GetWeeksFloat().f_AlmostEqual(56.7203523478836, 2));
+				DMibExpect(CTimeSpanConvert(PositiveTimeSpan).f_GetDays(), ==, 397);
+				DMibExpectTrue(CTimeSpanConvert(PositiveTimeSpan).f_GetDaysFloat().f_AlmostEqual(397.042466435185, 2));
+				DMibExpect(CTimeSpanConvert(PositiveTimeSpan).f_GetHours(), ==, 9529);
+				DMibExpectTrue(CTimeSpanConvert(PositiveTimeSpan).f_GetHoursFloat().f_AlmostEqual(9529.01919444445, 2));
+				DMibExpect(CTimeSpanConvert(PositiveTimeSpan).f_GetMinutes(), ==, 571741);
+				DMibExpectTrue(CTimeSpanConvert(PositiveTimeSpan).f_GetMinutesFloat().f_AlmostEqual(571741.151666667, 2));
+				DMibExpect(CTimeSpanConvert(PositiveTimeSpan).f_GetSeconds(), ==, 34304469);
+				DMibExpect(CTimeSpanConvert(PositiveTimeSpan).f_GetSecondsFloat(), ==, 34304469.1);
+				DMibExpect(CTimeSpanConvert(PositiveTimeSpan).f_GetHourOfDay(), ==, 1);
+				DMibExpect(CTimeSpanConvert(PositiveTimeSpan).f_GetMinuteOfHour(), ==, 1);
+				DMibExpect(CTimeSpanConvert(PositiveTimeSpan).f_GetSecondOfMinute(), ==, 9);
+				DMibExpect(CTimeSpanConvert(PositiveTimeSpan).f_GetFraction(), ==, 0.1);
+
+				DMibExpect(CTimeSpanConvert(NegativeTimeSpan).f_GetWeeks(), ==, -56);
+				DMibExpectTrue(CTimeSpanConvert(NegativeTimeSpan).f_GetWeeksFloat().f_AlmostEqual(-56.7203523478836, 2));
+				DMibExpect(CTimeSpanConvert(NegativeTimeSpan).f_GetDays(), ==, -397);
+				DMibExpectTrue(CTimeSpanConvert(NegativeTimeSpan).f_GetDaysFloat().f_AlmostEqual(-397.042466435185, 2));
+				DMibExpect(CTimeSpanConvert(NegativeTimeSpan).f_GetHours(), ==, -9529);
+				DMibExpectTrue(CTimeSpanConvert(NegativeTimeSpan).f_GetHoursFloat().f_AlmostEqual(-9529.01919444445, 2));
+				DMibExpect(CTimeSpanConvert(NegativeTimeSpan).f_GetMinutes(), ==, -571741);
+				DMibExpectTrue(CTimeSpanConvert(NegativeTimeSpan).f_GetMinutesFloat().f_AlmostEqual(-571741.151666667, 2));
+				DMibExpect(CTimeSpanConvert(NegativeTimeSpan).f_GetSeconds(), ==, -34304469);
+				DMibExpect(CTimeSpanConvert(NegativeTimeSpan).f_GetSecondsFloat(), ==, -34304469.1);
+				DMibExpect(CTimeSpanConvert(NegativeTimeSpan).f_GetHourOfDay(), ==, 1);
+				DMibExpect(CTimeSpanConvert(NegativeTimeSpan).f_GetMinuteOfHour(), ==, 1);
+				DMibExpect(CTimeSpanConvert(NegativeTimeSpan).f_GetSecondOfMinute(), ==, 9);
+				DMibExpect(CTimeSpanConvert(NegativeTimeSpan).f_GetFraction(), ==, 0.1);
+
+				DMibExpect(CTimeSpanConvert(-CTimeSpanConvert::fs_CreateSpan(1, 0, 23, 59, 59, 0.99999)).f_GetWeeks(), ==, -1);
+				DMibExpect(CTimeSpanConvert(-CTimeSpanConvert::fs_CreateSpan(0, 1, 23, 59, 59, 0.99999)).f_GetDays(), ==, -1);
+				DMibExpect(CTimeSpanConvert(-CTimeSpanConvert::fs_CreateSpan(0, 0,  1, 59, 59, 0.99999)).f_GetHours(), ==, -1);
+				DMibExpect(CTimeSpanConvert(-CTimeSpanConvert::fs_CreateSpan(0, 0,  0,  1, 59, 0.99999)).f_GetMinutes(), ==, -1);
+				DMibExpect(CTimeSpanConvert(-CTimeSpanConvert::fs_CreateSpan(0, 0,  0,  0,  1, 0.99999)).f_GetSeconds(), ==, -1);
+			};
+
 			constexpr static mint c_nLoops = 256 * 1024;
 
 			DMibTestSuite(CTestCategory("UTCConversionPerformance") << CTestGroup("Performance"))
