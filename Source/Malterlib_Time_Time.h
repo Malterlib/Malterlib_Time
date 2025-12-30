@@ -3,6 +3,7 @@
 
 #include <Mib/Core/Core>
 #include <Mib/Contract/Contract>
+#include <Mib/Concurrency/AsyncResult>
 
 namespace NMib::NTime
 {
@@ -1213,11 +1214,11 @@ namespace NMib::NTime
 			--_Month;
 			--_DayOfMonth;
 			DMibSafeCheck(_Month >= 0 && _Month <= 11, "Month range check error");
-			DMibSafeCheck(_DayOfMonth >= 0 && _DayOfMonth <= fs_GetDaysInMonth(_Month), "Day of month range check error");
+			DMibSafeCheck(_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month), "Day of month range check error");
 			DMibSafeCheck(_Hour >= 0 && _Hour <= 23, "Hour range check error");
 			DMibSafeCheck(_Minute >= 0 && _Minute <= 59, "Minute range check error");
 			DMibSafeCheck(_Second >= 0 && _Second <= 59, "Second range check error");
-			DMibSafeCheck(_Fraction >= 0.0 && _Fraction <= 1.0, "Fraction range check error");
+			DMibSafeCheck(_Fraction >= 0.0 && _Fraction < 1.0, "Fraction range check error");
 			uint64 Seconds = fsp_GetSecondsFromYear(_Year);
 			Seconds += fsp_GetDayOfYearFromMonth(_Year, _Month) * NPrivate::CConst::mc_SecondsInDay;
 			Seconds += _DayOfMonth * NPrivate::CConst::mc_SecondsInDay;
@@ -1231,7 +1232,7 @@ namespace NMib::NTime
 			--_Month;
 			--_DayOfMonth;
 			DMibSafeCheck(_Month >= 0 && _Month <= 11, "Month range check error");
-			DMibSafeCheck(_DayOfMonth >= 0 && _DayOfMonth <= fs_GetDaysInMonth(_Month), "Day of month range check error");
+			DMibSafeCheck(_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month), "Day of month range check error");
 			DMibSafeCheck(_Hour >= 0 && _Hour <= 23, "Hour range check error");
 			DMibSafeCheck(_Minute >= 0 && _Minute <= 59, "Minute range check error");
 			DMibSafeCheck(_Second >= 0 && _Second <= 59, "Second range check error");
@@ -1522,11 +1523,12 @@ namespace NMib::NTime
 		static CTime fs_CreateTime(int64 _Year, aint _Week = 1, aint _DayOfWeek = 0, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, fp64 _Fraction = 0) // This takes ISO dates
 		{
 			--_Week;
-			DMibSafeCheck(_DayOfWeek >= 0 && _DayOfWeek <= 6, "Day of month range check error");
+			DMibSafeCheck(_Week >= 0 && _Week <= 52, "Week range check error");
+			DMibSafeCheck(_DayOfWeek >= 0 && _DayOfWeek <= 6, "Day of week range check error");
 			DMibSafeCheck(_Hour >= 0 && _Hour <= 23, "Hour range check error");
 			DMibSafeCheck(_Minute >= 0 && _Minute <= 59, "Minute range check error");
 			DMibSafeCheck(_Second >= 0 && _Second <= 59, "Second range check error");
-			DMibSafeCheck(_Fraction >= 0.0 && _Second < 1.0, "Fraction range check error");
+			DMibSafeCheck(_Fraction >= 0.0 && _Fraction < 1.0, "Fraction range check error");
 			CTime NewTime = CTimeConvert_ProlepticGreogrian::fs_CreateTime(_Year);
 
 			CTimeConvert_ProlepticGreogrian::CDateTime DateTime;
@@ -1557,6 +1559,11 @@ namespace NMib::NTime
 
 	NMib::NStr::CStr fg_GetFullTimeStr(CTime const &_Time);
 	bool fg_ParseFullTimeStr(CTime &_Time, NMib::NStr::CStr const& _Str);
+
+	// Parses a flexible date/time string in format: YYYY-MM-DD [HH:MM[:SS[.FFF]]]
+	// Returns CTime on success, or error on failure
+	NMib::NConcurrency::TCAsyncResult<CTime> fg_TryParseDateTimeStr(NMib::NStr::CStr const &_Str);
+
 	NMib::NStr::CStr fg_GetAscTimeStr(CTime const &_Time); // Same format as std. C lib's asctime. NOT LOCALISED (deliberate)
 	int32 fg_GetAscMonthNumber(NStr::CStr const &_Month); // Same format as std. C lib's asctime. NOT LOCALISED (deliberate)
 	NMib::NStr::CStr fg_GetISO8601TimeStr(CTime const &_Time);

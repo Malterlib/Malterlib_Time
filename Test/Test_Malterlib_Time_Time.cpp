@@ -147,6 +147,344 @@ namespace
 					DMibTest(DMibExpr(ReadTime) == DMibExpr(Test));
 				}
 			};
+
+#	if DMibEnableSafeCheck > 0
+			DMibTestSuite("CreateTime range checks")
+			{
+				{
+					DMibTestPath("Valid boundaries");
+					// Month boundaries (1-12)
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1));
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 12));
+
+					// Day boundaries
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1));   // January 1st
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 31));  // January 31st
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 2, 29));  // February 29th (leap year)
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2023, 2, 28));  // February 28th (non-leap year)
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 4, 30));  // April 30th
+
+					// Hour boundaries (0-23)
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1, 0));
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1, 23));
+
+					// Minute boundaries (0-59)
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1, 0, 0));
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1, 0, 59));
+
+					// Second boundaries (0-59)
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1, 0, 0, 0));
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1, 0, 0, 59));
+
+					// Fraction boundaries (0.0 to <1.0)
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1, 0, 0, 0, 0.0));
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1, 0, 0, 0, 0.999999));
+				}
+
+				{
+					DMibTestPath("Invalid month");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2024, 0), "_Month >= 0 && _Month <= 11 'Month range check error'");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2024, 13), "_Month >= 0 && _Month <= 11 'Month range check error'");
+				}
+
+				{
+					DMibTestPath("Invalid day of month");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2024, 1, 0), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2024, 1, 32), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2024, 2, 30), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");  // February leap year
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2023, 2, 29), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");  // February non-leap year
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2024, 4, 31), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");  // April has 30 days
+				}
+
+				{
+					DMibTestPath("Invalid hour");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2024, 1, 1, -1), "_Hour >= 0 && _Hour <= 23 'Hour range check error'");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2024, 1, 1, 24), "_Hour >= 0 && _Hour <= 23 'Hour range check error'");
+				}
+
+				{
+					DMibTestPath("Invalid minute");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2024, 1, 1, 0, -1), "_Minute >= 0 && _Minute <= 59 'Minute range check error'");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2024, 1, 1, 0, 60), "_Minute >= 0 && _Minute <= 59 'Minute range check error'");
+				}
+
+				{
+					DMibTestPath("Invalid second");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2024, 1, 1, 0, 0, -1), "_Second >= 0 && _Second <= 59 'Second range check error'");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2024, 1, 1, 0, 0, 60), "_Second >= 0 && _Second <= 59 'Second range check error'");
+				}
+
+				{
+					DMibTestPath("Invalid fraction");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2024, 1, 1, 0, 0, 0, -0.1), "_Fraction >= 0.0 && _Fraction < 1.0 'Fraction range check error'");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2024, 1, 1, 0, 0, 0, 1.0), "_Fraction >= 0.0 && _Fraction < 1.0 'Fraction range check error'");
+				}
+			};
+
+			DMibTestSuite("CreateTimeIntFrac range checks")
+			{
+				{
+					DMibTestPath("Valid boundaries");
+					// Month boundaries (1-12)
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1));
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 12));
+
+					// Day boundaries
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1));   // January 1st
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 31));  // January 31st
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 2, 29));  // February 29th (leap year)
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2023, 2, 28));  // February 28th (non-leap year)
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 4, 30));  // April 30th
+
+					// Hour boundaries (0-23)
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0));
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 23));
+
+					// Minute boundaries (0-59)
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0, 0));
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0, 59));
+
+					// Second boundaries (0-59)
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0, 0, 0));
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0, 0, 59));
+
+					// FractionInt boundaries (0 to mc_FractionDividend-1)
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0, 0, 0, 0));
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0, 0, 0, NTime::NPrivate::CConst::mc_FractionDividend - 1));
+				}
+
+				{
+					DMibTestPath("Invalid month");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2024, 0), "_Month >= 0 && _Month <= 11 'Month range check error'");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2024, 13), "_Month >= 0 && _Month <= 11 'Month range check error'");
+				}
+
+				{
+					DMibTestPath("Invalid day of month");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 0), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 32), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2024, 2, 30), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");  // February leap year
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2023, 2, 29), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");  // February non-leap year
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2024, 4, 31), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");  // April has 30 days
+				}
+
+				{
+					DMibTestPath("Invalid hour");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, -1), "_Hour >= 0 && _Hour <= 23 'Hour range check error'");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 24), "_Hour >= 0 && _Hour <= 23 'Hour range check error'");
+				}
+
+				{
+					DMibTestPath("Invalid minute");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0, -1), "_Minute >= 0 && _Minute <= 59 'Minute range check error'");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0, 60), "_Minute >= 0 && _Minute <= 59 'Minute range check error'");
+				}
+
+				{
+					DMibTestPath("Invalid second");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0, 0, -1), "_Second >= 0 && _Second <= 59 'Second range check error'");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0, 0, 60), "_Second >= 0 && _Second <= 59 'Second range check error'");
+				}
+
+				{
+					DMibTestPath("Invalid FractionInt");
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0, 0, 0, NTime::NPrivate::CConst::mc_FractionDividend), "_FractionInt >= 0 && _FractionInt < NPrivate::CConst::mc_FractionDividend 'Fraction range check error'");
+				}
+			};
+
+			DMibTestSuite("CreateTime_ISOWeek range checks")
+			{
+				{
+					DMibTestPath("Valid boundaries");
+					// Week boundaries (1-53)
+					DMibExpectNoException(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1));
+					DMibExpectNoException(CTimeConvert_ISOWeek::fs_CreateTime(2024, 53));
+
+					// Day of week boundaries (0-6)
+					DMibExpectNoException(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, 0));
+					DMibExpectNoException(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, 6));
+
+					// Hour boundaries (0-23)
+					DMibExpectNoException(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, 0, 0));
+					DMibExpectNoException(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, 0, 23));
+
+					// Minute boundaries (0-59)
+					DMibExpectNoException(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, 0, 0, 0));
+					DMibExpectNoException(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, 0, 0, 59));
+
+					// Second boundaries (0-59)
+					DMibExpectNoException(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, 0, 0, 0, 0));
+					DMibExpectNoException(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, 0, 0, 0, 59));
+
+					// Fraction boundaries (0.0 to <1.0)
+					DMibExpectNoException(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, 0, 0, 0, 0, 0.0));
+					DMibExpectNoException(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, 0, 0, 0, 0, 0.999999));
+				}
+
+				{
+					DMibTestPath("Invalid week");
+					DMibExpectViolatesSafeCheck(CTimeConvert_ISOWeek::fs_CreateTime(2024, 0), "_Week >= 0 && _Week <= 52 'Week range check error'");
+					DMibExpectViolatesSafeCheck(CTimeConvert_ISOWeek::fs_CreateTime(2024, 54), "_Week >= 0 && _Week <= 52 'Week range check error'");
+				}
+
+				{
+					DMibTestPath("Invalid day of week");
+					DMibExpectViolatesSafeCheck(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, -1), "_DayOfWeek >= 0 && _DayOfWeek <= 6 'Day of week range check error'");
+					DMibExpectViolatesSafeCheck(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, 7), "_DayOfWeek >= 0 && _DayOfWeek <= 6 'Day of week range check error'");
+				}
+
+				{
+					DMibTestPath("Invalid hour");
+					DMibExpectViolatesSafeCheck(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, 0, -1), "_Hour >= 0 && _Hour <= 23 'Hour range check error'");
+					DMibExpectViolatesSafeCheck(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, 0, 24), "_Hour >= 0 && _Hour <= 23 'Hour range check error'");
+				}
+
+				{
+					DMibTestPath("Invalid minute");
+					DMibExpectViolatesSafeCheck(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, 0, 0, -1), "_Minute >= 0 && _Minute <= 59 'Minute range check error'");
+					DMibExpectViolatesSafeCheck(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, 0, 0, 60), "_Minute >= 0 && _Minute <= 59 'Minute range check error'");
+				}
+
+				{
+					DMibTestPath("Invalid second");
+					DMibExpectViolatesSafeCheck(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, 0, 0, 0, -1), "_Second >= 0 && _Second <= 59 'Second range check error'");
+					DMibExpectViolatesSafeCheck(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, 0, 0, 0, 60), "_Second >= 0 && _Second <= 59 'Second range check error'");
+				}
+
+				{
+					DMibTestPath("Invalid fraction");
+					DMibExpectViolatesSafeCheck(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, 0, 0, 0, 0, -0.1), "_Fraction >= 0.0 && _Fraction < 1.0 'Fraction range check error'");
+					DMibExpectViolatesSafeCheck(CTimeConvert_ISOWeek::fs_CreateTime(2024, 1, 0, 0, 0, 0, 1.0), "_Fraction >= 0.0 && _Fraction < 1.0 'Fraction range check error'");
+				}
+			};
+#endif
+
+			DMibTestSuite("TryParseDateTimeStr")
+			{
+				{
+					DMibTestPath("Valid full format");
+					auto Result = fg_TryParseDateTimeStr("2024-03-15 14:30:45.123");
+					DMibExpectTrue(Result);
+					auto DateTime = CTimeConvert(*Result).f_ExtractDateTime();
+					DMibExpect(DateTime.m_Year, ==, 2024);
+					DMibExpect(DateTime.m_Month, ==, 3);
+					DMibExpect(DateTime.m_DayOfMonth, ==, 15);
+					DMibExpect(DateTime.m_Hour, ==, 14);
+					DMibExpect(DateTime.m_Minute, ==, 30);
+					DMibExpect(DateTime.m_Second, ==, 45);
+				}
+
+				{
+					DMibTestPath("Valid date only");
+					auto Result = fg_TryParseDateTimeStr("2024-03-15");
+					DMibExpectTrue(Result);
+					auto DateTime = CTimeConvert(*Result).f_ExtractDateTime();
+					DMibExpect(DateTime.m_Year, ==, 2024);
+					DMibExpect(DateTime.m_Month, ==, 3);
+					DMibExpect(DateTime.m_DayOfMonth, ==, 15);
+					DMibExpect(DateTime.m_Hour, ==, 0);
+					DMibExpect(DateTime.m_Minute, ==, 0);
+					DMibExpect(DateTime.m_Second, ==, 0);
+				}
+
+				{
+					DMibTestPath("Valid date and hour:minute");
+					auto Result = fg_TryParseDateTimeStr("2024-03-15 14:30");
+					DMibExpectTrue(Result);
+					auto DateTime = CTimeConvert(*Result).f_ExtractDateTime();
+					DMibExpect(DateTime.m_Year, ==, 2024);
+					DMibExpect(DateTime.m_Month, ==, 3);
+					DMibExpect(DateTime.m_DayOfMonth, ==, 15);
+					DMibExpect(DateTime.m_Hour, ==, 14);
+					DMibExpect(DateTime.m_Minute, ==, 30);
+					DMibExpect(DateTime.m_Second, ==, 0);
+				}
+
+				{
+					DMibTestPath("Valid leap year February 29");
+					auto Result = fg_TryParseDateTimeStr("2024-02-29");
+					DMibExpectTrue(Result);
+					auto DateTime = CTimeConvert(*Result).f_ExtractDateTime();
+					DMibExpect(DateTime.m_Year, ==, 2024);
+					DMibExpect(DateTime.m_Month, ==, 2);
+					DMibExpect(DateTime.m_DayOfMonth, ==, 29);
+				}
+
+				{
+					DMibTestPath("Valid boundary values");
+					auto Result1 = fg_TryParseDateTimeStr("2024-01-01 00:00:00.000");
+					DMibExpectTrue(Result1);
+					auto Result2 = fg_TryParseDateTimeStr("2024-12-31 23:59:59.999");
+					DMibExpectTrue(Result2);
+				}
+
+				{
+					DMibTestPath("Invalid format - too few fields");
+					auto Result = fg_TryParseDateTimeStr("2024-03");
+					DMibExpectException(Result.f_Access(), DMibErrorInstance("Invalid date format - expected: YYYY-MM-DD [HH:MM[:SS[.FFF]]]"));
+				}
+
+				{
+					DMibTestPath("Invalid month - zero");
+					auto Result = fg_TryParseDateTimeStr("2024-00-15");
+					DMibExpectException(Result.f_Access(), DMibErrorInstance("Month 0 is out of range (1-12)"));
+				}
+
+				{
+					DMibTestPath("Invalid month - 13");
+					auto Result = fg_TryParseDateTimeStr("2024-13-15");
+					DMibExpectException(Result.f_Access(), DMibErrorInstance("Month 13 is out of range (1-12)"));
+				}
+
+				{
+					DMibTestPath("Invalid day - zero");
+					auto Result = fg_TryParseDateTimeStr("2024-03-00");
+					DMibExpectException(Result.f_Access(), DMibErrorInstance("Day 0 is out of range for month 3 (1-31)"));
+				}
+
+				{
+					DMibTestPath("Invalid day - 32 for January");
+					auto Result = fg_TryParseDateTimeStr("2024-01-32");
+					DMibExpectException(Result.f_Access(), DMibErrorInstance("Day 32 is out of range for month 1 (1-31)"));
+				}
+
+				{
+					DMibTestPath("Invalid day - February 29 non-leap year");
+					auto Result = fg_TryParseDateTimeStr("2023-02-29");
+					DMibExpectException(Result.f_Access(), DMibErrorInstance("Day 29 is out of range for month 2 (1-28)"));
+				}
+
+				{
+					DMibTestPath("Invalid day - April 31");
+					auto Result = fg_TryParseDateTimeStr("2024-04-31");
+					DMibExpectException(Result.f_Access(), DMibErrorInstance("Day 31 is out of range for month 4 (1-30)"));
+				}
+
+				{
+					DMibTestPath("Invalid hour - 24");
+					auto Result = fg_TryParseDateTimeStr("2024-03-15 24:00:00");
+					DMibExpectException(Result.f_Access(), DMibErrorInstance("Hour 24 is out of range (0-23)"));
+				}
+
+				{
+					DMibTestPath("Invalid minute - 60");
+					auto Result = fg_TryParseDateTimeStr("2024-03-15 12:60:00");
+					DMibExpectException(Result.f_Access(), DMibErrorInstance("Minute 60 is out of range (0-59)"));
+				}
+
+				{
+					DMibTestPath("Invalid second - 60");
+					auto Result = fg_TryParseDateTimeStr("2024-03-15 12:30:60");
+					DMibExpectException(Result.f_Access(), DMibErrorInstance("Second 60 is out of range (0-59)"));
+				}
+
+				{
+					DMibTestPath("Invalid fraction - 1000");
+					auto Result = fg_TryParseDateTimeStr("2024-03-15 12:30:45.1000");
+					DMibExpectException(Result.f_Access(), DMibErrorInstance("Fraction 1000 is out of range (0-999)"));
+				}
+			};
+
 			DMibTestSuite("Time precision")
 			{
 				CTime Now = CTime::fs_NowUTC();

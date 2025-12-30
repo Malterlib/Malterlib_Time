@@ -98,6 +98,70 @@ namespace NMib::NTime
 		return true;
 	}
 
+	NMib::NConcurrency::TCAsyncResult<CTime> fg_TryParseDateTimeStr(NMib::NStr::CStr const &_Str)
+	{
+		using namespace NMib::NStr;
+
+		aint nParsed = 0;
+		int64 Year = 0;
+		int32 Month = 0;
+		int32 Day = 0;
+		int32 Hour = 0;
+		int32 Minute = 0;
+		int32 Second = 0;
+		int32 Fraction = 0;
+
+		(CStr::CParse("{}-{}-{} {}:{}:{}.{}") >> Year >> Month >> Day >> Hour >> Minute >> Second >> Fraction).f_Parse(_Str, nParsed);
+
+		NMib::NConcurrency::TCAsyncResult<CTime> Return;
+
+		if (nParsed < 3)
+		{
+			Return.f_SetException(DMibErrorInstance("Invalid date format - expected: YYYY-MM-DD [HH:MM[:SS[.FFF]]]"));
+			return Return;
+		}
+
+		if (Month < 1 || Month > 12)
+		{
+			Return.f_SetException(DMibErrorInstance("Month {} is out of range (1-12)"_f << Month));
+			return Return;
+		}
+
+		aint nDaysInMonth = NTime::CTimeConvert::fs_GetDaysInMonth(Year, Month - 1);
+		if (Day < 1 || Day > nDaysInMonth)
+		{
+			Return.f_SetException(DMibErrorInstance("Day {} is out of range for month {} (1-{})"_f << Day << Month << nDaysInMonth));
+			return Return;
+		}
+
+		if (Hour < 0 || Hour > 23)
+		{
+			Return.f_SetException(DMibErrorInstance("Hour {} is out of range (0-23)"_f << Hour));
+			return Return;
+		}
+
+		if (Minute < 0 || Minute > 59)
+		{
+			Return.f_SetException(DMibErrorInstance("Minute {} is out of range (0-59)"_f << Minute));
+			return Return;
+		}
+
+		if (Second < 0 || Second > 59)
+		{
+			Return.f_SetException(DMibErrorInstance("Second {} is out of range (0-59)"_f << Second));
+			return Return;
+		}
+
+		if (Fraction < 0 || Fraction > 999)
+		{
+			Return.f_SetException(DMibErrorInstance("Fraction {} is out of range (0-999)"_f << Fraction));
+			return Return;
+		}
+
+		Return.f_SetResult(NTime::CTimeConvert::fs_CreateTime(Year, Month, Day, Hour, Minute, Second, fp64(Fraction) / 1000.0));
+		return Return;
+	}
+
 	int32 fg_GetAscMonthNumber(NStr::CStr const &_Month)
 	{
 		static const char *Months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
