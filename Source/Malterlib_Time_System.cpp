@@ -195,7 +195,7 @@ namespace NMib::NTime
 		{
 		#if (defined(DArchitecture_arm64) || defined(DArchitecture_arm64e))
 			auto NativeFrequency = NPlatform::fg_Timer_CyclesRawFrequency();
-			
+
 			int64 WantedFrequency = (int64)NPlatform::fg_TimerRaw_GetCPUFrequency();
 
 			if (WantedFrequency == 0)

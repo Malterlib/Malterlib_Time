@@ -6,7 +6,7 @@ class CSafeTimerReporterApplication : public NMib::CApplication
 public:
 	CSafeTimerReporterApplication()
 	{
-		
+
 	}
 	aint f_Main()
 	{

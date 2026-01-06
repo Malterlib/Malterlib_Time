@@ -1,4 +1,4 @@
-// Copyright © 2015 Hansoft AB 
+// Copyright © 2015 Hansoft AB
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #include <Mib/Core/Core>
@@ -15,7 +15,7 @@ void NMib::NTime::NPlatform::fg_TimeRaw_GetUTCOffset(NTime::CTimeSpan *_pTimeOff
 		int ErrNo = errno;
 		DMibError(fg_FormatErrno("localtime_r (get utf offset)", ErrNo));
 	}
-	
+
 	int64 Diff = 0;
 	if (pTime)
 		Diff = pTime->tm_gmtoff;

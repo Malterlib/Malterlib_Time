@@ -1,4 +1,4 @@
-// Copyright © 2015 Hansoft AB 
+// Copyright © 2015 Hansoft AB
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #include <Mib/Core/Core>
@@ -18,7 +18,7 @@ void NMib::NTime::NPlatform::fg_TimeRaw_GetUTCOffset(NTime::CTimeSpan *_pTimeOff
 		int ErrNo = errno;
 		DMibError(::NMib::NPlatform::fg_FormatErrno("localtime_r (get utf offset)", ErrNo));
 	}
-	
+
 	*_pTimeOffset = NTime::CTimeSpanConvert::fs_CreateSecondSpan(pTime->tm_gmtoff);
 }
 
@@ -41,7 +41,7 @@ NMib::NTime::CTime NMib::NTime::NPlatform::fg_TimeRaw_ToLocal(CTime const &_Time
 		int ErrNo = errno;
 		DMibError(NMib::NPlatform::fg_FormatErrno("localtime_r (get utf offset)", ErrNo));
 	}
-	
+
 	return CTimeConvert::fs_CreateTime(1900 + pTime->tm_year, pTime->tm_mon + 1, pTime->tm_mday, pTime->tm_hour, pTime->tm_min, pTime->tm_sec, _Time.f_GetFraction());
 }
 

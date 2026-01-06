@@ -1,4 +1,4 @@
-// Copyright © 2015 Hansoft AB 
+// Copyright © 2015 Hansoft AB
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #include <Mib/Core/Core>
@@ -31,7 +31,7 @@ inline_never int64 NMib::NTime::NPlatform::fg_Timer_Cycles()
 #else
 	NMib::NAtomic::fg_MemoryFence();
 #if defined(DArchitecture_x86) || defined(DArchitecture_x64)
-	int64 Ret = __rdtsc(); 
+	int64 Ret = __rdtsc();
 #elif defined(DArchitecture_arm64)
 	int64 Ret = _ReadStatusReg(DMibArm64_CNTVCT_EL0) * g_CyclesScale;
 #else
@@ -238,7 +238,7 @@ NMib::NTime::CTime NMib::NTime::NPlatform::fg_TimeRaw_ToLocal(CTime const &_Time
 	{
 		if (!NLocal::g_OptionalFunctions.m_fGetTimeZoneInformationForYear(Time.wYear, nullptr, &TimeZoneInfo))
 			DMibErrorSystemImp((NStr::CFStr256::CFormat("Windows returned an error from GetTimeZoneInformationForYear: {}") << NMib::NPlatform::fg_Win32_GetLastErrorStr()).f_GetStr());
-		
+
 		pTimeZoneInfo = &TimeZoneInfo;
 	}
 
@@ -274,7 +274,7 @@ NMib::NTime::CTime NMib::NTime::NPlatform::fg_TimeRaw_ToUtc(CTime const &_Time)
 	{
 		if (!NLocal::g_OptionalFunctions.m_fGetTimeZoneInformationForYear(Time.wYear, nullptr, &TimeZoneInfo))
 			DMibErrorSystemImp((NStr::CFStr256::CFormat("Windows returned an error from GetTimeZoneInformationForYear: {}") << NMib::NPlatform::fg_Win32_GetLastErrorStr()).f_GetStr());
-		
+
 		pTimeZoneInfo = &TimeZoneInfo;
 	}
 

@@ -1,4 +1,4 @@
-// Copyright © 2015 Hansoft AB 
+// Copyright © 2015 Hansoft AB
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #include <Mib/Process/ProcessLaunch>
@@ -13,7 +13,7 @@ static fp64 const g_CheckTime = 1.0;
 static fp64 const g_AllowedDiff = 1.03;
 #endif
 
-namespace 
+namespace
 {
 	class CSafeTimer_Tests : public NMib::NTest::CTest
 	{
