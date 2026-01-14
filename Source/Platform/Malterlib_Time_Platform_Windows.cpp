@@ -212,9 +212,28 @@ void NMib::NTime::NPlatform::fg_TimeRaw_GetUTCOffset(NTime::CTimeSpan *_pTimeOff
 		*_pTimeOffset = NTime::CTimeSpanConvert::fs_CreateMinuteSpan((-TimeZone.Bias));
 }
 
+namespace
+{
+	NMib::NTime::CTime fg_TruncateTimeToMillisecond(NMib::NTime::CTime const &_Time)
+	{
+		constexpr static uint64 c_FractionPerMillisecond = NMib::NTime::NPrivate::CConst::mc_FractionDividend / 1000;
+
+		NMib::NTime::CTime TruncatedTime = _Time;
+		uint64 FractionInt = TruncatedTime.f_GetFractionInt();
+		uint64 MillisecondFractionInt = NMib::fg_Clamp(FractionInt / c_FractionPerMillisecond, 0, 999) * c_FractionPerMillisecond;
+
+		TruncatedTime.f_SetFractionInt(MillisecondFractionInt);
+
+		return TruncatedTime;
+	}
+}
+
 NMib::NTime::CTime NMib::NTime::NPlatform::fg_TimeRaw_ToLocal(CTime const &_Time)
 {
-	auto DateTime = NTime::CTimeConvert(_Time).f_ExtractDateTime();
+	uint64 OriginalFractionInt = _Time.f_GetFractionInt();
+
+	CTime TruncatedTime = fg_TruncateTimeToMillisecond(_Time);
+	auto DateTime = NTime::CTimeConvert(TruncatedTime).f_ExtractDateTime();
 
 	if (DateTime.m_Year < 1601 || DateTime.m_Year > 30826)
 		return _Time;
@@ -228,7 +247,11 @@ NMib::NTime::CTime NMib::NTime::NPlatform::fg_TimeRaw_ToLocal(CTime const &_Time
 	{
 		if (!NLocal::g_OptionalFunctions.m_fSystemTimeToTzSpecificLocalTimeEx(nullptr, &Time, &LocalTime))
 			DMibErrorSystemImp((NStr::CFStr256::CFormat("Windows returned an error from SystemTimeToTzSpecificLocalTimeEx: {}") << NMib::NPlatform::fg_Win32_GetLastErrorStr()).f_GetStr());
-		return NFile::NPlatform::fg_SystemTimeToMalterlibTime(LocalTime);
+
+		CTime Result = NFile::NPlatform::fg_SystemTimeToMalterlibTime(LocalTime);
+		Result.f_SetFractionInt(OriginalFractionInt);
+
+		return Result;
 	}
 
 	TIME_ZONE_INFORMATION *pTimeZoneInfo = nullptr;
@@ -245,12 +268,18 @@ NMib::NTime::CTime NMib::NTime::NPlatform::fg_TimeRaw_ToLocal(CTime const &_Time
 	if (!SystemTimeToTzSpecificLocalTime(pTimeZoneInfo, &Time, &LocalTime))
 		DMibErrorSystemImp((NStr::CFStr256::CFormat("Windows returned an error from SystemTimeToTzSpecificLocalTime: {}") << NMib::NPlatform::fg_Win32_GetLastErrorStr()).f_GetStr());
 
-	return NFile::NPlatform::fg_SystemTimeToMalterlibTime(LocalTime);
+	CTime Result = NFile::NPlatform::fg_SystemTimeToMalterlibTime(LocalTime);
+	Result.f_SetFractionInt(OriginalFractionInt);
+
+	return Result;
 }
 
 NMib::NTime::CTime NMib::NTime::NPlatform::fg_TimeRaw_ToUtc(CTime const &_Time)
 {
-	auto DateTime = NTime::CTimeConvert(_Time).f_ExtractDateTime();
+	uint64 OriginalFractionInt = _Time.f_GetFractionInt();
+
+	CTime TruncatedTime = fg_TruncateTimeToMillisecond(_Time);
+	auto DateTime = NTime::CTimeConvert(TruncatedTime).f_ExtractDateTime();
 
 	if (DateTime.m_Year < 1601 || DateTime.m_Year > 30826)
 		return _Time;
@@ -264,7 +293,11 @@ NMib::NTime::CTime NMib::NTime::NPlatform::fg_TimeRaw_ToUtc(CTime const &_Time)
 	{
 		if (!NLocal::g_OptionalFunctions.m_fTzSpecificLocalTimeToSystemTimeEx(nullptr, &Time, &LocalTime))
 			DMibErrorSystemImp((NStr::CFStr256::CFormat("Windows returned an error from SystemTimeToTzSpecificLocalTimeEx: {}") << NMib::NPlatform::fg_Win32_GetLastErrorStr()).f_GetStr());
-		return NFile::NPlatform::fg_SystemTimeToMalterlibTime(LocalTime);
+
+		CTime Result = NFile::NPlatform::fg_SystemTimeToMalterlibTime(LocalTime);
+		Result.f_SetFractionInt(OriginalFractionInt);
+
+		return Result;
 	}
 
 	TIME_ZONE_INFORMATION *pTimeZoneInfo = nullptr;
@@ -281,7 +314,10 @@ NMib::NTime::CTime NMib::NTime::NPlatform::fg_TimeRaw_ToUtc(CTime const &_Time)
 	if (!TzSpecificLocalTimeToSystemTime(pTimeZoneInfo, &Time, &LocalTime))
 		DMibErrorSystemImp((NStr::CFStr256::CFormat("Windows returned an error from SystemTimeToTzSpecificLocalTime: {}") << NMib::NPlatform::fg_Win32_GetLastErrorStr()).f_GetStr());
 
-	return NFile::NPlatform::fg_SystemTimeToMalterlibTime(LocalTime);
+	CTime Result = NFile::NPlatform::fg_SystemTimeToMalterlibTime(LocalTime);
+	Result.f_SetFractionInt(OriginalFractionInt);
+
+	return Result;
 }
 
 namespace
