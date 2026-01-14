@@ -54,7 +54,7 @@ NMib::NTime::CTime NMib::NTime::NPlatform::fg_TimeRaw_ToLocal(CTime const &_Time
 		DMibError(NMib::NPlatform::fg_FormatErrno("localtime_r (get utf offset)", ErrNo));
 	}
 
-	return CTimeConvert::fs_CreateTime(1900 + pTime->tm_year, pTime->tm_mon + 1, pTime->tm_mday, pTime->tm_hour, pTime->tm_min, pTime->tm_sec, _Time.f_GetFraction());
+	return CTimeConvert::fs_CreateTimeIntFrac(1900 + pTime->tm_year, pTime->tm_mon + 1, pTime->tm_mday, pTime->tm_hour, pTime->tm_min, pTime->tm_sec, _Time.f_GetFractionInt());
 }
 
 NMib::NTime::CTime NMib::NTime::NPlatform::fg_TimeRaw_ToUtc(CTime const &_Time)

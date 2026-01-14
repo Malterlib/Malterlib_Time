@@ -540,6 +540,55 @@ namespace
 				DMibExpectViolatesRequire(fTestYear(constant_uint64(577'039'110'549)));
 			};
 
+			DMibTestSuite("UTCConversionFractions")
+			{
+				auto fTestFraction = [](int64 _Year, fp64 _Fraction)
+					{
+						DMibTestPath("Year {} Fraction {}"_f << _Year << _Fraction);
+
+						auto OriginalTime = CTimeConvert::fs_CreateTime(_Year, 6, 15, 12, 30, 45, _Fraction);
+						auto LocalTime = OriginalTime.f_ToLocal();
+						auto RoundTrip = LocalTime.f_ToUTC();
+
+						DMibExpect(OriginalTime, ==, RoundTrip);
+					}
+				;
+
+				auto fTestFractionInt = [](int64 _Year, uint64 _FractionInt)
+					{
+						DMibTestPath("Year {} FractionInt {}"_f << _Year << _FractionInt);
+
+						auto OriginalTime = CTimeConvert::fs_CreateTimeIntFrac(_Year, 6, 15, 12, 30, 45, _FractionInt);
+						auto LocalTime = OriginalTime.f_ToLocal();
+						auto RoundTrip = LocalTime.f_ToUTC();
+
+						DMibExpect(OriginalTime, ==, RoundTrip);
+					}
+				;
+
+				// Test various fractions close to 1.0
+				for (int64 Year : {2000, 2024})
+				{
+					fTestFraction(Year, 0.0);
+					fTestFraction(Year, 0.5);
+					fTestFraction(Year, 0.999);
+					fTestFraction(Year, 0.9999);
+					fTestFraction(Year, 0.99999);
+					fTestFraction(Year, 0.999999);
+					fTestFraction(Year, 0.9999999);
+				}
+
+				// Test using raw fraction integers near maximum
+				constexpr uint64 MaxFrac = NTime::NPrivate::CConst::mc_FractionDividend - 1;
+				for (int64 Year : {2000, 2024})
+				{
+					fTestFractionInt(Year, MaxFrac);
+					fTestFractionInt(Year, MaxFrac - 10);
+					fTestFractionInt(Year, MaxFrac - 100);
+					fTestFractionInt(Year, MaxFrac - 1000);
+				}
+			};
+
 			DMibTestSuite(CTestCategory("CheckUTCConversion") << CTestGroup("Manual"))
 			{
 				for (CTime Time = CTimeConvert::fs_CreateTime(1980); Time < CTimeConvert::fs_CreateTime(1981); Time += CTimeSpanConvert::fs_CreateMinuteSpan(15))
