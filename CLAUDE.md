@@ -167,7 +167,7 @@ Test files are located in `Test/`:
 ### Running Tests
 ```bash
 ./mib generate Tests
-MalterlibBuildShowProgress=false ./mib build Tests macOS arm64 Debug
+MalterlibBuildShowProgress=false ./mib build Tests
 /opt/Deploy/Tests/RunAllTests --paths '["Time/Test_Malterlib_Time_Time"]'
 ```
 
