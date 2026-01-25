@@ -290,6 +290,14 @@ namespace NMib::NTime
 			return Ret;
 		}
 
+		static CTimeSpan fs_Zero()
+		{
+			CTimeSpan Ret;
+			Ret.m_Seconds = 0;
+			Ret.m_Fraction = 0;
+			return Ret;
+		}
+
 		template <typename tf_CStr>
 		void f_Format(tf_CStr &_FormatInto) const;
 	};
