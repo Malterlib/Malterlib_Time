@@ -337,6 +337,8 @@ namespace NMib::NTime
 			return "Infinity";
 		else if (_Seconds == fp64::fs_NegInf())
 			return "Negative Infinity";
+		else if (_Seconds == fp64::fs_0())
+			return "0 s";
 
 		if (_Seconds > c_AverageYear)
 		{
