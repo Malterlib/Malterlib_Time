@@ -1877,6 +1877,11 @@ namespace NMib::NStream
 
 }
 
+constexpr inline pfp64 operator ""_ns(long double _Value)
+{
+	return _Value * 0.000'000'001;
+}
+
 constexpr inline pfp64 operator ""_µs(long double _Value)
 {
 	return _Value * 0.000'001;
@@ -1910,6 +1915,11 @@ constexpr inline pfp64 operator ""_days(long double _Value)
 constexpr inline pfp64 operator ""_weeks(long double _Value)
 {
 	return _Value * NMib::NTime::NPrivate::CConst::mc_SecondsInWeekFp;
+}
+
+constexpr inline pfp64 operator ""_ns(unsigned long long _Value)
+{
+	return pfp64(_Value) * 0.000'000'001;
 }
 
 constexpr inline pfp64 operator ""_µs(unsigned long long _Value)
