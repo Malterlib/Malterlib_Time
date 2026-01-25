@@ -10,6 +10,9 @@ namespace NMib::NTime
 	class CTimeSpanConvert_BabylonianCommon;
 	class CTime;
 
+	template <typename tf_CStr>
+	void fg_FormatSecondsDurationToHumanReadable(tf_CStr &o_FormatInto, fp64 const &_Seconds);
+
 	namespace NPrivate
 	{
 		struct CConst
@@ -287,6 +290,8 @@ namespace NMib::NTime
 			return Ret;
 		}
 
+		template <typename tf_CStr>
+		void f_Format(tf_CStr &_FormatInto) const;
 	};
 
 	class CTimeConvert_BabylonianCommon;
@@ -778,7 +783,6 @@ namespace NMib::NTime
 			return Seconds;
 		}
 	};
-
 
 	class CTimeConvert_BabylonianCommon
 	{
@@ -1812,6 +1816,18 @@ namespace NMib::NTime
 			;
 		}
 	}
+
+	template <typename tf_CStr>
+	void CTimeSpan::f_Format(tf_CStr &o_FormatInto) const
+	{
+		if (!f_IsValid())
+		{
+			o_FormatInto += "INVALID";
+			return;
+		}
+
+		fg_FormatSecondsDurationToHumanReadable(o_FormatInto, f_GetSecondsFraction());
+	}
 }
 
 namespace NMib
@@ -1956,3 +1972,5 @@ constexpr inline pfp64 operator ""_weeks(unsigned long long _Value)
 {
 	return pfp64(_Value) * NMib::NTime::NPrivate::CConst::mc_SecondsInWeekFp;
 }
+
+#include "Malterlib_Time_Time.hpp"
