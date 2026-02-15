@@ -36,7 +36,7 @@ namespace NMib::NTime
 	{
 		m_Timer.f_Stop();
 
-		DMibTraceSafe("Timer {}: {} s" DMibNewLine, m_pName << m_Timer.f_GetTime());
+		DMibTraceSafe("Timer {}: {} s" DMibNewLine, m_pName, m_Timer.f_GetTime());
 	}
 
 	CTimerConOutScope::CTimerConOutScope(const ch8 *_pName)
@@ -50,6 +50,6 @@ namespace NMib::NTime
 	{
 		m_Timer.f_Stop();
 
-		DMibConErrOut("Timer {}: {} s" DMibNewLine, m_pName << m_Timer.f_GetTime());
+		DMibConErrOut("Timer {}: {} s" DMibNewLine, m_pName, m_Timer.f_GetTime());
 	}
 }

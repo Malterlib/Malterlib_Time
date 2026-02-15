@@ -83,13 +83,13 @@ namespace
 #endif
 			if (!((TotalTime / TotalTimeTimerRaw) > fp64(1.0) / g_AllowedDiff && (TotalTime / TotalTimeTimerRaw) < g_AllowedDiff))
 			{
-				DMibConErrOut("TotalTime: {}, TotalTimeTimerRaw: {} = {}{\n}", TotalTime << TotalTimeTimerRaw << (TotalTime / TotalTimeTimerRaw));
+				DMibConErrOut("TotalTime: {}, TotalTimeTimerRaw: {} = {}{\n}", TotalTime, TotalTimeTimerRaw, (TotalTime / TotalTimeTimerRaw));
 				bSuccess = false;
 			}
 
 			if (!((TotalTimeTimer / TotalTimeTimerRaw) > fp64(1.0) / g_AllowedDiff && (TotalTimeTimer / TotalTimeTimerRaw) < g_AllowedDiff))
 			{
-				DMibConErrOut("TotalTimeTimer: {}, TotalTimeTimerRaw: {} = {}{\n}", TotalTimeTimer << TotalTimeTimerRaw << (TotalTimeTimer / TotalTimeTimerRaw));
+				DMibConErrOut("TotalTimeTimer: {}, TotalTimeTimerRaw: {} = {}{\n}", TotalTimeTimer, TotalTimeTimerRaw, (TotalTimeTimer / TotalTimeTimerRaw));
 				bSuccess = false;
 			}
 

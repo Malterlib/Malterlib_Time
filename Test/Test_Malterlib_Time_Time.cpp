@@ -934,7 +934,7 @@ namespace
 					auto LocalTime = Time.f_ToLocal();
 					auto UtcTime = LocalTime.f_ToUTC();
 					if (UtcTime != Time)
-						DMibConOut2("{tc5} {tc5} {tc5}\n", Time, LocalTime, UtcTime);
+						DMibConOut("{tc5} {tc5} {tc5}\n", Time, LocalTime, UtcTime);
 				}
 
 				for (CTime Time = CTimeConvert::fs_CreateTime(2024); Time < CTimeConvert::fs_CreateTime(2025); Time += CTimeSpanConvert::fs_CreateMinuteSpan(15))
@@ -942,7 +942,7 @@ namespace
 					auto LocalTime = Time.f_ToLocal();
 					auto UtcTime = LocalTime.f_ToUTC();
 					if (UtcTime != Time)
-						DMibConOut2("{tc5} {tc5} {tc5}\n", Time, LocalTime, UtcTime);
+						DMibConOut("{tc5} {tc5} {tc5}\n", Time, LocalTime, UtcTime);
 				}
 
 				for (CTime Time = CTimeConvert::fs_CreateTime(2024); Time < CTimeConvert::fs_CreateTime(2025); Time += CTimeSpanConvert::fs_CreateMinuteSpan(15))
@@ -950,7 +950,7 @@ namespace
 					auto UtcTime = Time.f_ToUTC();
 					auto LocalTime = UtcTime.f_ToLocal();
 					if (LocalTime != Time)
-						DMibConOut2("{tc5} {tc5} {tc5}\n", Time, LocalTime, UtcTime);
+						DMibConOut("{tc5} {tc5} {tc5}\n", Time, LocalTime, UtcTime);
 				}
 			};
 

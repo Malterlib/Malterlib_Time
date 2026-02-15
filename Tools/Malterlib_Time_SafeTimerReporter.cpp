@@ -15,7 +15,7 @@ public:
 			uint64 Value = NMib::NSys::fg_TimerRaw_SafeGet();
 			uint32 Value32 = Value;
 			fp64 TimeUntilWrap = fp64(uint32(0xffffffff) - Value32) / 1000.0;
-			DMibConErrOut("0x{nfh,sf0,sj16}: Time until wrap {} s\n", Value << TimeUntilWrap);
+			DMibConErrOut("0x{nfh,sf0,sj16}: Time until wrap {} s\n", Value, TimeUntilWrap);
 			NMib::NSys::fg_Thread_Sleep(1.0);
 		}
 		return NMib::NTest::fg_RunTests();
