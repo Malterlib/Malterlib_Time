@@ -488,7 +488,7 @@ namespace
 			DMibTestSuite("Time precision")
 			{
 				CTime Now = CTime::fs_NowUTC();
-				NMib::NSys::fg_Thread_Sleep(NPlatform::fg_TimeRaw_Resolution());
+				NMib::NSys::fg_Thread_Sleep(NTime::NPlatform::fg_TimeRaw_Resolution());
 				CTime Now2 = CTime::fs_NowUTC();
 				DMibTest(DMibExpr(Now) != DMibExpr(Now2)); // This can fail on macOS until we have ported Windows code inte general system
 
@@ -510,13 +510,13 @@ namespace
 				CSystem_Time::fs_SetTimeSpeed(TimeSpeed, nullptr, nullptr);
 				CTime Start = CTime::fs_NowUTC();
 				CTime StartRaw;
-				NPlatform::fg_TimeRaw_GetNow(&StartRaw);
+				NTime::NPlatform::fg_TimeRaw_GetNow(&StartRaw);
 
 				NMib::NSys::fg_Thread_Sleep(g_CheckTime);
 
 				CTime End = CTime::fs_NowUTC();
 				CTime EndRaw;
-				NPlatform::fg_TimeRaw_GetNow(&EndRaw);
+				NTime::NPlatform::fg_TimeRaw_GetNow(&EndRaw);
 
 				fp64 TotalTime = (End - Start).f_GetSecondsFraction();
 				fp64 TotalTimeRaw = (EndRaw - StartRaw).f_GetSecondsFraction();
@@ -534,12 +534,12 @@ namespace
 				fp64 TimeSpeed = 2.0;
 				CSystem_Time::fs_SetTimeSpeed(TimeSpeed, nullptr, nullptr);
 				int64 Start = CSystem_Time::fs_GetTimerValue();
-				int64 StartRaw = NPlatform::fg_TimerRaw_PreciseGet();
+				int64 StartRaw = NTime::NPlatform::fg_TimerRaw_PreciseGet();
 
 				NMib::NSys::fg_Thread_Sleep(1.0f);
 
 				int64 End = CSystem_Time::fs_GetTimerValue();
-				int64 EndRaw = NPlatform::fg_TimerRaw_PreciseGet();
+				int64 EndRaw = NTime::NPlatform::fg_TimerRaw_PreciseGet();
 
 				fp64 TotalTime = fp64(End - Start);
 				fp64 TotalTimeRaw = fp64(EndRaw - StartRaw);
