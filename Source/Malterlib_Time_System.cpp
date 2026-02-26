@@ -326,7 +326,7 @@ namespace NMib::NTime
 
 		int64 CSubSystem_Time::f_GetTimerVal() const
 		{
-			if (m_bUsedTimeSpeed.f_Load(NAtomic::EMemoryOrder_Relaxed))
+			if (m_bUsedTimeSpeed.f_Load(NAtomic::gc_MemoryOrder_Relaxed))
 			{
 				DMibLock(m_TimerValLock);
 				if (m_LastInternalTimer == -1)
@@ -337,7 +337,7 @@ namespace NMib::NTime
 				int64 ThisTime = fp_GetTimerValInternal();
 				int64 Change = ThisTime - m_LastInternalTimer;
 				m_LastInternalTimer = ThisTime;
-				auto AbsoluteValue = (fp64(Change) * m_TimeSpeed.f_Load(NAtomic::EMemoryOrder_Relaxed)) + m_InternalTimerExtra;
+				auto AbsoluteValue = (fp64(Change) * m_TimeSpeed.f_Load(NAtomic::gc_MemoryOrder_Relaxed)) + m_InternalTimerExtra;
 				auto Rounded = (AbsoluteValue).f_ToInt();
 				m_InternalTimerExtra = AbsoluteValue - fp64(Rounded);
 				m_InternalTimer += Rounded;
@@ -392,13 +392,13 @@ namespace NMib::NTime
 
 		void CSubSystem_Time::fp_TimerUpdate(int64 _CurrentTimer, NTime::CTime &_Time, bool _bRecursive)
 		{
-			if (m_bUsedTimeSpeed.f_Load(NAtomic::EMemoryOrder_Relaxed) || _bRecursive)
+			if (m_bUsedTimeSpeed.f_Load(NAtomic::gc_MemoryOrder_Relaxed) || _bRecursive)
 				return;
 
 			NTime::CTime SystemTime;
 			NPlatform::fg_TimeRaw_GetNow(&SystemTime);
 
-			int64 UpdateDiff = m_NextUpdate.f_Load(NAtomic::EMemoryOrder_Relaxed) - _CurrentTimer;
+			int64 UpdateDiff = m_NextUpdate.f_Load(NAtomic::gc_MemoryOrder_Relaxed) - _CurrentTimer;
 			if
 				(
 					(UpdateDiff < 0)
@@ -410,7 +410,7 @@ namespace NMib::NTime
 				{
 					DMibLock(m_Lock);
 					m_LastTimer = _CurrentTimer;
-					UpdateDiff = m_NextUpdate.f_Load(NAtomic::EMemoryOrder_Relaxed) - _CurrentTimer;
+					UpdateDiff = m_NextUpdate.f_Load(NAtomic::gc_MemoryOrder_Relaxed) - _CurrentTimer;
 					NTime::CTime SystemTime;
 					NPlatform::fg_TimeRaw_GetNow(&SystemTime);
 					if
@@ -424,7 +424,7 @@ namespace NMib::NTime
 
 						NTime::CTimeSpan TimeDiff = SystemTime - m_TimeBase;
 
-						int64 Diff = (_CurrentTimer - m_TimerBase.f_Load(NAtomic::EMemoryOrder_Relaxed));
+						int64 Diff = (_CurrentTimer - m_TimerBase.f_Load(NAtomic::gc_MemoryOrder_Relaxed));
 						int64 CurrentTimeFrequency = (TimeDiff.f_GetSeconds() * m_TimerFrequency + (TimeDiff.f_GetFraction() * m_TimerFrequencyFp).f_ToInt());
 						int64 Error = CurrentTimeFrequency - Diff;
 						if (fg_Abs(Error) > m_ErrorMarginReset)
@@ -461,7 +461,7 @@ namespace NMib::NTime
 			}
 			else
 			{
-				if (m_bHasDrift.f_Load(NAtomic::EMemoryOrder_Relaxed))
+				if (m_bHasDrift.f_Load(NAtomic::gc_MemoryOrder_Relaxed))
 				{
 					DMibLock(m_Lock);
 					m_LastTimer = _CurrentTimer;
@@ -482,7 +482,7 @@ namespace NMib::NTime
 
 		NTime::CTime CSubSystem_Time::f_TimeToLocal(NTime::CTime const &_Time) const
 		{
-			if (m_bUsedTimeSpeed.f_Load(NAtomic::EMemoryOrder_Relaxed))
+			if (m_bUsedTimeSpeed.f_Load(NAtomic::gc_MemoryOrder_Relaxed))
 				return _Time.f_ToLocalLegacy();
 
 			return NPlatform::fg_TimeRaw_ToLocal(_Time);
@@ -490,7 +490,7 @@ namespace NMib::NTime
 
 		NTime::CTime CSubSystem_Time::f_TimeToUtc(NTime::CTime const &_Time) const
 		{
-			if (m_bUsedTimeSpeed.f_Load(NAtomic::EMemoryOrder_Relaxed))
+			if (m_bUsedTimeSpeed.f_Load(NAtomic::gc_MemoryOrder_Relaxed))
 				return _Time.f_ToUtcLegacy();
 
 			return NPlatform::fg_TimeRaw_ToUtc(_Time);
@@ -556,7 +556,7 @@ namespace NMib::NTime
 			int64 CurrentTimer = f_GetTimerVal();
 
 			NTime::CTimeSpan Add;
-			int64 Diff = (CurrentTimer - m_TimerBase.f_Load(NAtomic::EMemoryOrder_Relaxed));
+			int64 Diff = (CurrentTimer - m_TimerBase.f_Load(NAtomic::gc_MemoryOrder_Relaxed));
 			if (Diff < 0)
 			{
 				int64 nSeconds = fg_Abs(Diff) / m_TimerFrequency;
@@ -633,17 +633,17 @@ namespace NMib::NTime
 
 		fp64 CSubSystem_Time::f_GetTimeSpeed() const
 		{
-			return m_TimeSpeed.f_Load(NAtomic::EMemoryOrder_Relaxed);
+			return m_TimeSpeed.f_Load(NAtomic::gc_MemoryOrder_Relaxed);
 		}
 
 		fp64 CSubSystem_Time::f_GetTimeSpeedReciprocal() const
 		{
-			return m_TimeSpeedReciprocal.f_Load(NAtomic::EMemoryOrder_Relaxed);
+			return m_TimeSpeedReciprocal.f_Load(NAtomic::gc_MemoryOrder_Relaxed);
 		}
 
 		bool CSubSystem_Time::f_GetTimeSimulating() const
 		{
-			return m_bUsedTimeSpeed.f_Load(NAtomic::EMemoryOrder_Relaxed);
+			return m_bUsedTimeSpeed.f_Load(NAtomic::gc_MemoryOrder_Relaxed);
 		}
 
 		void CSubSystem_Time::f_ReportTimeChange(NTime::CTime const &_OldTime, NTime::CTime const &_NewTime, NStr::CStr const &_Reason)
