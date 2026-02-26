@@ -121,7 +121,7 @@ namespace
 	};
 
 	constinit NMib::NStorage::TCAggregate<CIncreaseTimerPrecision> g_IncreaseTimerPrecision = {DAggregateInit};
-	constinit NMib::NAtomic::TCAtomicAggregate<uint64> g_SafeTimerFullPrecision = {DAggregateInit};
+	constinit NMib::NAtomic::TCAtomic<uint64> g_SafeTimerFullPrecision{0};
 }
 
 
