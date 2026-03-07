@@ -39,10 +39,10 @@ namespace
 
 		bool f_UnstableTimerTest(NMib::NFunction::TCFunction<void()>&& _fTamperWithTime, bool _bExpectSafeTime = true)
 		{
-			NMib::NTime::CClock Clock;
+			NMib::NTime::CStopwatch Stopwatch;
 			{
 				// Precache
-				Clock.f_Start();
+				Stopwatch.f_Start();
 				NMib::NTime::CTime::fs_NowUTC();
 				NMib::NTime::NPlatform::fg_TimerRaw_PreciseGet();
 				NMib::NTime::NPlatform::fg_TimerRaw_SafeGet();
@@ -51,7 +51,7 @@ namespace
 			_fTamperWithTime();
 			NMib::NTime::CTime Start = NMib::NTime::CTime::fs_NowUTC();
 			auto TimerStart = NMib::NTime::NPlatform::fg_TimerRaw_SafeGet();
-			Clock.f_Start();
+			Stopwatch.f_Start();
 			{
 				// Precache
 				NMib::NTime::CTime::fs_NowUTC();
@@ -60,7 +60,7 @@ namespace
 			}
 			NMib::NSys::fg_Thread_Sleep(g_CheckTime);
 			NMib::NTime::CTime End = NMib::NTime::CTime::fs_NowUTC();
-			fp32 TotalTimeTimer = Clock.f_GetTime();
+			fp32 TotalTimeTimer = Stopwatch.f_GetTime();
 			auto TimerEnd = NMib::NTime::NPlatform::fg_TimerRaw_SafeGet();
 
 			fp64 TotalTime = (End - Start).f_GetSecondsFraction();

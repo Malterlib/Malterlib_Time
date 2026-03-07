@@ -1,5 +1,5 @@
-// Copyright © 2015 Hansoft AB
+// Copyright © 2026 Unbroken AB
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #pragma once
-#include "../../../Source/Malterlib_Time_Timeout.h"
+#include "../../../Source/Malterlib_Time_System.h"

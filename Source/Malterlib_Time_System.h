@@ -9,10 +9,8 @@ namespace NMib::NTime
 {
 	struct CSystem_Time
 	{
-		class CTimeChangeNotificationSubscription
+		struct CTimeChangeNotificationSubscription
 		{
-			friend struct CSystem_Time;
-		public:
 			CTimeChangeNotificationSubscription(CTimeChangeNotificationSubscription const &_Other) = delete;
 			CTimeChangeNotificationSubscription &operator =(CTimeChangeNotificationSubscription const &_Other) = delete;
 
@@ -20,7 +18,9 @@ namespace NMib::NTime
 			CTimeChangeNotificationSubscription(CTimeChangeNotificationSubscription &&_Other);
 			CTimeChangeNotificationSubscription &operator =(CTimeChangeNotificationSubscription &&_Other);
 			~CTimeChangeNotificationSubscription();
+
 		private:
+			friend struct CSystem_Time;
 			CTimeChangeNotificationSubscription(NFunction::TCFunction<void (NTime::CTime const &_OldTime, NTime::CTime const &_NewTime, NStr::CStr const &_Reason)> *_pNotification);
 			void fp_Remove();
 
@@ -32,7 +32,6 @@ namespace NMib::NTime
 				NFunction::TCFunction<void (NTime::CTime const &_OldTime, NTime::CTime const &_NewTime, NStr::CStr const &_Reason)> &&_fNotification
 			)
 		;
-
 
 		static bool fs_TimeInitDone();
 		static fp64 fs_CyclesFrequencyFp();
@@ -51,12 +50,12 @@ namespace NMib::NTime
 		static NTime::CTime fs_TimeToLocal(NTime::CTime const &_Time);
 		static NTime::CTime fs_TimeToUtc(NTime::CTime const &_Time);
 		static int64 fs_TimeResolution();
-	#ifdef DMibSafeTimerAvailable
-		#if DMibConfig_Tests_Enable
+#ifdef DMibSafeTimerAvailable
+	#if DMibConfig_Tests_Enable
 		static void fs_MakeSafeTimerWrap(fp64 _InSeconds, uint32 _Where);
-		#endif
+	#endif
 		static void fs_EnableSafeTimer();
 		static bool fs_IsSafeTimerEnabled();
-	#endif
+#endif
 	};
 }

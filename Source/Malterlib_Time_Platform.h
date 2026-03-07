@@ -6,7 +6,6 @@
 namespace NMib::NTime::NPlatform
 {
 #if DMibConfig_Tests_Enable && defined(DMibSafeTimerAvailable)
-
 	enum EUnstableTimerMode
 	{
 		EUnstableTimerMode_Off

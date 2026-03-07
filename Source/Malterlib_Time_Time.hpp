@@ -3,116 +3,244 @@
 
 #pragma once
 
+namespace NMib::NTime::NPrivate
+{
+	template <typename tf_CType>
+	struct TCIsTime
+	{
+		constexpr static bool mc_bValue = false;
+	};
+
+	template <>
+	struct TCIsTime<CTime>
+	{
+		constexpr static bool mc_bValue = true;
+	};
+}
+
 namespace NMib::NTime
 {
-	template <typename tf_CStr>
-	void fg_FormatSecondsDurationToHumanReadable(tf_CStr &o_FormatInto, fp64 const &_Seconds)
+	constexpr CTime::CTime(uint64 _Seconds, uint64 _Fraction) noexcept
+		: mp_Seconds(_Seconds)
+		, mp_Fraction(_Fraction)
 	{
-		using namespace NStr;
+#ifdef DMibDebuggerHelpers
+		static_assert(TCInstantiateValue<&CTime::fsp_DebugStr>::mc_Value);
+#endif
+	}
 
-		constexpr auto c_AverageYear = 365.2425_days;
-		constexpr auto c_AverageMonth = 30.436875_days;
+	constexpr CTime::CTime() noexcept
+	{
+#ifdef DMibDebuggerHelpers
+		static_assert(TCInstantiateValue<&CTime::fsp_DebugStr>::mc_Value);
+#endif
+	}
 
-		if (_Seconds.f_IsNan())
-			return;
-		else if (_Seconds == fp64::fs_Inf())
-		{
-			o_FormatInto += "Infinity";
-			return;
-		}
-		else if (_Seconds == fp64::fs_NegInf())
-		{
-			o_FormatInto += "Negative Infinity";
-			return;
-		}
-		else if (_Seconds == fp64::fs_0())
-		{
-			o_FormatInto += "0 s";
-			return;
-		}
+	constexpr bool CTime::f_IsValid() const noexcept
+	{
+		return mp_Seconds != NPrivate::CConst::mc_InvalidTimeSeconds;
+	}
 
-		if (_Seconds > c_AverageYear)
+	constexpr CTime &CTime::operator += (CTimeSpan const &_Other) noexcept
+	{
+		mp_Seconds += _Other.mp_Seconds;
+		uint64 FracAdd = _Other.mp_Fraction;
+		uint64 Temp = NPrivate::CConst::mc_FractionDividend - mp_Fraction;
+		if (FracAdd >= Temp)
 		{
-			fp64 Years = (_Seconds / c_AverageYear);
-			auto Months = (Years * 12.0 - Years.f_Floor() * 12.0).f_ToUnsignedInt();
-			o_FormatInto += typename tf_CStr::CFormat("{}y {}m") << Years.f_ToUnsignedInt() << Months;
+			++mp_Seconds;
+			mp_Fraction = FracAdd - Temp;
 		}
-		else if (_Seconds > c_AverageMonth)
-		{
-			constexpr auto c_AverageDaysInMonth = 30.436875;
-			fp64 Months = (_Seconds / c_AverageMonth);
-			auto Days = (Months * c_AverageDaysInMonth - Months.f_Floor() * c_AverageDaysInMonth).f_ToUnsignedInt();
-			o_FormatInto += typename tf_CStr::CFormat("{}m {}d") << Months.f_ToUnsignedInt() << Days;
-		}
-		else if (_Seconds > 1_weeks)
-		{
-			fp64 Weeks = (_Seconds / 1_weeks);
-			auto Days = (Weeks * 7.0 - Weeks.f_Floor() * 7.0).f_ToUnsignedInt();
-			o_FormatInto += typename tf_CStr::CFormat("{}w {}d") << Weeks.f_ToUnsignedInt() << Days;
-		}
-		else if (_Seconds > 1_days)
-		{
-			fp64 Days = (_Seconds / 1_days);
-			auto Hours = (Days * 24.0 - Days.f_Floor() * 24.0).f_ToUnsignedInt();
-			o_FormatInto += typename tf_CStr::CFormat("{}d {}h") << Days.f_ToUnsignedInt() << Hours;
-		}
-		else if (_Seconds > 1_hours)
-		{
-			fp64 Hours = (_Seconds / 1_hours);
-			auto Minutes = (Hours * 60.0 - Hours.f_Floor() * 60.0).f_ToUnsignedInt();
-			o_FormatInto += typename tf_CStr::CFormat("{}h {}m") << Hours.f_ToUnsignedInt() << Minutes;
-		}
-		else if (_Seconds > 1_minutes)
-		{
-			fp64 Minutes = (_Seconds / 1_minutes);
-			auto Seconds = (Minutes * 60.0 - Minutes.f_Floor() * 60.0).f_ToUnsignedInt();
-			o_FormatInto += typename tf_CStr::CFormat("{}m {}s") << Minutes.f_ToUnsignedInt() << Seconds;
-		}
-		else if (_Seconds >= 9.95_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe0} s") << _Seconds;
-		else if (_Seconds > 1_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe1} s") << _Seconds;
-		else if (_Seconds >= 9.95e-3_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe0} ms") << (_Seconds * 1e3);
-		else if (_Seconds > 1e-3_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe1} ms") << (_Seconds * 1e3);
-		else if (_Seconds >= 9.95e-6_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe0} µs") << (_Seconds * 1e6);
-		else if (_Seconds > 1e-6_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe1} µs") << (_Seconds * 1e6);
-		else if (_Seconds >= 9.95e-9_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe0} ns") << (_Seconds * 1e9);
-		else if (_Seconds > 1e-9_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe1} ns") << (_Seconds * 1e9);
-		else if (_Seconds >= 9.95e-12_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe0} ps") << (_Seconds * 1e12);
-		else if (_Seconds > 1e-12_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe1} ps") << (_Seconds * 1e12);
-		else if (_Seconds >= 9.95e-15_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe0} fs") << (_Seconds * 1e15);
-		else if (_Seconds > 1e-15_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe1} fs") << (_Seconds * 1e15);
-		else if (_Seconds >= 9.95e-18_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe0} as") << (_Seconds * 1e18);
-		else if (_Seconds > 1e-18_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe1} as") << (_Seconds * 1e18);
-		else if (_Seconds >= 9.95e-21_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe0} zs") << (_Seconds * 1e21);
-		else if (_Seconds > 1e-21_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe1} zs") << (_Seconds * 1e21);
-		else if (_Seconds >= 9.95e-24_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe0} ys") << (_Seconds * 1e24);
-		else if (_Seconds > 1e-24_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe1} ys") << (_Seconds * 1e24);
-		else if (_Seconds >= 9.95e-27_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe0} rs") << (_Seconds * 1e27);
-		else if (_Seconds > 1e-27_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe1} rs") << (_Seconds * 1e27);
-		else if (_Seconds >= 9.95e-30_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe0} qs") << (_Seconds * 1e30);
-		else if (_Seconds > 1e-30_seconds)
-			o_FormatInto += typename tf_CStr::CFormat("{fe1} qs") << (_Seconds * 1e30);
 		else
-			o_FormatInto += typename tf_CStr::CFormat("{ffe,fd3,fa0} tP") << (_Seconds * 10e44);
+			mp_Fraction += FracAdd;
+		return *this;
+	}
+
+	constexpr CTime &CTime::operator -= (CTimeSpan const &_Other) noexcept
+	{
+		mp_Seconds -= _Other.mp_Seconds;
+		uint64 FracSub = _Other.mp_Fraction;
+		uint64 Temp = mp_Fraction;
+
+		if (FracSub > Temp)
+		{
+			--mp_Seconds;
+			mp_Fraction = NPrivate::CConst::mc_FractionDividend - (FracSub - Temp);
+		}
+		else
+			mp_Fraction -= FracSub;
+		return *this;
+	}
+
+	constexpr CTimeSpan CTime::operator - (CTime const &_Other) const noexcept
+	{
+		CTimeSpan Ret;
+		DMibSafeCheck(this->f_IsValid() && _Other.f_IsValid(), "You should not calculate spans on invalid dates");
+
+		int64 ToSet;
+		if (mp_Seconds > _Other.mp_Seconds)
+		{
+			uint64 SpanSeconds = mp_Seconds - _Other.mp_Seconds;
+			if (SpanSeconds >= (constant_uint64(1) << 63) - 1)
+			{
+				SpanSeconds = (constant_uint64(1) << 63) - 2;
+			}
+			ToSet = SpanSeconds;
+		}
+		else
+		{
+			uint64 SpanSeconds = _Other.mp_Seconds - mp_Seconds;
+			if (SpanSeconds >= (constant_uint64(1) << 63) - 1)
+			{
+				SpanSeconds = (constant_uint64(1) << 63) - 2;
+			}
+			ToSet = -SpanSeconds;
+		}
+		Ret.f_SetSecondsNoFraction(ToSet);
+		uint64 FracSub = _Other.mp_Fraction;
+		uint64 Temp = mp_Fraction;
+
+		if (FracSub > Temp)
+		{
+			--Ret.mp_Seconds;
+			Ret.f_SetFractionInt(NPrivate::CConst::mc_FractionDividend - (FracSub - Temp));
+		}
+		else
+			Ret.f_SetFractionInt(Temp - FracSub);
+
+		return Ret;
+	}
+
+	constexpr CTime CTime::operator - (CTimeSpan const &_Other) const noexcept
+	{
+		DMibSafeCheck(f_IsValid(), "Must be valid");
+		CTime Ret;
+
+		Ret.mp_Seconds = mp_Seconds - _Other.mp_Seconds;
+		uint64 FracSub = _Other.mp_Fraction;
+		uint64 Temp = mp_Fraction;
+
+		if (FracSub > Temp)
+		{
+			--Ret.mp_Seconds;
+			Ret.mp_Fraction = NPrivate::CConst::mc_FractionDividend - (FracSub - Temp);
+		}
+		else
+			Ret.mp_Fraction = Temp - FracSub;
+
+		return Ret;
+	}
+
+	constexpr CTime CTime::operator + (CTimeSpan const &_Other) const noexcept
+	{
+		DMibSafeCheck(f_IsValid(), "Must be valid");
+		CTime Ret;
+		Ret.mp_Seconds = mp_Seconds + _Other.mp_Seconds;
+		uint64 FracAdd = _Other.mp_Fraction;
+		uint64 Temp = NPrivate::CConst::mc_FractionDividend - mp_Fraction;
+		if (FracAdd >= Temp)
+		{
+			++Ret.mp_Seconds;
+			Ret.mp_Fraction = FracAdd - Temp;
+		}
+		else
+			Ret.mp_Fraction = mp_Fraction + FracAdd;
+		return Ret;
+	}
+
+	constexpr CTime &CTime::operator ++ () noexcept
+	{
+		DMibSafeCheck(f_IsValid(), "Must be valid");
+		if (mp_Fraction == NPrivate::CConst::mc_FractionDividend - 1)
+		{
+			mp_Fraction = 0;
+			++mp_Seconds;
+		}
+		else
+		{
+			++mp_Fraction;
+		}
+
+		return *this;
+	}
+
+	constexpr CTime &CTime::operator -- () noexcept
+	{
+		DMibSafeCheck(f_IsValid(), "Must be valid");
+		if (mp_Fraction == 0)
+		{
+			mp_Fraction = NPrivate::CConst::mc_FractionDividend - 1;
+			--mp_Seconds;
+		}
+		else
+		{
+			--mp_Fraction;
+		}
+
+		return *this;
+	}
+
+	constexpr uint64 CTime::f_GetSeconds() const noexcept
+	{
+		return mp_Seconds;
+	}
+
+	constexpr void CTime::f_SetSeconds(uint64 _Seconds) noexcept
+	{
+		mp_Seconds = _Seconds;
+		mp_Fraction = 0;
+	}
+
+	constexpr void CTime::f_SetSecondsNoFraction(uint64 _Seconds) noexcept
+	{
+		mp_Seconds = _Seconds;
+	}
+
+	constexpr uint64 CTime::f_GetFractionInt() const noexcept
+	{
+		return mp_Fraction;
+	}
+
+	constexpr void CTime::f_SetFractionInt(uint64 _Fraction) noexcept
+	{
+		mp_Fraction = _Fraction;
+	}
+
+	constexpr fp64 CTime::f_GetFraction() const noexcept
+	{
+		return fp64(mp_Fraction) * NPrivate::CConst::mc_FractionDividendFpInv;
+	}
+
+	constexpr void CTime::f_SetFraction(fp64 _Fraction) noexcept
+	{
+		mp_Fraction = (_Fraction * NPrivate::CConst::mc_FractionDividendFp).f_ToUnsignedInt();
+	}
+
+	constexpr CTime CTime::fs_EndOfTime() noexcept
+	{
+		CTime Ret;
+		Ret.mp_Seconds = NPrivate::CConst::mc_EndOfTime;
+		Ret.mp_Fraction = NPrivate::CConst::mc_FractionDividend - 1;
+
+		return Ret;
+	}
+
+	constexpr CTime CTime::fs_StartOfTime() noexcept
+	{
+		CTime Ret;
+		Ret.mp_Seconds = 0;
+		Ret.mp_Fraction = 0;
+
+		return Ret;
+	}
+
+	constexpr CTime CTime::fs_Create(uint64 _Seconds, uint64 _Fraction) noexcept
+	{
+		return CTime{_Seconds, _Fraction};
+	}
+
+	constexpr fp64 CTime::f_GetSecondsFraction() const noexcept
+	{
+		return fp64(mp_Seconds) + fp64(mp_Fraction) * NPrivate::CConst::mc_FractionDividendFpInv;
 	}
 }

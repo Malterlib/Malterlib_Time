@@ -93,7 +93,6 @@ int64 NMib::NTime::NPlatform::fg_TimerRaw_PreciseFrequency()
 	return Temp.QuadPart;
 }
 
-
 fp64 NMib::NTime::NPlatform::fg_TimerRaw_PreciseResolution()
 {
 	return fp64(1.0) / fp64(fg_TimerRaw_SafeFrequency());
@@ -123,7 +122,6 @@ namespace
 	constinit NMib::NStorage::TCAggregate<CIncreaseTimerPrecision> g_IncreaseTimerPrecision = {DAggregateInit};
 	constinit NMib::NAtomic::TCAtomic<uint64> g_SafeTimerFullPrecision{0};
 }
-
 
 void NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision()
 {
@@ -158,7 +156,6 @@ int64 NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(fp32 _InSeconds)
 	(int32 &)g_SafeTimerOffset += (int32)(_InSeconds * 1000.0).f_ToInt();
 	return fg_TimerRaw_SafeGet() - LastValue;
 }
-
 #endif
 
 int64 NMib::NTime::NPlatform::fg_TimerRaw_SafeGet()
@@ -371,4 +368,3 @@ int64 NMib::NTime::NPlatform::fg_Timer_CyclesRawFrequency()
 	return fg_TimerRaw_PreciseFrequency();
 #endif
 }
-

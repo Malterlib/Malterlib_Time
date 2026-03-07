@@ -44,11 +44,10 @@ The Time module provides comprehensive time measurement, manipulation, and timin
 #### Timer Classes
 - **Location**: `Source/Malterlib_Time_Timer.h`
 - **Components**:
-  - `CTimer`: Standard timer for elapsed time measurement
-  - `CClock`: Wall clock timer with start/stop functionality
-  - `CCycles`: CPU cycle-based timer for high-precision measurements
-  - `CTimerMin`: Minimum time tracker for performance optimization
-  - `CStopWatch`: Simple stopwatch implementation
+  - `CTimeMeasure`: Standard timer for elapsed time measurement
+  - `CStopwatch`: Simple stopwatch implementation
+  - `CCyclesTimeMeasure`: CPU cycle-based timer for high-precision measurements
+  - `CPerfTimeMeasureMin`: Minimum time tracker for performance optimization
   - `CTimeout`: Timeout detection utility
 
 ### Platform Layer
@@ -86,7 +85,7 @@ CTimeConvert(Time).f_ExtractDateTime(DateTime);
 
 ```cpp
 // Basic timing
-CTimer Timer;
+CTimeMeasure Timer;
 Timer.f_Start();
 // ... code to measure ...
 Timer.f_Stop();
@@ -94,12 +93,12 @@ fp64 Elapsed = Timer.f_GetTime();
 
 // Scope-based timing
 {
-	DMibScopeTimer(Timer);
+	DMibScopeMeasure(Timer);
 	// ... code to measure ...
 } // Timer stops automatically
 
 // Minimum time tracking
-CTimerMin MinTimer;
+CPerfTimeMeasureMin MinTimer;
 for (mint i = 0; i < 100; ++i)
 {
 	MinTimer.f_Start();
@@ -197,10 +196,10 @@ MalterlibBuildShowProgress=false ./mib build Tests
 
 ## Performance Considerations
 
-- Use CCycles for ultra-low overhead timing measurements
-- CTimerMin automatically tracks minimum times to filter out system noise
+- Use CCyclesTimeMeasure for ultra-low overhead timing measurements
+- CPerfTimeMeasureMin automatically tracks minimum times to filter out system noise
 - Cycle timers include correction factors to account for measurement overhead
-- For production timing, prefer CTimer over CCycles (more portable)
+- For production timing, prefer CTimeMeasure over CCyclesTimeMeasure (more portable)
 
 ## Common Pitfalls
 
