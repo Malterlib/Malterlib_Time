@@ -11,7 +11,7 @@ The Time module provides comprehensive time measurement, manipulation, and timin
 - Calendar operations with Proleptic Gregorian and ISO Week calendar systems
 - Time zone support with UTC/Local time conversions
 - Performance measurement tools (timers, clocks, cycle counters)
-- Cross-platform implementation supporting Windows, macOS, Linux, and Emscripten
+- Cross-platform implementation supporting Windows, macOS, Linux
 - Time formatting and parsing utilities
 - Time span calculations and manipulations
 
@@ -183,10 +183,6 @@ MalterlibBuildShowProgress=false ./mib build Tests
 ### Linux
 - Uses clock_gettime with CLOCK_MONOTONIC for timing
 - CLOCK_REALTIME for wall clock time
-
-### Emscripten (WebAssembly)
-- Limited precision due to browser security restrictions
-- Uses performance.now() for timing
 
 ## Thread Safety
 
