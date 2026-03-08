@@ -126,7 +126,7 @@ namespace NMib::NTime
 #	ifndef DMibPNoShortCuts
 #		define DScopeMeasure(_Timer) DMibScopeMeasure(_Timer)
 #		define DScopeTraceTimeMeasure(_Name) DMibScopeTraceTimeMeasure(_Name)
-#		define DScopeConOutTimeMeauser(_Name) DMibScopeConOutTimeMeasure(_Name)
+#		define DScopeConOutTimeMeasure(_Name) DMibScopeConOutTimeMeasure(_Name)
 #	endif
 }
 
