@@ -43,6 +43,19 @@ namespace NMib::NTime
 		mp_StartTime += (_Offset * CSystem_Time::fs_TimerFrequencyFp()).f_ToInt();
 	}
 
+	int64 CStopwatch::f_GetStartTicks()
+	{
+		return mp_StartTime;
+	}
+
+	CStopwatch CStopwatch::fs_CreateFromStartTicks(int64 _StartTime)
+	{
+		CStopwatch Return;
+		Return.mp_StartTime = _StartTime;
+
+		return Return;
+	}
+
 	CStopwatch::operator fp64() const
 	{
 		return f_GetTime();
@@ -86,6 +99,19 @@ namespace NMib::NTime
 		mp_StartTime += (_Offset * fp64(NPlatform::fg_TimerRaw_PreciseFrequency())).f_ToInt();
 	}
 
+	int64 CStopwatchRaw::f_GetStartTicks()
+	{
+		return mp_StartTime;
+	}
+
+	CStopwatchRaw CStopwatchRaw::fs_CreateFromStartTicks(int64 _StartTime)
+	{
+		CStopwatchRaw Return;
+		Return.mp_StartTime = _StartTime;
+
+		return Return;
+	}
+
 	CStopwatchRaw::operator fp64() const
 	{
 		return f_GetTime();
@@ -122,6 +148,19 @@ namespace NMib::NTime
 	{
 		DMibFastCheck(mp_StartTime != TCLimitsInt<int64>::mc_Min);
 		mp_StartTime += (_Offset * fp64(CSystem_Time::fs_CyclesFrequencyFp())).f_ToInt();
+	}
+
+	int64 CCyclesStopwatch::f_GetStartTicks()
+	{
+		return mp_StartTime;
+	}
+
+	CCyclesStopwatch CCyclesStopwatch::fs_CreateFromStartTicks(int64 _StartTime)
+	{
+		CCyclesStopwatch Return;
+		Return.mp_StartTime = _StartTime;
+
+		return Return;
 	}
 
 	fp64 CCyclesStopwatch::f_GetTime() const
