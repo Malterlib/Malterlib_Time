@@ -67,21 +67,27 @@ namespace NMib::NTime
 	}
 
 	template <bool t_bDoCorrection>
-	int64 TCCyclesTimeMeasure<t_bDoCorrection>::f_GetCycles()
+	int64 TCCyclesTimeMeasure<t_bDoCorrection>::f_GetCycles() const
 	{
 		DMibFastCheck(mp_Time != TCLimitsInt<int64>::mc_Min && mp_Time >= 0);
 		return mp_Time;
 	}
 
 	template <bool t_bDoCorrection>
-	fp64 TCCyclesTimeMeasure<t_bDoCorrection>::f_GetTime()
+	fp64 TCCyclesTimeMeasure<t_bDoCorrection>::f_GetTime() const
 	{
 		DMibFastCheck(mp_Time != TCLimitsInt<int64>::mc_Min && mp_Time >= 0);
 		return fp64(mp_Time) * CSystem_Time::fs_CyclesFrequencyReciprocal();
 	}
 
 	template <bool t_bDoCorrection>
-	TCCyclesTimeMeasure<t_bDoCorrection>::operator fp64()
+	bool TCCyclesTimeMeasure<t_bDoCorrection>::f_IsValid() const
+	{
+		return mp_Time != TCLimitsInt<int64>::mc_Min && mp_Time >= 0;
+	}
+
+	template <bool t_bDoCorrection>
+	TCCyclesTimeMeasure<t_bDoCorrection>::operator fp64() const
 	{
 		DMibFastCheck(mp_Time != TCLimitsInt<int64>::mc_Min && mp_Time >= 0);
 		return fp64(mp_Time) * CSystem_Time::fs_CyclesFrequencyReciprocal();
@@ -115,7 +121,7 @@ namespace NMib::NTime
 	}
 
 	template <bool t_bDoCorrection>
-	auto TCCyclesTimeMeasure<t_bDoCorrection>::operator - (TCCyclesTimeMeasure const &_Other) -> TCCyclesTimeMeasure
+	auto TCCyclesTimeMeasure<t_bDoCorrection>::operator - (TCCyclesTimeMeasure const &_Other) const -> TCCyclesTimeMeasure
 	{
 		DMibFastCheck(mp_Time != TCLimitsInt<int64>::mc_Min && mp_Time >= 0);
 		DMibFastCheck(_Other.mp_Time != TCLimitsInt<int64>::mc_Min && _Other.mp_Time >= 0);
@@ -125,7 +131,7 @@ namespace NMib::NTime
 	}
 
 	template <bool t_bDoCorrection>
-	auto TCCyclesTimeMeasure<t_bDoCorrection>::operator + (TCCyclesTimeMeasure const &_Other) -> TCCyclesTimeMeasure
+	auto TCCyclesTimeMeasure<t_bDoCorrection>::operator + (TCCyclesTimeMeasure const &_Other) const -> TCCyclesTimeMeasure
 	{
 		DMibFastCheck(mp_Time != TCLimitsInt<int64>::mc_Min && mp_Time >= 0);
 		DMibFastCheck(_Other.mp_Time != TCLimitsInt<int64>::mc_Min && _Other.mp_Time >= 0);
@@ -147,18 +153,23 @@ namespace NMib::NTime
 		mp_Time = _Time;
 	}
 
-	CTimeMeasure::operator fp64()
+	bool CTimeMeasure::f_IsValid() const
+	{
+		return mp_Time != TCLimitsInt<int64>::mc_Min && mp_Time >= 0;
+	}
+
+	CTimeMeasure::operator fp64() const
 	{
 		DMibFastCheck(mp_Time != TCLimitsInt<int64>::mc_Min && mp_Time >= 0);
 		return fp64(mp_Time) / CSystem_Time::fs_TimerFrequencyFp();
 	}
 
-	int64 CTimeMeasure::f_GetTicks()
+	int64 CTimeMeasure::f_GetTicks() const
 	{
 		return mp_Time;
 	}
 
-	fp64 CTimeMeasure::f_GetTime()
+	fp64 CTimeMeasure::f_GetTime() const
 	{
 		DMibFastCheck(mp_Time != TCLimitsInt<int64>::mc_Min && mp_Time >= 0);
 		return (fp64(mp_Time)) / CSystem_Time::fs_TimerFrequencyFp();
@@ -188,7 +199,7 @@ namespace NMib::NTime
 		return *this;
 	}
 
-	CTimeMeasure CTimeMeasure::operator - (CTimeMeasure const &_Other)
+	CTimeMeasure CTimeMeasure::operator - (CTimeMeasure const &_Other) const
 	{
 		DMibFastCheck(mp_Time != TCLimitsInt<int64>::mc_Min && mp_Time >= 0);
 		DMibFastCheck(_Other.mp_Time != TCLimitsInt<int64>::mc_Min && _Other.mp_Time >= 0);
@@ -197,7 +208,7 @@ namespace NMib::NTime
 		return Temp;
 	}
 
-	CTimeMeasure CTimeMeasure::operator + (CTimeMeasure const &_Other)
+	CTimeMeasure CTimeMeasure::operator + (CTimeMeasure const &_Other) const
 	{
 		DMibFastCheck(mp_Time != TCLimitsInt<int64>::mc_Min && mp_Time >= 0);
 		DMibFastCheck(_Other.mp_Time != TCLimitsInt<int64>::mc_Min && _Other.mp_Time >= 0);

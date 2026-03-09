@@ -21,11 +21,11 @@ namespace NMib::NTime
 		constexpr static CTime fs_FromUnixMinutes(uint64 _Minutes) noexcept;
 		constexpr static CTime fs_FromUnixSecondsFraction(fp64 _Seconds) noexcept;
 
+	protected:
 		constexpr static void fsp_AddTime(CTime &_AddResult, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, fp64 _Fraction = 0) noexcept;
 		constexpr static void fsp_AddTimeIntFrac(CTime &_AddResult, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, uint64 _Fraction = 0) noexcept;
 		constexpr static CTime fsp_AddTimeIntFracConstexr(CTime const &_Old, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, uint64 _Fraction = 0) noexcept;
 
-	protected:
 		NTime::CTime const *mp_pTime;
 	};
 

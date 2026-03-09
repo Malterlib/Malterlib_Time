@@ -19,18 +19,19 @@ namespace NMib::NTime
 		inline_small void f_Start();
 		inline_small CTimeMeasure f_Elapsed() const;
 		inline_small void f_Stop();
-		int64 f_GetTicks();
-		fp64 f_GetTime();
+		int64 f_GetTicks() const;
+		fp64 f_GetTime() const;
+		bool f_IsValid() const;
 
 		auto operator <=> (CTimeMeasure const &_Other) const = default;
 
-		operator fp64();
+		operator fp64() const;
 
 		CTimeMeasure &operator -= (CTimeMeasure const &_Other);
 		CTimeMeasure &operator += (CTimeMeasure const &_Other);
 		CTimeMeasure &operator *= (CTimeMeasure const &_Other);
-		CTimeMeasure operator - (CTimeMeasure const &_Other);
-		CTimeMeasure operator + (CTimeMeasure const &_Other);
+		CTimeMeasure operator - (CTimeMeasure const &_Other) const;
+		CTimeMeasure operator + (CTimeMeasure const &_Other) const;
 
 	private:
 		int64 mp_Time = TCLimitsInt<int64>::mc_Min;
@@ -49,18 +50,19 @@ namespace NMib::NTime
 		inline_small void f_Start();
 		inline_small void f_Stop();
 		inline_small void f_StopNonCorrected();
-		int64 f_GetCycles();
-		fp64 f_GetTime();
+		int64 f_GetCycles() const;
+		fp64 f_GetTime() const;
+		bool f_IsValid() const;
 
 		auto operator <=> (TCCyclesTimeMeasure const &_Other) const = default;
 
-		operator fp64();
+		operator fp64() const;
 
 		TCCyclesTimeMeasure &operator -= (TCCyclesTimeMeasure const &_Other);
 		TCCyclesTimeMeasure &operator += (TCCyclesTimeMeasure const &_Other);
 		TCCyclesTimeMeasure &operator *= (TCCyclesTimeMeasure const &_Other);
-		TCCyclesTimeMeasure operator - (TCCyclesTimeMeasure const &_Other);
-		TCCyclesTimeMeasure operator + (TCCyclesTimeMeasure const &_Other);
+		TCCyclesTimeMeasure operator - (TCCyclesTimeMeasure const &_Other) const;
+		TCCyclesTimeMeasure operator + (TCCyclesTimeMeasure const &_Other) const;
 
 	private:
 		friend struct CPrefCyclesTimeMeasureMin;

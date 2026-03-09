@@ -20,8 +20,9 @@ namespace NMib::NTime
 		fp64 f_GetTime() const;
 		fp64 f_Restart();
 		void f_AddOffset(fp64 _Offset);
+		bool f_IsValid() const;
 
-		int64 f_GetStartTicks();
+		int64 f_GetStartTicks() const;
 		static CStopwatch fs_CreateFromStartTicks(int64 _StartTime);
 
 		operator fp64() const;
@@ -41,8 +42,9 @@ namespace NMib::NTime
 		fp64 f_GetTime() const;
 		fp64 f_Restart();
 		void f_AddOffset(fp64 _Offset);
+		bool f_IsValid() const;
 
-		int64 f_GetStartTicks();
+		int64 f_GetStartTicks() const;
 		static CStopwatchRaw fs_CreateFromStartTicks(int64 _StartTime);
 
 		operator fp64() const;
@@ -64,8 +66,9 @@ namespace NMib::NTime
 		fp64 f_Restart();
 		void f_AddOffset(fp64 _Offset);
 		fp64 f_GetTime() const;
+		bool f_IsValid() const;
 
-		int64 f_GetStartTicks();
+		int64 f_GetStartTicks() const;
 		static CCyclesStopwatch fs_CreateFromStartTicks(int64 _StartTime);
 
 		operator fp64() const;
