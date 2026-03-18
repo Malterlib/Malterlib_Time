@@ -27,7 +27,7 @@ namespace NMib::NTime
 
 		constexpr CTime() noexcept;
 
-		constexpr auto operator <=> (CTime const &_Other) const = default;
+		constexpr auto operator <=> (CTime const &_Other) const noexcept = default;
 		constexpr CTime &operator += (CTimeSpan const &_Other) noexcept;
 		constexpr CTime &operator -= (CTimeSpan const &_Other) noexcept;
 		constexpr CTimeSpan operator - (CTime const &_Other) const noexcept;

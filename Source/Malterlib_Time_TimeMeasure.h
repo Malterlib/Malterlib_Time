@@ -23,7 +23,7 @@ namespace NMib::NTime
 		fp64 f_GetTime() const;
 		bool f_IsValid() const;
 
-		auto operator <=> (CTimeMeasure const &_Other) const = default;
+		auto operator <=> (CTimeMeasure const &_Other) const noexcept = default;
 
 		operator fp64() const;
 
@@ -54,7 +54,7 @@ namespace NMib::NTime
 		fp64 f_GetTime() const;
 		bool f_IsValid() const;
 
-		auto operator <=> (TCCyclesTimeMeasure const &_Other) const = default;
+		auto operator <=> (TCCyclesTimeMeasure const &_Other) const noexcept = default;
 
 		operator fp64() const;
 

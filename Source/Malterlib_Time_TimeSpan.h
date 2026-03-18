@@ -22,7 +22,7 @@ namespace NMib::NTime
 		constexpr CTimeSpan &operator -= (const CTimeSpan &_Other) noexcept;
 		constexpr CTimeSpan &operator *= (int64 _nTimes) noexcept;
 		constexpr CTimeSpan &operator /= (int64 _nTimes) noexcept;
-		constexpr auto operator <=> (const CTimeSpan &_Other) const = default;
+		constexpr auto operator <=> (const CTimeSpan &_Other) const noexcept = default;
 
 		constexpr bool f_IsValid() const noexcept;
 		constexpr int64 f_GetSeconds() const noexcept;
