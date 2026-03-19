@@ -47,7 +47,7 @@ namespace NMib::NTime::NPlatform::NPrivate
 #if (defined(DArchitecture_arm64) || defined(DArchitecture_arm64e))
 namespace NMib::NTime::NPlatform
 {
-	extern mint g_CyclesScale;
+	extern umint g_CyclesScale;
 }
 #endif
 
@@ -58,7 +58,7 @@ inline_always int64 NMib::NTime::NPlatform::fg_Timer_Cycles()
 #else
 	#ifdef DCompiler_clang
 		#if defined(DArchitecture_arm64) || defined(DArchitecture_arm64e)
-			mint Counter;
+			umint Counter;
 			asm volatile ("mrs %0, CNTVCT_EL0" : "=r" (Counter));
 			return Counter * g_CyclesScale;
 		#else
@@ -77,7 +77,7 @@ inline_always int64 NMib::NTime::NPlatform::fg_Timer_CyclesFast()
 #else
    #ifdef DCompiler_clang
 		#if defined(DArchitecture_arm64) || defined(DArchitecture_arm64e)
-			mint Counter;
+			umint Counter;
 			asm volatile ("mrs %0, CNTVCT_EL0" : "=r" (Counter));
 			return Counter * g_CyclesScale;
 		#else

@@ -1014,22 +1014,22 @@ namespace
 				DMibExpect(CTimeSpanConvert(-CTimeSpanConvert::fs_CreateSpan(0, 0,  0,  0,  1, 0.99999)).f_GetSeconds(), ==, -1);
 			};
 
-			constexpr static mint c_nLoops = 256 * 1024;
+			constexpr static umint c_nLoops = 256 * 1024;
 
 			DMibTestSuite(CTestCategory("UTCConversionPerformance") << CTestGroup("Performance"))
 			{
-				mint nTests = 9;
+				umint nTests = 9;
 
 				CTestPerformanceMeasure NormalTime("Normal");
 				CTestPerformanceMeasure LegacyTime("Legacy");
 				{
-					for(mint j = 0; j < nTests; ++j)
+					for(umint j = 0; j < nTests; ++j)
 					{
 						NormalTime.f_Start();
 						[]() inline_never
 							{
 								CTime Now = CTime::fs_NowUTC();
-								for (mint i = 0; i < c_nLoops / 2; ++i)
+								for (umint i = 0; i < c_nLoops / 2; ++i)
 									Now = Now.f_ToUTC().f_ToLocal();
 								return Now;
 							}
@@ -1039,13 +1039,13 @@ namespace
 					}
 				}
 				{
-					for(mint j = 0; j < nTests; ++j)
+					for(umint j = 0; j < nTests; ++j)
 					{
 						LegacyTime.f_Start();
 						[]() inline_never
 							{
 								CTime Now = CTime::fs_NowLocal();
-								for (mint i = 0; i < c_nLoops / 2; ++i)
+								for (umint i = 0; i < c_nLoops / 2; ++i)
 									Now = Now.f_ToUtcLegacy().f_ToLocalLegacy();
 
 								return Now;

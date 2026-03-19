@@ -68,7 +68,7 @@ namespace NMib::NTime
 
 		_Dest.m_Year = (Seconds / NPrivate::CConst::mc_AverageSecondsInYear);
 
-		for (mint i = 0; i < 2; ++i)
+		for (umint i = 0; i < 2; ++i)
 		{
 			uint64 YearSub = _Dest.m_Year;
 

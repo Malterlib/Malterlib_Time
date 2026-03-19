@@ -10,7 +10,7 @@
 #if (defined(DArchitecture_arm64) || defined(DArchitecture_arm64e))
 namespace NMib::NTime::NPlatform
 {
-	mint g_CyclesScale = 1;
+	umint g_CyclesScale = 1;
 }
 #endif
 

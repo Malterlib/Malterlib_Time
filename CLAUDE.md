@@ -99,7 +99,7 @@ fp64 Elapsed = Timer.f_GetTime();
 
 // Minimum time tracking
 CPerfTimeMeasureMin MinTimer;
-for (mint i = 0; i < 100; ++i)
+for (umint i = 0; i < 100; ++i)
 {
 	MinTimer.f_Start();
 	// ... code to measure ...

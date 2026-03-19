@@ -4,7 +4,7 @@
 #if defined(DArchitecture_arm64)
 namespace NMib::NTime::NPlatform
 {
-	extern mint g_CyclesScale;
+	extern umint g_CyclesScale;
 }
 #endif
 

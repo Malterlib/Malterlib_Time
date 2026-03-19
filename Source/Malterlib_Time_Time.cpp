@@ -199,7 +199,7 @@ namespace NMib::NTime
 
 	int32 fg_GetAscMonthNumber(NStr::CStr const &_Month)
 	{
-		for (mint i = 0; i < 12; ++i)
+		for (umint i = 0; i < 12; ++i)
 		{
 			if (_Month == gc_Months[i])
 				return i + 1;

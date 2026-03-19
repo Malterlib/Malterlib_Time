@@ -121,7 +121,7 @@ namespace
 				}
 			};
 
-			for (mint iWrapPos = 0; iWrapPos < 4; ++iWrapPos)
+			for (umint iWrapPos = 0; iWrapPos < 4; ++iWrapPos)
 			{
 				NMib::NStr::CStr WrapPos = NMib::NStr::fg_Format("WrapPos{}", iWrapPos);
 				DMibTestCategory(WrapPos)
@@ -133,7 +133,7 @@ namespace
 #ifdef DMalteribTimeTestWithPrecision
 							NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision();
 #endif
-							for (mint i = 0; i < 5; ++i)
+							for (umint i = 0; i < 5; ++i)
 							{
 								NMib::NTime::CSystem_Time::fs_MakeSafeTimerWrap(g_CheckTime * 0.4f, iWrapPos);
 								DMibTestPath(NMib::NStr::fg_Format("Wrap {}", i));
@@ -158,7 +158,7 @@ namespace
 #ifdef DMalteribTimeTestWithPrecision
 							NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision();
 #endif
-							for (mint i = 0; i < 5; ++i)
+							for (umint i = 0; i < 5; ++i)
 							{
 								NMib::NTime::CSystem_Time::fs_MakeSafeTimerWrap(0.0f, iWrapPos);
 								NMib::NSys::fg_Thread_Sleep(g_CheckTime * 0.1f);
@@ -197,7 +197,7 @@ namespace
 #ifdef DMalteribTimeTestWithPrecision
 							NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision();
 #endif
-							for (mint i = 0; i < 5; ++i)
+							for (umint i = 0; i < 5; ++i)
 							{
 								NMib::NTime::CSystem_Time::fs_MakeSafeTimerWrap(g_CheckTime * 0.4f, iWrapPos);
 								DMibTestPath(NMib::NStr::fg_Format("Wrap {}", i));
@@ -224,7 +224,7 @@ namespace
 #ifdef DMalteribTimeTestWithPrecision
 					NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision();
 #endif
-					for (mint i = 0; i < 5; ++i)
+					for (umint i = 0; i < 5; ++i)
 					{
 						DMibTestPath(NMib::NStr::fg_Format("Wrap {}", i));
 						bool bRetVal = f_UnstableTimerTest

@@ -60,7 +60,7 @@ namespace NMib::NTime
 		CCyclesStopwatch(CCyclesStopwatch const &_ToMove) = default;
 
 		inline_small void f_Start();
-		inline_small void f_Start(mint _Offset);
+		inline_small void f_Start(umint _Offset);
 		int64 f_GetCycles() const;
 		fp64 f_Stop();
 		fp64 f_Restart();

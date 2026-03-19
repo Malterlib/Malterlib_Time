@@ -153,7 +153,7 @@ int64 NMib::NTime::NPlatform::fg_TimerRaw_GetCPUFrequency()
 int64 NMib::NTime::NPlatform::fg_Timer_CyclesRawFrequency()
 {
 #if defined(DArchitecture_arm64) || defined(DArchitecture_arm64e)
-	mint Counter;
+	umint Counter;
 	asm volatile ("mrs %0, CNTFRQ_EL0" : "=r" (Counter));
 	if (Counter)
 		return Counter;

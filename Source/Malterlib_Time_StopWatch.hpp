@@ -20,7 +20,7 @@ namespace NMib::NTime
 		mp_StartTime = NPlatform::fg_Timer_CyclesFast();
 	}
 
-	inline_small void CCyclesStopwatch::f_Start(mint _Offset)
+	inline_small void CCyclesStopwatch::f_Start(umint _Offset)
 	{
 		mp_StartTime = NPlatform::fg_Timer_CyclesFast() - _Offset;
 	}

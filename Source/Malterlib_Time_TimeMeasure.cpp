@@ -39,9 +39,9 @@ namespace NMib::NTime
 		{
 			CCyclesTimeMeasure Timer;
 			CPrefCyclesTimeMeasureMin TimerMin;
-			for (mint i = 0; i < 10; ++i)
+			for (umint i = 0; i < 10; ++i)
 			{
-				for (mint i = 0; i < 2; ++i)
+				for (umint i = 0; i < 2; ++i)
 				{
 					Timer.f_Start();
 					Timer.f_StopNonCorrected();
