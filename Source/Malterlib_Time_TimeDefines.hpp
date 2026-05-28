@@ -60,6 +60,14 @@ namespace NMib::NTime::NPrivate
 		constexpr static uint64 mc_YearOffset = constant_uint64(7'514'938'800);
 		constexpr static int64 mc_MaxYear = ((mc_InvalidTimeSeconds - 1) - mc_YearOneBcSeconds) / mc_AverageSecondsInYear;
 		constexpr static int64 mc_MinYear = -int64(mc_YearOneBcSeconds / mc_AverageSecondsInYear);
+		constexpr static int64 mc_StartOfTimeYear = mc_MinYear - 1;
+		constexpr static aint mc_StartOfTimeMonthIndex = 10;
+		constexpr static aint mc_StartOfTimeDayOfMonthIndex = 22;
+		constexpr static aint mc_EndOfTimeMonthIndex = 9;
+		constexpr static aint mc_EndOfTimeDayOfMonthIndex = 0;
+		constexpr static aint mc_EndOfTimeHour = 7;
+		constexpr static aint mc_EndOfTimeMinute = 0;
+		constexpr static aint mc_EndOfTimeSecond = 14;
 		constexpr static uint64 mc_YearOffsetSeconds = (mc_YearOffset * mc_AverageSecondsInYear) - mc_YearZeroPlus1DaySeconds;
 
 		static_assert(mc_MaxYear == constant_int64(577'039'110'548));

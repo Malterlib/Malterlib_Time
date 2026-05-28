@@ -41,8 +41,8 @@ namespace NMib::NTime
 
 	constexpr int64 CTimeConvert_ProlepticGreogrian::fsp_GetSecondsFromYear(int64 _Year) noexcept(NContract::gc_bSafeCheckNoExcept)
 	{
-		DMibRequire(_Year >= NPrivate::CConst::mc_MinYear);
-		DMibRequire(_Year <= NPrivate::CConst::mc_MaxYear);
+		DMibSafeCheck(_Year >= NPrivate::CConst::mc_MinYear, "Year range check error");
+		DMibSafeCheck(_Year <= NPrivate::CConst::mc_MaxYear, "Year range check error");
 
 		return fsp_GetSecondsFromYearConstexpr(_Year);
 	}
@@ -346,6 +346,8 @@ namespace NMib::NTime
 		--_Month;
 		--_DayOfMonth;
 
+		DMibSafeCheck(_Year >= NPrivate::CConst::mc_StartOfTimeYear, "Year range check error");
+		DMibSafeCheck(_Year <= NPrivate::CConst::mc_MaxYear, "Year range check error");
 		DMibSafeCheck(_Month >= 0 && _Month <= 11, "Month range check error");
 		DMibSafeCheck(_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month), "Day of month range check error");
 		DMibSafeCheck(_Hour >= 0 && _Hour <= 23, "Hour range check error");
@@ -353,9 +355,67 @@ namespace NMib::NTime
 		DMibSafeCheck(_Second >= 0 && _Second <= 59, "Second range check error");
 		DMibSafeCheck(_Fraction >= 0.0 && _Fraction < 1.0, "Fraction range check error");
 
-		uint64 Seconds = fsp_GetSecondsFromYear(_Year);
-		Seconds += fsp_GetDayOfYearFromMonth(_Year, _Month) * NPrivate::CConst::mc_SecondsInDay;
-		Seconds += _DayOfMonth * NPrivate::CConst::mc_SecondsInDay;
+#	if DMibEnableSafeCheck > 0
+		if (_Year == NPrivate::CConst::mc_StartOfTimeYear)
+		{
+			DMibSafeCheck
+				(
+					_Month > NPrivate::CConst::mc_StartOfTimeMonthIndex
+					||
+					(
+						_Month == NPrivate::CConst::mc_StartOfTimeMonthIndex
+						&& _DayOfMonth >= NPrivate::CConst::mc_StartOfTimeDayOfMonthIndex
+					)
+					, "Date/time range check error"
+				)
+			;
+		}
+
+		if (_Year == NPrivate::CConst::mc_MaxYear)
+		{
+			DMibSafeCheck
+				(
+					_Month < NPrivate::CConst::mc_EndOfTimeMonthIndex
+					||
+					(
+						_Month == NPrivate::CConst::mc_EndOfTimeMonthIndex
+						&& _DayOfMonth == NPrivate::CConst::mc_EndOfTimeDayOfMonthIndex
+						&&
+						(
+							_Hour < NPrivate::CConst::mc_EndOfTimeHour
+							||
+							(
+								_Hour == NPrivate::CConst::mc_EndOfTimeHour
+								&& _Minute == NPrivate::CConst::mc_EndOfTimeMinute
+								&& _Second <= NPrivate::CConst::mc_EndOfTimeSecond
+							)
+						)
+					)
+					, "Date/time range check error"
+				)
+			;
+		}
+#endif
+
+		aint DayOfYear = fsp_GetDayOfYearFromMonth(_Year, _Month) + _DayOfMonth;
+		uint64 Seconds;
+		if (_Year == NPrivate::CConst::mc_StartOfTimeYear) [[unlikely]]
+		{
+			constexpr aint c_StartOfTimeDayOfYear = fsp_GetDayOfYearFromMonth
+				(
+					NPrivate::CConst::mc_StartOfTimeYear
+					, NPrivate::CConst::mc_StartOfTimeMonthIndex
+				)
+				+ NPrivate::CConst::mc_StartOfTimeDayOfMonthIndex
+			;
+			Seconds = (DayOfYear - c_StartOfTimeDayOfYear) * NPrivate::CConst::mc_SecondsInDay;
+		}
+		else
+		{
+			Seconds = fsp_GetSecondsFromYear(_Year);
+			Seconds += DayOfYear * NPrivate::CConst::mc_SecondsInDay;
+		}
+
 		CTime NewTime{Seconds, 0};
 		fsp_AddTime(NewTime, _Hour, _Minute, _Second, _Fraction);
 		return NewTime;
@@ -367,6 +427,8 @@ namespace NMib::NTime
 		--_Month;
 		--_DayOfMonth;
 
+		DMibSafeCheck(_Year >= NPrivate::CConst::mc_StartOfTimeYear, "Year range check error");
+		DMibSafeCheck(_Year <= NPrivate::CConst::mc_MaxYear, "Year range check error");
 		DMibSafeCheck(_Month >= 0 && _Month <= 11, "Month range check error");
 		DMibSafeCheck(_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month), "Day of month range check error");
 		DMibSafeCheck(_Hour >= 0 && _Hour <= 23, "Hour range check error");
@@ -374,9 +436,66 @@ namespace NMib::NTime
 		DMibSafeCheck(_Second >= 0 && _Second <= 59, "Second range check error");
 		DMibSafeCheck(_FractionInt >= 0 && _FractionInt < NPrivate::CConst::mc_FractionDividend, "Fraction range check error");
 
-		uint64 Seconds = fsp_GetSecondsFromYear(_Year);
-		Seconds += fsp_GetDayOfYearFromMonth(_Year, _Month) * NPrivate::CConst::mc_SecondsInDay;
-		Seconds += _DayOfMonth * NPrivate::CConst::mc_SecondsInDay;
+#	if DMibEnableSafeCheck > 0
+		if (_Year == NPrivate::CConst::mc_StartOfTimeYear)
+		{
+			DMibSafeCheck
+				(
+					_Month > NPrivate::CConst::mc_StartOfTimeMonthIndex
+					||
+					(
+						_Month == NPrivate::CConst::mc_StartOfTimeMonthIndex
+						&& _DayOfMonth >= NPrivate::CConst::mc_StartOfTimeDayOfMonthIndex
+					)
+					, "Date/time range check error"
+				)
+			;
+		}
+
+		if (_Year == NPrivate::CConst::mc_MaxYear)
+		{
+			DMibSafeCheck
+				(
+					_Month < NPrivate::CConst::mc_EndOfTimeMonthIndex
+					||
+					(
+						_Month == NPrivate::CConst::mc_EndOfTimeMonthIndex
+						&& _DayOfMonth == NPrivate::CConst::mc_EndOfTimeDayOfMonthIndex
+						&&
+						(
+							_Hour < NPrivate::CConst::mc_EndOfTimeHour
+							||
+							(
+								_Hour == NPrivate::CConst::mc_EndOfTimeHour
+								&& _Minute == NPrivate::CConst::mc_EndOfTimeMinute
+								&& _Second <= NPrivate::CConst::mc_EndOfTimeSecond
+							)
+						)
+					)
+					, "Date/time range check error"
+				)
+			;
+		}
+#endif
+		aint DayOfYear = fsp_GetDayOfYearFromMonth(_Year, _Month) + _DayOfMonth;
+		uint64 Seconds;
+		if (_Year == NPrivate::CConst::mc_StartOfTimeYear) [[unlikely]]
+		{
+			constexpr aint c_StartOfTimeDayOfYear = fsp_GetDayOfYearFromMonth
+				(
+					NPrivate::CConst::mc_StartOfTimeYear
+					, NPrivate::CConst::mc_StartOfTimeMonthIndex
+				)
+				+ NPrivate::CConst::mc_StartOfTimeDayOfMonthIndex
+			;
+			Seconds = (DayOfYear - c_StartOfTimeDayOfYear) * NPrivate::CConst::mc_SecondsInDay;
+		}
+		else
+		{
+			Seconds = fsp_GetSecondsFromYear(_Year);
+			Seconds += DayOfYear * NPrivate::CConst::mc_SecondsInDay;
+		}
+
 		CTime NewTime{Seconds, 0};
 		fsp_AddTimeIntFrac(NewTime, _Hour, _Minute, _Second, _FractionInt);
 		return NewTime;
@@ -384,16 +503,30 @@ namespace NMib::NTime
 
 	constexpr CTime CTimeConvert_ProlepticGreogrian::fs_CreateTimeConstExpr(int64 _Year, aint _Month, aint _DayOfMonth, aint _Hour, aint _Minute, aint _Second, uint64 _Fraction) noexcept
 	{
+		aint DayOfYear = fsp_GetDayOfYearFromMonth(_Year, _Month - 1) + (_DayOfMonth - 1);
+		uint64 Seconds;
+		if (_Year == NPrivate::CConst::mc_StartOfTimeYear)
+		{
+			constexpr aint c_StartOfTimeDayOfYear = fsp_GetDayOfYearFromMonth
+				(
+					NPrivate::CConst::mc_StartOfTimeYear
+					, NPrivate::CConst::mc_StartOfTimeMonthIndex
+				)
+				+ NPrivate::CConst::mc_StartOfTimeDayOfMonthIndex
+			;
+			DMibFastCheck(DayOfYear >= c_StartOfTimeDayOfYear);
+			Seconds = (DayOfYear - c_StartOfTimeDayOfYear) * NPrivate::CConst::mc_SecondsInDay;
+		}
+		else
+		{
+			Seconds = fsp_GetSecondsFromYearConstexpr(_Year) + DayOfYear * NPrivate::CConst::mc_SecondsInDay;
+		}
+
 		return fsp_AddTimeIntFracConstexr
 			(
 				CTime
 				{
-					uint64
-					(
-						fsp_GetSecondsFromYearConstexpr(_Year)
-						+ fsp_GetDayOfYearFromMonth(_Year, _Month - 1) * NPrivate::CConst::mc_SecondsInDay
-						+ (_DayOfMonth - 1) * NPrivate::CConst::mc_SecondsInDay
-						)
+					Seconds
 					, 0
 				}
 				, _Hour

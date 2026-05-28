@@ -153,9 +153,16 @@ namespace
 			{
 				{
 					DMibTestPath("Valid boundaries");
+					constexpr int64 c_StartYear = constant_int64(-7'514'938'706);
+					constexpr int64 c_EndYear = constant_int64(577'039'110'548);
+
 					// Month boundaries (1-12)
 					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1));
 					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 12));
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(c_StartYear, 11, 23));
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(c_StartYear, 12));
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(c_EndYear, 9));
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(c_EndYear, 10, 1));
 
 					// Day boundaries
 					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1));   // January 1st
@@ -163,22 +170,44 @@ namespace
 					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 2, 29));  // February 29th (leap year)
 					DMibExpectNoException(CTimeConvert::fs_CreateTime(2023, 2, 28));  // February 28th (non-leap year)
 					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 4, 30));  // April 30th
+					DMibExpect(CTimeConvert::fs_CreateTime(c_StartYear, 11, 23), ==, CTime::fs_StartOfTime());
 
 					// Hour boundaries (0-23)
 					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1, 0));
 					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1, 23));
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(c_EndYear, 10, 1, 7));
 
 					// Minute boundaries (0-59)
 					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1, 0, 0));
 					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1, 0, 59));
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(c_EndYear, 10, 1, 7, 0));
 
 					// Second boundaries (0-59)
 					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1, 0, 0, 0));
 					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1, 0, 0, 59));
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(c_EndYear, 10, 1, 7, 0, 14));
 
 					// Fraction boundaries (0.0 to <1.0)
 					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1, 0, 0, 0, 0.0));
 					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1, 0, 0, 0, 0.999999));
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(c_EndYear, 10, 1, 7, 0, 14, 0.999999));
+				}
+
+				{
+					DMibTestPath("Representable boundary violations");
+					constexpr int64 c_StartYear = constant_int64(-7'514'938'706);
+					constexpr int64 c_EndYear = constant_int64(577'039'110'548);
+
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(c_StartYear - 1));
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(c_StartYear, 10, 31));
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(c_StartYear, 11, 22));
+
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(c_EndYear, 10, 1, 7, 0, 15));
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(c_EndYear, 10, 1, 7, 1, 0));
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(c_EndYear, 10, 1, 8));
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(c_EndYear, 10, 2));
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(c_EndYear, 11, 1));
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(c_EndYear + 1));
 				}
 
 				{
@@ -225,9 +254,17 @@ namespace
 			{
 				{
 					DMibTestPath("Valid boundaries");
+					constexpr int64 c_StartYear = constant_int64(-7'514'938'706);
+					constexpr int64 c_EndYear = constant_int64(577'039'110'548);
+					constexpr uint64 c_MaxFraction = NTime::NPrivate::CConst::mc_FractionDividend - 1;
+
 					// Month boundaries (1-12)
 					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1));
 					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 12));
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(c_StartYear, 11, 23));
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(c_StartYear, 12));
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(c_EndYear, 9));
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(c_EndYear, 10, 1));
 
 					// Day boundaries
 					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1));   // January 1st
@@ -235,22 +272,44 @@ namespace
 					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 2, 29));  // February 29th (leap year)
 					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2023, 2, 28));  // February 28th (non-leap year)
 					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 4, 30));  // April 30th
+					DMibExpect(CTimeConvert::fs_CreateTimeIntFrac(c_StartYear, 11, 23), ==, CTime::fs_StartOfTime());
 
 					// Hour boundaries (0-23)
 					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0));
 					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 23));
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(c_EndYear, 10, 1, 7));
 
 					// Minute boundaries (0-59)
 					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0, 0));
 					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0, 59));
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(c_EndYear, 10, 1, 7, 0));
 
 					// Second boundaries (0-59)
 					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0, 0, 0));
 					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0, 0, 59));
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(c_EndYear, 10, 1, 7, 0, 14));
 
 					// FractionInt boundaries (0 to mc_FractionDividend-1)
 					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0, 0, 0, 0));
 					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0, 0, 0, NTime::NPrivate::CConst::mc_FractionDividend - 1));
+					DMibExpect(CTimeConvert::fs_CreateTimeIntFrac(c_EndYear, 10, 1, 7, 0, 14, c_MaxFraction), ==, CTime::fs_EndOfTime());
+				}
+
+				{
+					DMibTestPath("Representable boundary violations");
+					constexpr int64 c_StartYear = constant_int64(-7'514'938'706);
+					constexpr int64 c_EndYear = constant_int64(577'039'110'548);
+
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(c_StartYear - 1));
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(c_StartYear, 10, 31));
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(c_StartYear, 11, 22));
+
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(c_EndYear, 10, 1, 7, 0, 15));
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(c_EndYear, 10, 1, 7, 1, 0));
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(c_EndYear, 10, 1, 8));
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(c_EndYear, 10, 2));
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(c_EndYear, 11, 1));
+					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(c_EndYear + 1));
 				}
 
 				{
@@ -792,6 +851,16 @@ namespace
 
 			DMibTestCategory("Turnaround")
 			{
+				auto fCheckTimeTurnaround = [](CStr const &_Path, CTime const &_Time)
+					{
+						DMibTestPath(_Path);
+
+						auto DateTime = CTimeConvert(_Time).f_ExtractDateTime();
+						auto GeneratedTime = CTimeConvert::fs_CreateTime(DateTime);
+						DMibExpect(GeneratedTime, ==, _Time);
+					}
+				;
+
 				auto fCheckTurnaround = [](CStr const &_Path, CTime const &_StartTime, CTimeSpan const &_Duration)
 					{
 						DMibTestSuite(_Path)
@@ -833,6 +902,27 @@ namespace
 					}
 				;
 
+				DMibTestSuite("Boundary")
+				{
+					fCheckTimeTurnaround("Start of time", CTime::fs_StartOfTime());
+					fCheckTimeTurnaround("End of time", CTime::fs_EndOfTime());
+
+					constexpr CTime c_StartOfTime = CTimeConvert::fs_CreateTimeConstExpr(constant_int64(-7'514'938'706), 11, 23);
+					constexpr CTime c_EndOfTime = CTimeConvert::fs_CreateTimeConstExpr(constant_int64(577'039'110'548), 10, 1, 7, 0, 14, NTime::NPrivate::CConst::mc_FractionDividend - 1);
+					static_assert(c_StartOfTime == CTime::fs_StartOfTime());
+					static_assert(c_EndOfTime == CTime::fs_EndOfTime());
+
+					{
+						DMibTestPath("Constexpr start of time");
+						DMibExpect(c_StartOfTime, ==, CTime::fs_StartOfTime());
+					}
+
+					{
+						DMibTestPath("Constexpr end of time");
+						DMibExpect(c_EndOfTime, ==, CTime::fs_EndOfTime());
+					}
+				};
+
 	#if defined(DMibDebug) || defined(DMibSanitizerEnabled)
 				fCheckTurnaround("Around 1BC", CTimeConvert::fs_GetYearZero() - CTimeSpanConvert::fs_CreateDaySpan(365) * 300, CTimeSpanConvert::fs_CreateDaySpan(365) * 600);
 				fCheckTurnaround("Around start of time", CTime::fs_StartOfTime() + CTimeSpanConvert::fs_CreateDaySpan(365), CTimeSpanConvert::fs_CreateDaySpan(365) * 600);
@@ -856,7 +946,9 @@ namespace
 					}
 				;
 
-				DMibExpectViolatesRequire(fTestYear(constant_uint64(-7'514'938'706)));
+	#if DMibEnableSafeCheck > 0
+				DMibExpectViolatesSafeCheck(fTestYear(constant_uint64(-7'514'938'706)));
+	#endif
 				fTestYear(constant_uint64(-7'514'938'705));
 				fTestYear(0);
 				fTestYear(1599);
@@ -875,7 +967,9 @@ namespace
 				fTestYear(30828);
 				fTestYear(6000000);
 				fTestYear(constant_uint64(577'039'110'548));
-				DMibExpectViolatesRequire(fTestYear(constant_uint64(577'039'110'549)));
+	#if DMibEnableSafeCheck > 0
+				DMibExpectViolatesSafeCheck(fTestYear(constant_uint64(577'039'110'549)));
+	#endif
 			};
 
 			DMibTestSuite("UTCConversionFractions")
