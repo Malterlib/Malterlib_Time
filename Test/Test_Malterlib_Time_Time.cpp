@@ -454,6 +454,16 @@ namespace
 
 			DMibTestCategory("Turnaround")
 			{
+				auto fCheckTimeTurnaround = [](CStr const &_Path, CTime const &_Time)
+					{
+						DMibTestPath(_Path);
+
+						auto DateTime = CTimeConvert(_Time).f_ExtractDateTime();
+						auto GeneratedTime = CTimeConvert::fs_CreateTime(DateTime);
+						DMibExpect(GeneratedTime, ==, _Time);
+					}
+				;
+
 				auto fCheckTurnaround = [](CStr const &_Path, CTime const &_StartTime, CTimeSpan const &_Duration)
 					{
 						DMibTestSuite(_Path)
@@ -495,6 +505,27 @@ namespace
 					}
 				;
 
+				DMibTestSuite("Boundary")
+				{
+					fCheckTimeTurnaround("Start of time", CTime::fs_StartOfTime());
+					fCheckTimeTurnaround("End of time", CTime::fs_EndOfTime());
+
+					constexpr CTime c_StartOfTime = CTimeConvert::fs_CreateTimeConstExpr(constant_int64(-7'514'938'706), 11, 23);
+					constexpr CTime c_EndOfTime = CTimeConvert::fs_CreateTimeConstExpr(constant_int64(577'039'110'548), 10, 1, 7, 0, 14, NTime::NPrivate::CConst::mc_FractionDividend - 1);
+					static_assert(c_StartOfTime == CTime::fs_StartOfTime());
+					static_assert(c_EndOfTime == CTime::fs_EndOfTime());
+
+					{
+						DMibTestPath("Constexpr start of time");
+						DMibExpect(c_StartOfTime, ==, CTime::fs_StartOfTime());
+					}
+
+					{
+						DMibTestPath("Constexpr end of time");
+						DMibExpect(c_EndOfTime, ==, CTime::fs_EndOfTime());
+					}
+				};
+
 	#if defined(DMibDebug) || defined(DMibSanitizerEnabled)
 				fCheckTurnaround("Around 1BC", CTimeConvert::fs_GetYearZero() - CTimeSpanConvert::fs_CreateDaySpan(365) * 300, CTimeSpanConvert::fs_CreateDaySpan(365) * 600);
 				fCheckTurnaround("Around start of time", CTime::fs_StartOfTime() + CTimeSpanConvert::fs_CreateDaySpan(365), CTimeSpanConvert::fs_CreateDaySpan(365) * 600);
@@ -518,7 +549,9 @@ namespace
 					}
 				;
 
-				DMibExpectViolatesRequire(fTestYear(constant_uint64(-7'514'938'706)));
+	#if DMibEnableSafeCheck > 0
+				DMibExpectViolatesSafeCheck(fTestYear(constant_uint64(-7'514'938'706)));
+	#endif
 				fTestYear(constant_uint64(-7'514'938'705));
 				fTestYear(0);
 				fTestYear(1599);
@@ -537,7 +570,9 @@ namespace
 				fTestYear(30828);
 				fTestYear(6000000);
 				fTestYear(constant_uint64(577'039'110'548));
-				DMibExpectViolatesRequire(fTestYear(constant_uint64(577'039'110'549)));
+	#if DMibEnableSafeCheck > 0
+				DMibExpectViolatesSafeCheck(fTestYear(constant_uint64(577'039'110'549)));
+	#endif
 			};
 
 			DMibTestSuite("UTCConversionFractions")
