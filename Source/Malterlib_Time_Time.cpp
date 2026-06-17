@@ -29,12 +29,6 @@ namespace NMib::NTime
 			return s_FromatTo;
 		}
 
-		if (Time < CTimeConvert::fs_CreateTime(0))
-		{
-			s_FromatTo = "1 BC or earlier is not supported";
-			return s_FromatTo;
-		}
-
 		NTime::CTimeConvert::CDateTime DateTime;
 		NTime::CTimeConvert(Time).f_ExtractDateTime(DateTime);
 
