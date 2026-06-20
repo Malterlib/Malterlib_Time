@@ -8,26 +8,15 @@ namespace NMib::NTime
 	constexpr CTimeSpan::CTimeSpan(int64 _Value) noexcept
 		: mp_Seconds(_Value)
 	{
-#ifdef DMibDebuggerHelpers
-		static_assert(TCInstantiateValue<&CTimeSpan::fsp_DebugStr>::mc_Value);
-#endif
 	}
 
 	constexpr CTimeSpan::CTimeSpan(int64 _Value, uint64 _Fraction) noexcept
 		: mp_Seconds (_Value)
 		, mp_Fraction(_Fraction)
 	{
-#ifdef DMibDebuggerHelpers
-		static_assert(TCInstantiateValue<&CTimeSpan::fsp_DebugStr>::mc_Value);
-#endif
 	}
 
-	constexpr CTimeSpan::CTimeSpan() noexcept
-	{
-#ifdef DMibDebuggerHelpers
-		static_assert(TCInstantiateValue<&CTimeSpan::fsp_DebugStr>::mc_Value);
-#endif
-	}
+	constexpr CTimeSpan::CTimeSpan() noexcept = default;
 
 	constexpr bool CTimeSpan::f_IsValid() const noexcept
 	{

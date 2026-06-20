@@ -205,12 +205,6 @@ MalterlibBuildShowProgress=false ./mib build Tests
 4. **Invalid Times**: Always check f_IsValid() when receiving times from external sources
 5. **Platform Differences**: Timer resolution varies by platform (check fs_GetResolution())
 
-## Debug Features
-
-When DMibDebuggerHelpers is defined:
-- Time and TimeSpan objects have debug string representations
-- Additional validation checks are enabled
-
 ## Integration with String Formatting
 
 The Time module integrates with Malterlib's string formatting system:

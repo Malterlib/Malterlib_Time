@@ -24,17 +24,9 @@ namespace NMib::NTime
 		: mp_Seconds(_Seconds)
 		, mp_Fraction(_Fraction)
 	{
-#ifdef DMibDebuggerHelpers
-		static_assert(TCInstantiateValue<&CTime::fsp_DebugStr>::mc_Value);
-#endif
 	}
 
-	constexpr CTime::CTime() noexcept
-	{
-#ifdef DMibDebuggerHelpers
-		static_assert(TCInstantiateValue<&CTime::fsp_DebugStr>::mc_Value);
-#endif
-	}
+	constexpr CTime::CTime() noexcept = default;
 
 	constexpr bool CTime::f_IsValid() const noexcept
 	{

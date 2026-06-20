@@ -73,9 +73,6 @@ namespace NMib::NTime
 		uint64 mp_Fraction = 0;
 
 		constexpr CTime(uint64 _Seconds, uint64 _Fraction) noexcept;
-#ifdef DMibDebuggerHelpers
-		static ch8 const* fsp_DebugStr(void *_pTime);
-#endif
 	};
 
 	template <typename tf_CType>

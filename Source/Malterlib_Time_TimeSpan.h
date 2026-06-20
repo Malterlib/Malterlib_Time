@@ -46,9 +46,6 @@ namespace NMib::NTime
 		friend struct CTimeSpanConvert_BabylonianCommon;
 		friend struct CTime;
 
-#ifdef DMibDebuggerHelpers
-		static ch8 const* fsp_DebugStr(void *_pTimeSpan);
-#endif
 		int64 mp_Seconds = NPrivate::CConst::mc_InvalidSpanSeconds;
 		uint64 mp_Fraction = 0;
 	};
