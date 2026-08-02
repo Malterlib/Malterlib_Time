@@ -65,7 +65,9 @@ int64 NMib::NTime::NPlatform::fg_TimerRaw_PreciseGet()
 	case NMib::NTime::NPlatform::EUnstableTimerMode_AlwaysMaxInt:
 		return TCLimitsInt<int64>::mc_Max;
 	case NMib::NTime::NPlatform::EUnstableTimerMode_AlwaysNegative:
-		return TCLimitsInt<int64>::mc_Min;
+		// mc_Min is the CStopwatchRaw not-started sentinel; stay one above it so timed
+		// waits started under tampering do not trip the sentinel check
+		return TCLimitsInt<int64>::mc_Min + 1;
 	case NMib::NTime::NPlatform::EUnstableTimerMode_OnceZero:
 		gs_UnstableTimerMode = NMib::NTime::NPlatform::EUnstableTimerMode_Off;
 		return 0;
@@ -74,7 +76,7 @@ int64 NMib::NTime::NPlatform::fg_TimerRaw_PreciseGet()
 		return TCLimitsInt<int64>::mc_Max;
 	case NMib::NTime::NPlatform::EUnstableTimerMode_OnceNegative:
 		gs_UnstableTimerMode = NMib::NTime::NPlatform::EUnstableTimerMode_Off;
-		return TCLimitsInt<int64>::mc_Min;
+		return TCLimitsInt<int64>::mc_Min + 1;
 	case NMib::NTime::NPlatform::EUnstableTimerMode_Off:
 		break;
 	}
