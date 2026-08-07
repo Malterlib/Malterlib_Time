@@ -88,3 +88,23 @@ inline_always int64 NMib::NTime::NPlatform::fg_Timer_CyclesFast()
    #endif
 #endif
 }
+
+// Raw monotonic ticks, usable before time initialization. Convert durations using fs_CyclesUnscaledFrequency after initialization.
+inline_always int64 NMib::NTime::NPlatform::fg_Timer_CyclesUnscaled()
+{
+#ifdef DPlatformFamily_Emscripten
+	return NMib::NTime::NPlatform::fg_TimerRaw_PreciseGet();
+#else
+	#ifdef DCompiler_clang
+		#if defined(DArchitecture_arm64) || defined(DArchitecture_arm64e)
+			umint Counter;
+			asm volatile ("mrs %0, CNTVCT_EL0" : "=r" (Counter));
+			return Counter;
+		#else
+			return __builtin_readcyclecounter();
+		#endif
+	#else
+		return NMib::NTime::NPlatform::NPrivate::fg_RDTSC();
+	#endif
+#endif
+}
