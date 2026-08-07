@@ -34,6 +34,12 @@ namespace NMib::NTime::NPlatform
 
 	int64 fg_Timer_Cycles();
 	int64 fg_Timer_CyclesFast();
+
+	// Raw monotonic counter with no cycle scale applied, usable before the time subsystem
+	// initializes; the unit is platform dependent and readings are not convertible to
+	// seconds — durations map into this unit via CSystem_Time::fs_CyclesUnscaledFrequency
+	// once time is initialized
+	int64 fg_Timer_CyclesUnscaled();
 	int64 fg_Timer_CyclesRawFrequency();
 
 	void fg_TimeRaw_GetNow(NTime::CTime *_pTime);
