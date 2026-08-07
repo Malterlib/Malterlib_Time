@@ -18,3 +18,14 @@ inline_always int64 NMib::NTime::NPlatform::fg_Timer_CyclesFast()
 	#error "Implement this";
 #endif
 }
+
+inline_always int64 NMib::NTime::NPlatform::fg_Timer_CyclesUnscaled()
+{
+#if defined(DArchitecture_x86) || defined(DArchitecture_x64)
+	return __rdtsc();
+#elif defined(DArchitecture_arm64)
+	return _ReadStatusReg(DMibArm64_CNTVCT_EL0);
+#else
+	#error "Implement this";
+#endif
+}

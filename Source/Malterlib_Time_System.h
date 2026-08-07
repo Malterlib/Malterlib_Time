@@ -37,6 +37,9 @@ namespace NMib::NTime
 		static fp64 fs_CyclesFrequencyFp();
 		static uint64 fs_CyclesFrequency();
 		static fp64 fs_CyclesFrequencyReciprocal();
+
+		// Ticks per second of NPlatform::fg_Timer_CyclesUnscaled readings
+		static uint64 fs_CyclesUnscaledFrequency();
 		static int64 fs_TimerFrequency();
 		static fp64 fs_TimerFrequencyFp();
 		static int64 fs_GetTimerValue();

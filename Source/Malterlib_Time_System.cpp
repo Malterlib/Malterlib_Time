@@ -68,6 +68,7 @@ namespace NMib::NTime
 			fp64 m_CyclesFrequencyFp;
 			uint64 m_CyclesFrequency;
 			fp64 m_CyclesFrequencyReciprocal;
+			uint64 m_CyclesUnscaledFrequency;
 
 			//
 
@@ -200,6 +201,8 @@ namespace NMib::NTime
 		#if (defined(DArchitecture_arm64) || defined(DArchitecture_arm64e))
 			auto NativeFrequency = NPlatform::fg_Timer_CyclesRawFrequency();
 
+			m_CyclesUnscaledFrequency = NativeFrequency;
+
 			int64 WantedFrequency = (int64)NPlatform::fg_TimerRaw_GetCPUFrequency();
 
 			if (WantedFrequency == 0)
@@ -259,6 +262,9 @@ namespace NMib::NTime
 			m_CyclesFrequencyFp = fp64(Cycles) / (fp64(Timer) / fp64(NPlatform::fg_TimerRaw_PreciseFrequency()));
 			m_CyclesFrequency = m_CyclesFrequencyFp.f_ToIntRound();
 			m_CyclesFrequencyReciprocal = fp64(1.0) / m_CyclesFrequencyFp;
+
+			// No cycle scale on these architectures, so the unscaled counter is the cycles counter
+			m_CyclesUnscaledFrequency = m_CyclesFrequency;
 		#endif
 		}
 
@@ -731,6 +737,11 @@ namespace NMib::NTime
 	fp64 CSystem_Time::fs_CyclesFrequencyReciprocal()
 	{
 		return g_MalterlibSubSystem_Time->m_CyclesFrequencyReciprocal;
+	}
+
+	uint64 CSystem_Time::fs_CyclesUnscaledFrequency()
+	{
+		return g_MalterlibSubSystem_Time->m_CyclesUnscaledFrequency;
 	}
 
 	int64 CSystem_Time::fs_TimerFrequency()
