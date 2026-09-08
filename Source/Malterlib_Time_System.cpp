@@ -39,6 +39,7 @@ namespace NMib::NTime
 			~CSubSystem_Time();
 
 			void f_TimeGetUTCOffset(NTime::CTimeSpan *_pUTCOffset) const;
+			void fp_UTCOffsetInit() const;
 			void f_TimeGetNow(NTime::CTime *_pTime, bool _bRecursive = false) const;
 			NTime::CTime f_TimeToLocal(NTime::CTime const &_Time) const;
 			NTime::CTime f_TimeToUtc(NTime::CTime const &_Time) const;
@@ -73,14 +74,17 @@ namespace NMib::NTime
 			//
 
 			NTime::CTime m_TimeBase;
-			NThread::TCAtomicSingleWriter<NTime::CTimeSpan> m_UTCOffset;
+			// The UTC offset is fetched on first use: the first zone lookup loads the zone database,
+			// which on macOS also registers with notifyd and costs about a millisecond, and most
+			// processes never convert a time to local time. Written under m_Lock only
+			mutable NThread::TCAtomicSingleWriter<NTime::CTimeSpan> m_UTCOffset;
 			NThread::TCAtomicOrSingleWriterAtomic<int64> m_TimerBase;
 			int64 m_Timer;
 			int64 m_TimerFrequency;
 			fp64 m_TimerFrequencyReciprocal;
 			fp64 m_TimerFrequencyFp;
 			NThread::TCAtomicOrSingleWriterAtomic<int64> m_NextUpdate;
-			int64 m_NextUTCUpdate;
+			mutable int64 m_NextUTCUpdate;
 			fp64 m_Drift; // Timer ticks per tick
 			fp64 m_DriftFraction;
 
@@ -99,6 +103,7 @@ namespace NMib::NTime
 			bool m_bTimeInitDone;
 			NAtomic::TCAtomic<bool> m_bUsedTimeSpeed;
 			NAtomic::TCAtomic<bool> m_bHasDrift;
+			mutable NAtomic::TCAtomic<bool> m_bUTCOffsetValid;
 			mutable NThread::CMutual m_TimerValLock;
 
 			mutable NThread::CMutual m_Lock;
@@ -143,6 +148,7 @@ namespace NMib::NTime
 			m_TimeSpeed = 1.0f;
 			m_TimeSpeedReciprocal = 1.0f;
 			m_bUsedTimeSpeed = false;
+			m_bUTCOffsetValid = false;
 			m_TimerFrequency = 0;
 			m_LastInternalTimer = -1;
 			m_InternalTimer = 0;
@@ -386,10 +392,6 @@ namespace NMib::NTime
 
 			m_LastDiff = m_TimerBase.f_Load();
 
-			NTime::CTimeSpan UTCOffset;
-			NPlatform::fg_TimeRaw_GetUTCOffset(&UTCOffset);
-			m_UTCOffset.f_Store(UTCOffset);
-
 			m_NextUpdate = m_TimerBase.f_Load(); // Update once now
 			m_NextUTCUpdate = m_NextUpdate + m_TimerFrequency * 60;
 
@@ -456,7 +458,7 @@ namespace NMib::NTime
 						}
 
 						int64 UTCUpdateDiff = m_NextUTCUpdate - _CurrentTimer;
-						if (UTCUpdateDiff < 0 || UTCUpdateDiff > m_TimerFrequency * 120)
+						if (m_bUTCOffsetValid.f_Load(NAtomic::gc_MemoryOrder_Relaxed) && (UTCUpdateDiff < 0 || UTCUpdateDiff > m_TimerFrequency * 120))
 						{
 							NTime::CTimeSpan UTCOffset;
 							NPlatform::fg_TimeRaw_GetUTCOffset(&UTCOffset);
@@ -486,7 +488,23 @@ namespace NMib::NTime
 
 		void CSubSystem_Time::f_TimeGetUTCOffset(NTime::CTimeSpan *_pUTCOffset) const
 		{
+			if (!m_bUTCOffsetValid.f_Load(NAtomic::gc_MemoryOrder_Acquire)) [[unlikely]]
+				fp_UTCOffsetInit();
+
 			*_pUTCOffset = m_UTCOffset.f_Load();
+		}
+
+		void CSubSystem_Time::fp_UTCOffsetInit() const
+		{
+			DMibLock(m_Lock);
+			if (m_bUTCOffsetValid.f_Load(NAtomic::gc_MemoryOrder_Relaxed))
+				return;
+
+			NTime::CTimeSpan UTCOffset;
+			NPlatform::fg_TimeRaw_GetUTCOffset(&UTCOffset);
+			m_UTCOffset.f_Store(UTCOffset);
+			m_NextUTCUpdate = f_GetTimerVal() + m_TimerFrequency * 60;
+			m_bUTCOffsetValid.f_Store(true, NAtomic::gc_MemoryOrder_Release);
 		}
 
 		NTime::CTime CSubSystem_Time::f_TimeToLocal(NTime::CTime const &_Time) const
@@ -629,6 +647,7 @@ namespace NMib::NTime
 				if (_pTimeZone)
 				{
 					m_UTCOffset.f_Store(*_pTimeZone);
+					m_bUTCOffsetValid.f_Store(true, NAtomic::gc_MemoryOrder_Release);
 					m_bUsedTimeSpeed = true;
 				}
 
