@@ -769,6 +769,12 @@ namespace NMib::NTime
 	{
 		return g_MalterlibSubSystem_Time->m_TimerFrequencyFp;
 	}
+
+	fp64 CSystem_Time::fs_TimerFrequencyReciprocal()
+	{
+		return g_MalterlibSubSystem_Time->m_TimerFrequencyReciprocal;
+	}
+
 	int64 CSystem_Time::fs_GetTimerValue()
 	{
 		return g_MalterlibSubSystem_Time->f_GetTimerVal();

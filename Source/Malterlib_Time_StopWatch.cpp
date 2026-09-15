@@ -26,7 +26,7 @@ namespace NMib::NTime
 	fp64 CStopwatch::f_GetTime() const
 	{
 		DMibFastCheck(mp_StartTime != TCLimitsInt<int64>::mc_Min);
-		return (fp64(CSystem_Time::fs_GetTimerValue() - mp_StartTime)) / CSystem_Time::fs_TimerFrequencyFp();
+		return (fp64(CSystem_Time::fs_GetTimerValue() - mp_StartTime)) * CSystem_Time::fs_TimerFrequencyReciprocal();
 	}
 
 	fp64 CStopwatch::f_Restart()
@@ -34,7 +34,7 @@ namespace NMib::NTime
 		DMibFastCheck(mp_StartTime != TCLimitsInt<int64>::mc_Min);
 		auto OldStartTime = mp_StartTime;
 		mp_StartTime = CSystem_Time::fs_GetTimerValue();
-		return (fp64(mp_StartTime - OldStartTime)) / CSystem_Time::fs_TimerFrequencyFp();
+		return (fp64(mp_StartTime - OldStartTime)) * CSystem_Time::fs_TimerFrequencyReciprocal();
 	}
 
 	void CStopwatch::f_AddOffset(fp64 _Offset)

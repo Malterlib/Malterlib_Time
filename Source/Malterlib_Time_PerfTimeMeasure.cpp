@@ -35,12 +35,12 @@ namespace NMib::NTime
 	// In seconds
 	CPerfTimeMeasureMin::operator fp64() const
 	{
-		return ((fp64)mp_MinTime) / CSystem_Time::fs_TimerFrequencyFp();
+		return ((fp64)mp_MinTime) * CSystem_Time::fs_TimerFrequencyReciprocal();
 	}
 
 	fp64 CPerfTimeMeasureMin::f_GetTime() const
 	{
-		return ((fp64)mp_MinTime) / CSystem_Time::fs_TimerFrequencyFp();
+		return ((fp64)mp_MinTime) * CSystem_Time::fs_TimerFrequencyReciprocal();
 	}
 
 	int64 CPerfTimeMeasureMin::f_GetTicks() const
@@ -55,17 +55,17 @@ namespace NMib::NTime
 
 	int64 CPerfTimeMeasureMin::f_GetNanos() const
 	{
-		return ((((fp64)mp_MinTime) / CSystem_Time::fs_TimerFrequencyFp()) * 1000000000.0).f_ToIntRound();
+		return ((((fp64)mp_MinTime) * CSystem_Time::fs_TimerFrequencyReciprocal()) * 1000000000.0).f_ToIntRound();
 	}
 
 	int64 CPerfTimeMeasureMin::f_GetMicros() const
 	{
-		return ((((fp64)mp_MinTime) / CSystem_Time::fs_TimerFrequencyFp()) * 1000000.0).f_ToIntRound();
+		return ((((fp64)mp_MinTime) * CSystem_Time::fs_TimerFrequencyReciprocal()) * 1000000.0).f_ToIntRound();
 	}
 
 	int64 CPerfTimeMeasureMin::f_GetMillis() const
 	{
-		return ((((fp64)mp_MinTime) / CSystem_Time::fs_TimerFrequencyFp()) * 1000.0).f_ToIntRound();
+		return ((((fp64)mp_MinTime) * CSystem_Time::fs_TimerFrequencyReciprocal()) * 1000.0).f_ToIntRound();
 	}
 
 	fp64 CPerfTimeMeasureMin::operator / ( const CPerfTimeMeasureMin &_Other) const

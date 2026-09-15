@@ -40,6 +40,7 @@ namespace NMib::NTime
 		static uint64 fs_CyclesUnscaledFrequency();
 		static int64 fs_TimerFrequency();
 		static fp64 fs_TimerFrequencyFp();
+		static fp64 fs_TimerFrequencyReciprocal();
 		static int64 fs_GetTimerValue();
 		static void fs_SetTimeSpeed(fp64 _Multiplier, NTime::CTime const *_pOptionalTime, NTime::CTimeSpan const *_pTimeZone);
 		static fp64 fs_GetTimeSpeed();

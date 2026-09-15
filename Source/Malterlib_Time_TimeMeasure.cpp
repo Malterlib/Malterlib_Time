@@ -161,7 +161,7 @@ namespace NMib::NTime
 	CTimeMeasure::operator fp64() const
 	{
 		DMibFastCheck(mp_Time != TCLimitsInt<int64>::mc_Min && mp_Time >= 0);
-		return fp64(mp_Time) / CSystem_Time::fs_TimerFrequencyFp();
+		return fp64(mp_Time) * CSystem_Time::fs_TimerFrequencyReciprocal();
 	}
 
 	int64 CTimeMeasure::f_GetTicks() const
@@ -172,7 +172,7 @@ namespace NMib::NTime
 	fp64 CTimeMeasure::f_GetTime() const
 	{
 		DMibFastCheck(mp_Time != TCLimitsInt<int64>::mc_Min && mp_Time >= 0);
-		return (fp64(mp_Time)) / CSystem_Time::fs_TimerFrequencyFp();
+		return (fp64(mp_Time)) * CSystem_Time::fs_TimerFrequencyReciprocal();
 	}
 
 	CTimeMeasure &CTimeMeasure::operator -= (CTimeMeasure const &_Other)
