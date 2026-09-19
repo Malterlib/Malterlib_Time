@@ -61,7 +61,9 @@ namespace NMib::NTime
 
 			void f_ReportTimeChange(NTime::CTime const &_OldTime, NTime::CTime const &_NewTime, NStr::CStr const &_Reason);
 
+#if defined(DMibSafeTimerAvailable) && DMibConfig_Tests_Enable
 			static CSubSystem_Time *ms_pThis;
+#endif
 
 			NAtomic::TCAtomic<bool> m_bThreadLocalAvailable;
 			NAtomic::TCAtomic<bool> m_bThreadLocalCreated;
@@ -133,11 +135,15 @@ namespace NMib::NTime
 
 		constinit TCSubSystem<CSubSystem_Time, ESubSystemDestruction_Last> g_MalterlibSubSystem_Time = {DAggregateInit};
 
+	#if defined(DMibSafeTimerAvailable) && DMibConfig_Tests_Enable
 		CSubSystem_Time *CSubSystem_Time::ms_pThis = nullptr;
+	#endif
 
 		CSubSystem_Time::CSubSystem_Time()
 		{
+	#if defined(DMibSafeTimerAvailable) && DMibConfig_Tests_Enable
 			ms_pThis = this;
+	#endif
 			m_bTimeInitDone = false;
 	#ifdef DMibSafeTimerAvailable
 			m_bUseSafeTimer = false;
