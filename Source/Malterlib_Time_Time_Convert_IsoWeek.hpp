@@ -116,7 +116,7 @@ namespace NMib::NTime
 		else
 		{
 			if constexpr (t_StopAtStage > 1)
-				Convert.fp_ExtractDateTime<4+t_StopAtStage, false>(DateTime);
+				Convert.fp_ExtractDateTime<4 + t_StopAtStage, false>(DateTime);
 			else
 				Convert.fp_ExtractDateTime<2, false>(DateTime);
 		}

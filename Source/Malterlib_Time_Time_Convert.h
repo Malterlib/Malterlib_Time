@@ -16,15 +16,15 @@ namespace NMib::NTime
 		constexpr uint64 f_UnixMinutes() const noexcept;
 		constexpr fp64 f_UnixSecondsFraction() const noexcept;
 
-		constexpr static CTime fs_FromUnixMilliseconds(uint64 _Milliseconds) noexcept;
-		constexpr static CTime fs_FromUnixSeconds(uint64 _Seconds) noexcept;
-		constexpr static CTime fs_FromUnixMinutes(uint64 _Minutes) noexcept;
-		constexpr static CTime fs_FromUnixSecondsFraction(fp64 _Seconds) noexcept;
+		static constexpr CTime fs_FromUnixMilliseconds(uint64 _Milliseconds) noexcept;
+		static constexpr CTime fs_FromUnixSeconds(uint64 _Seconds) noexcept;
+		static constexpr CTime fs_FromUnixMinutes(uint64 _Minutes) noexcept;
+		static constexpr CTime fs_FromUnixSecondsFraction(fp64 _Seconds) noexcept;
 
 	protected:
-		constexpr static void fsp_AddTime(CTime &_AddResult, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, fp64 _Fraction = 0) noexcept;
-		constexpr static void fsp_AddTimeIntFrac(CTime &_AddResult, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, uint64 _Fraction = 0) noexcept;
-		constexpr static CTime fsp_AddTimeIntFracConstexr(CTime const &_Old, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, uint64 _Fraction = 0) noexcept;
+		static constexpr void fsp_AddTime(CTime &_AddResult, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, fp64 _Fraction = 0) noexcept;
+		static constexpr void fsp_AddTimeIntFrac(CTime &_AddResult, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, uint64 _Fraction = 0) noexcept;
+		static constexpr CTime fsp_AddTimeIntFracConstexr(CTime const &_Old, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, uint64 _Fraction = 0) noexcept;
 
 		NTime::CTime const *mp_pTime;
 	};
@@ -51,8 +51,8 @@ namespace NMib::NTime
 		constexpr CTimeConvert_ProlepticGreogrian(NTime::CTime const &_Time) noexcept;
 		constexpr CTimeConvert_ProlepticGreogrian &operator = (NTime::CTime const &_Time) noexcept;
 
-		constexpr static inline_small aint fs_GetDaysInMonth(aint _Month) noexcept;
-		constexpr static inline_small aint fs_GetDaysInMonth(int64 _Year, aint _Month) noexcept;
+		static constexpr inline_small aint fs_GetDaysInMonth(aint _Month) noexcept;
+		static constexpr inline_small aint fs_GetDaysInMonth(int64 _Year, aint _Month) noexcept;
 
 		constexpr void f_ExtractDateTime(CDateTime &_Destination) const noexcept;
 
@@ -74,41 +74,41 @@ namespace NMib::NTime
 		constexpr aint f_GetSecond() const noexcept;
 		constexpr fp64 f_GetFraction() const noexcept;
 
-		constexpr static CTime fs_GetYearZero() noexcept;
-		constexpr static CTime fs_CreateTime(int64 _Year, aint _Month = 1, aint _DayOfMonth = 1, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, fp64 _Fraction = 0)
+		static constexpr CTime fs_GetYearZero() noexcept;
+		static constexpr CTime fs_CreateTime(int64 _Year, aint _Month = 1, aint _DayOfMonth = 1, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, fp64 _Fraction = 0)
 			noexcept(NContract::gc_bSafeCheckNoExcept)
 		;
-		constexpr static CTime fs_CreateTimeIntFrac(int64 _Year, aint _Month = 1, aint _DayOfMonth = 1, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, uint64 _FractionInt = 0)
+		static constexpr CTime fs_CreateTimeIntFrac(int64 _Year, aint _Month = 1, aint _DayOfMonth = 1, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, uint64 _FractionInt = 0)
 			noexcept(NContract::gc_bSafeCheckNoExcept)
 		;
-		constexpr static CTime fs_CreateTimeConstExpr(int64 _Year, aint _Month = 1, aint _DayOfMonth = 1, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, uint64 _Fraction = 0) noexcept;
-		constexpr static CTime fs_CreateTime(CDateTime const &_DateTime) noexcept;
+		static constexpr CTime fs_CreateTimeConstExpr(int64 _Year, aint _Month = 1, aint _DayOfMonth = 1, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, uint64 _Fraction = 0) noexcept;
+		static constexpr CTime fs_CreateTime(CDateTime const &_DateTime) noexcept;
 
-		constexpr static void fs_RoundTimeToSecondDown(NTime::CTime &_Time) noexcept;
-		constexpr static void fs_RoundTimeToMinuteDown(NTime::CTime &_Time) noexcept;
-		constexpr static void fs_RoundTimeToHourDown(NTime::CTime &_Time) noexcept;
-		constexpr static void fs_RoundTimeToDayDown(NTime::CTime &_Time) noexcept;
-		constexpr static void fs_RoundTimeToSecondUp(NTime::CTime &_Time) noexcept;
-		constexpr static void fs_RoundTimeToMinuteUp(NTime::CTime &_Time) noexcept;
-		constexpr static void fs_RoundTimeToHourUp(NTime::CTime &_Time) noexcept;
-		constexpr static void fs_RoundTimeToDayUp(NTime::CTime &_Time) noexcept;
-		constexpr static void fs_RoundTimeToSecondClosest(NTime::CTime &_Time) noexcept;
-		constexpr static void fs_RoundTimeToMinuteClosest(NTime::CTime &_Time) noexcept;
-		constexpr static void fs_RoundTimeToHourClosest(NTime::CTime &_Time) noexcept;
-		constexpr static void fs_RoundTimeToDayClosest(NTime::CTime &_Time) noexcept;
+		static constexpr void fs_RoundTimeToSecondDown(NTime::CTime &_Time) noexcept;
+		static constexpr void fs_RoundTimeToMinuteDown(NTime::CTime &_Time) noexcept;
+		static constexpr void fs_RoundTimeToHourDown(NTime::CTime &_Time) noexcept;
+		static constexpr void fs_RoundTimeToDayDown(NTime::CTime &_Time) noexcept;
+		static constexpr void fs_RoundTimeToSecondUp(NTime::CTime &_Time) noexcept;
+		static constexpr void fs_RoundTimeToMinuteUp(NTime::CTime &_Time) noexcept;
+		static constexpr void fs_RoundTimeToHourUp(NTime::CTime &_Time) noexcept;
+		static constexpr void fs_RoundTimeToDayUp(NTime::CTime &_Time) noexcept;
+		static constexpr void fs_RoundTimeToSecondClosest(NTime::CTime &_Time) noexcept;
+		static constexpr void fs_RoundTimeToMinuteClosest(NTime::CTime &_Time) noexcept;
+		static constexpr void fs_RoundTimeToHourClosest(NTime::CTime &_Time) noexcept;
+		static constexpr void fs_RoundTimeToDayClosest(NTime::CTime &_Time) noexcept;
 
 	private:
 		friend struct CTimeConvert_ISOWeek;
 
-		constexpr static inline_small aint fsp_GetDayOfYearFromMonth(aint _Month) noexcept;
-		constexpr static inline_small aint fsp_IsLeapYear(int64 _Year) noexcept;
-		constexpr static inline_small aint fsp_GetDayOfYearFromMonth(int64 _Year, aint _Month) noexcept;
+		static constexpr inline_small aint fsp_GetDayOfYearFromMonth(aint _Month) noexcept;
+		static constexpr inline_small aint fsp_IsLeapYear(int64 _Year) noexcept;
+		static constexpr inline_small aint fsp_GetDayOfYearFromMonth(int64 _Year, aint _Month) noexcept;
 
-		constexpr inline_always static int64 fsp_GetSecondsFromYearConstexpr(int64 _Year) noexcept;
+		static constexpr inline_always int64 fsp_GetSecondsFromYearConstexpr(int64 _Year) noexcept;
 
-		constexpr static int64 fsp_GetSecondsFromYear(int64 _Year) noexcept(NContract::gc_bSafeCheckNoExcept);
+		static constexpr int64 fsp_GetSecondsFromYear(int64 _Year) noexcept(NContract::gc_bSafeCheckNoExcept);
 
-		constexpr static inline_medium aint fsp_GetWeekDay(int64 _Year, aint _DayOfYear) noexcept;
+		static constexpr inline_medium aint fsp_GetWeekDay(int64 _Year, aint _DayOfYear) noexcept;
 
 		template <aint t_StopAtStage, bool t_bExtractMonth>
 		constexpr void fp_ExtractDateTimeAD(CDateTime &_Dest, uint64 _Seconds) const noexcept;
@@ -119,8 +119,8 @@ namespace NMib::NTime
 		template <aint t_StopAtStage, bool t_bExtractMonth>
 		constexpr void fp_ExtractDateTime(CDateTime &_Dest) const noexcept;
 
-		constexpr static int32 mcp_MonthDayOfYear[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
-		constexpr static int32 mcp_DaysInMonth[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+		static constexpr int32 mcp_MonthDayOfYear[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+		static constexpr int32 mcp_DaysInMonth[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 	};
 
 	struct CTimeConvert_ISOWeek : public CTimeConvert_BabylonianCommon
@@ -151,7 +151,7 @@ namespace NMib::NTime
 		constexpr aint f_GetSecond() const noexcept;
 		constexpr fp64 f_GetFraction() const noexcept;
 
-		constexpr static CTime fs_CreateTime(int64 _Year, aint _Week = 1, aint _DayOfWeek = 0, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, fp64 _Fraction = 0)
+		static constexpr CTime fs_CreateTime(int64 _Year, aint _Week = 1, aint _DayOfWeek = 0, aint _Hour = 0, aint _Minute = 0, aint _Second = 0, fp64 _Fraction = 0)
 			noexcept(NContract::gc_bSafeCheckNoExcept)
 		;
 

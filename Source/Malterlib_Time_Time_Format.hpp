@@ -5,17 +5,8 @@
 
 namespace NMib::NTime
 {
-	template
-	<
-		typename tf_COption
-		, typename tf_CArgs
-	>
-	constexpr bool CTime::f_FormatParseOption
-		(
-			CFormatOptions &_Options
-			, tf_COption &_Option
-			, tf_CArgs &_Args
-		) const noexcept
+	template <typename tf_COption, typename tf_CArgs>
+	constexpr bool CTime::f_FormatParseOption(CFormatOptions &_Options, tf_COption &_Option, tf_CArgs &_Args) const noexcept
 	{
 		switch (_Option.m_FormatTypes.m_Format1)
 		{
@@ -85,13 +76,8 @@ namespace NMib::NTime
 		if (_Options.m_LocalOptions.m_bDateOnly)
 		{
 			CChar DateSeparator[] = {static_cast<CChar>(_Options.m_LocalOptions.m_DateSeparator), 0};
-			_FormatInto += typename tf_CStr::CFormat("{}{}{}{sj2,sf0}{}{sj2,sf0}")
-				<< CorrectedYear
-				<< pYearSuffix
-				<< DateSeparator
-				<< DateTime.m_Month
-				<< DateSeparator
-				<< DateTime.m_DayOfMonth
+			_FormatInto
+				+= typename tf_CStr::CFormat("{}{}{}{sj2,sf0}{}{sj2,sf0}") << CorrectedYear << pYearSuffix << DateSeparator << DateTime.m_Month << DateSeparator << DateTime.m_DayOfMonth
 			;
 		}
 		else
@@ -113,7 +99,7 @@ namespace NMib::NTime
 				Decimals = 3;
 			}
 
-			int64 Fraction = (DateTime.m_Fraction*Scale).f_ToIntRound();
+			int64 Fraction = (DateTime.m_Fraction * Scale).f_ToIntRound();
 			if (Fraction >= ScaleInt)
 				Fraction = ScaleInt - 1;
 
@@ -129,27 +115,16 @@ namespace NMib::NTime
 			case 0:
 				pFormatStr = "{}{}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj*,sf0}";
 				break;
-			case 1:
-				pFormatStr = "{}{}";
-				break;
-			case 2:
-				pFormatStr = "{}{}{}{sj2,sf0}";
-				break;
-			case 3:
-				pFormatStr = "{}{}{}{sj2,sf0}{}{sj2,sf0}";
-				break;
-			case 4:
-				pFormatStr = "{}{}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}";
-				break;
-			case 5:
-				pFormatStr = "{}{}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}";
-				break;
-			case 6:
-				pFormatStr = "{}{}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}";
-				break;
+			case 1: pFormatStr = "{}{}"; break;
+			case 2: pFormatStr = "{}{}{}{sj2,sf0}"; break;
+			case 3: pFormatStr = "{}{}{}{sj2,sf0}{}{sj2,sf0}"; break;
+			case 4: pFormatStr = "{}{}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}"; break;
+			case 5: pFormatStr = "{}{}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}"; break;
+			case 6: pFormatStr = "{}{}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}{}{sj2,sf0}"; break;
 			}
 
-			_FormatInto += typename tf_CStr::CFormat(pFormatStr)
+			_FormatInto
+				+= typename tf_CStr::CFormat(pFormatStr)
 				<< CorrectedYear
 				<< pYearSuffix
 				<< DateSeparator

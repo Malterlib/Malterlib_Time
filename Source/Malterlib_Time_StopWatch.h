@@ -13,7 +13,7 @@ namespace NMib::NTime
 		CStopwatch() = default;
 
 		CStopwatch(bool _bStart);
-		CStopwatch(CStopwatch const& _ToMove);
+		CStopwatch(CStopwatch const &_ToMove);
 
 		inline_small void f_Start();
 		fp64 f_Stop();
@@ -25,7 +25,7 @@ namespace NMib::NTime
 		int64 f_GetStartTicks() const;
 		static CStopwatch fs_CreateFromStartTicks(int64 _StartTime);
 
-		operator fp64() const;
+		operator fp64 () const;
 
 	private:
 		int64 mp_StartTime = TCLimitsInt<int64>::mc_Min;
@@ -47,7 +47,7 @@ namespace NMib::NTime
 		int64 f_GetStartTicks() const;
 		static CStopwatchRaw fs_CreateFromStartTicks(int64 _StartTime);
 
-		operator fp64() const;
+		operator fp64 () const;
 
 	private:
 		int64 mp_StartTime = TCLimitsInt<int64>::mc_Min;
@@ -71,7 +71,7 @@ namespace NMib::NTime
 		int64 f_GetStartTicks() const;
 		static CCyclesStopwatch fs_CreateFromStartTicks(int64 _StartTime);
 
-		operator fp64() const;
+		operator fp64 () const;
 
 	private:
 		int64 mp_StartTime = TCLimitsInt<int64>::mc_Min;

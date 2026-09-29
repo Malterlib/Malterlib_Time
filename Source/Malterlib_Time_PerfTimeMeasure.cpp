@@ -33,7 +33,7 @@ namespace NMib::NTime
 	}
 
 	// In seconds
-	CPerfTimeMeasureMin::operator fp64() const
+	CPerfTimeMeasureMin::operator fp64 () const
 	{
 		return ((fp64)mp_MinTime) * CSystem_Time::fs_TimerFrequencyReciprocal();
 	}
@@ -68,12 +68,12 @@ namespace NMib::NTime
 		return ((((fp64)mp_MinTime) * CSystem_Time::fs_TimerFrequencyReciprocal()) * 1000.0).f_ToIntRound();
 	}
 
-	fp64 CPerfTimeMeasureMin::operator / ( const CPerfTimeMeasureMin &_Other) const
+	fp64 CPerfTimeMeasureMin::operator / (CPerfTimeMeasureMin const &_Other) const
 	{
 		return (fp64)mp_MinCycles / (fp64)_Other.mp_MinCycles;
 	}
 
-	CPerfTimeMeasureMin CPerfTimeMeasureMin::operator * ( const fp64 &_Other) const
+	CPerfTimeMeasureMin CPerfTimeMeasureMin::operator * (fp64 const &_Other) const
 	{
 		CPerfTimeMeasureMin Ret;
 		Ret.mp_CurrentCycles = mp_CurrentCycles;
@@ -102,17 +102,13 @@ namespace NMib::NTime
 		NMib::NAtomic::fg_MemoryFence();
 		int64 Corrected = (mp_CurrentCycles + Cycles) - msp_Correction.m_Correction;
 		if (Corrected < mp_MinCycles)
-		{
 			mp_MinCycles = Corrected;
-		}
 	}
 
 	only_parameters_aliased void CPrefCyclesTimeMeasureMin::f_FeedCycles(CCyclesTimeMeasure const &_Timer)
 	{
 		if (_Timer.mp_Time < mp_MinCycles)
-		{
 			mp_MinCycles = _Timer.mp_Time;
-		}
 	}
 
 	only_parameters_aliased inline_never void CPrefCyclesTimeMeasureMin::f_StopNonCorrected()
@@ -121,9 +117,7 @@ namespace NMib::NTime
 		NMib::NAtomic::fg_MemoryFence();
 		int64 Corrected = (mp_CurrentCycles + Cycles) - msp_Correction2.m_Correction;
 		if (Corrected < mp_MinCycles)
-		{
 			mp_MinCycles = Corrected;
-		}
 	}
 
 	// In seconds
@@ -132,18 +126,18 @@ namespace NMib::NTime
 		return mp_MinCycles;
 	}
 
-	only_parameters_aliased fp32 CPrefCyclesTimeMeasureMin::operator / ( const CPrefCyclesTimeMeasureMin &_Other) const
+	only_parameters_aliased fp32 CPrefCyclesTimeMeasureMin::operator / (CPrefCyclesTimeMeasureMin const &_Other) const
 	{
 		return mp_MinCycles / _Other.mp_MinCycles;
 	}
 
-	only_parameters_aliased CPrefCyclesTimeMeasureMin &CPrefCyclesTimeMeasureMin::operator /= ( const fp64 &_Other)
+	only_parameters_aliased CPrefCyclesTimeMeasureMin &CPrefCyclesTimeMeasureMin::operator /= (fp64 const &_Other)
 	{
 		mp_MinCycles = mp_MinCycles / _Other;
 		return *this;
 	}
 
-	only_parameters_aliased CPrefCyclesTimeMeasureMin CPrefCyclesTimeMeasureMin::operator * ( const fp64 &_Other) const
+	only_parameters_aliased CPrefCyclesTimeMeasureMin CPrefCyclesTimeMeasureMin::operator * (fp64 const &_Other) const
 	{
 		CPrefCyclesTimeMeasureMin Ret;
 		Ret.mp_CurrentCycles = mp_CurrentCycles;

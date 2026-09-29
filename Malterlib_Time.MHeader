@@ -38,7 +38,6 @@ Import "../Core/Lib_Malterlib.MTarget"
 	}
 }
 
-
 Property
 {
 	MalterlibLibrary_Time: bool = MalterlibLibrary_All
@@ -56,8 +55,7 @@ Property
 Property
 {
 	!!MalterlibEnableInternalTests true
-	
+
 	MalterlibTests =+ "Malterlib_Time"
 	MalterlibTestFiles_Malterlib_Time: [type(CEntity)] = ["Test/*"->MakeAbsolute()]
 }
-

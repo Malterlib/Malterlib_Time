@@ -25,7 +25,7 @@ namespace NMib::NTime
 
 		auto operator <=> (CTimeMeasure const &_Other) const noexcept = default;
 
-		operator fp64() const;
+		operator fp64 () const;
 
 		CTimeMeasure &operator -= (CTimeMeasure const &_Other);
 		CTimeMeasure &operator += (CTimeMeasure const &_Other);
@@ -56,7 +56,7 @@ namespace NMib::NTime
 
 		auto operator <=> (TCCyclesTimeMeasure const &_Other) const noexcept = default;
 
-		operator fp64() const;
+		operator fp64 () const;
 
 		TCCyclesTimeMeasure &operator -= (TCCyclesTimeMeasure const &_Other);
 		TCCyclesTimeMeasure &operator += (TCCyclesTimeMeasure const &_Other);
@@ -115,7 +115,7 @@ namespace NMib::NTime
 		ch8 const *mp_pName;
 	};
 
-#	define DMibScopeMeasure(_Timer) NMib::NTime::TCMeasureScope<decltype(_Timer)> TimerScope(_Timer)
+#define DMibScopeMeasure(_Timer) NMib::NTime::TCMeasureScope<decltype(_Timer)> TimerScope(_Timer)
 
 #if defined(DMibDebug) || defined(DConfig_Profile)
 #	define DMibScopeTraceTimeMeasure(_Name) NMib::NTime::CTimeMeasureTraceScope TimerScope(_Name)
@@ -125,11 +125,11 @@ namespace NMib::NTime
 #	define DMibScopeConOutTimeMeasure(_Name)
 #endif
 
-#	ifndef DMibPNoShortCuts
-#		define DScopeMeasure(_Timer) DMibScopeMeasure(_Timer)
-#		define DScopeTraceTimeMeasure(_Name) DMibScopeTraceTimeMeasure(_Name)
-#		define DScopeConOutTimeMeasure(_Name) DMibScopeConOutTimeMeasure(_Name)
-#	endif
+#ifndef DMibPNoShortCuts
+#	define DScopeMeasure(_Timer) DMibScopeMeasure(_Timer)
+#	define DScopeTraceTimeMeasure(_Name) DMibScopeTraceTimeMeasure(_Name)
+#	define DScopeConOutTimeMeasure(_Name) DMibScopeConOutTimeMeasure(_Name)
+#endif
 }
 
 #include "Malterlib_Time_TimeMeasure.hpp"

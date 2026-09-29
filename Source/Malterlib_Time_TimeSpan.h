@@ -13,16 +13,16 @@ namespace NMib::NTime
 		constexpr explicit CTimeSpan(int64 _Value) noexcept;
 		constexpr explicit CTimeSpan(int64 _Value, uint64 _Fraction) noexcept;
 
-		constexpr CTimeSpan operator + (const CTimeSpan &_Other) const noexcept;
-		constexpr CTimeSpan operator - (const CTimeSpan &_Other) const noexcept;
+		constexpr CTimeSpan operator + (CTimeSpan const &_Other) const noexcept;
+		constexpr CTimeSpan operator - (CTimeSpan const &_Other) const noexcept;
 		constexpr CTimeSpan operator - () const noexcept;
 		constexpr CTimeSpan operator * (int64 _nTimes) const noexcept;
 		constexpr CTimeSpan operator / (int64 _nTimes) const noexcept;
-		constexpr CTimeSpan &operator += (const CTimeSpan &_Other) noexcept;
-		constexpr CTimeSpan &operator -= (const CTimeSpan &_Other) noexcept;
+		constexpr CTimeSpan &operator += (CTimeSpan const &_Other) noexcept;
+		constexpr CTimeSpan &operator -= (CTimeSpan const &_Other) noexcept;
 		constexpr CTimeSpan &operator *= (int64 _nTimes) noexcept;
 		constexpr CTimeSpan &operator /= (int64 _nTimes) noexcept;
-		constexpr auto operator <=> (const CTimeSpan &_Other) const noexcept = default;
+		constexpr auto operator <=> (CTimeSpan const &_Other) const noexcept = default;
 
 		constexpr bool f_IsValid() const noexcept;
 		constexpr int64 f_GetSeconds() const noexcept;
@@ -35,8 +35,8 @@ namespace NMib::NTime
 		constexpr fp64 f_GetSecondsFraction() const noexcept;
 		constexpr void f_SetSecondsFraction(fp64 _Seconds) noexcept;
 
-		constexpr static CTimeSpan fs_SmallestTime() noexcept;
-		constexpr static CTimeSpan fs_Zero() noexcept;
+		static constexpr CTimeSpan fs_SmallestTime() noexcept;
+		static constexpr CTimeSpan fs_Zero() noexcept;
 		static CTimeSpan fs_UTCOffset();
 
 		template <typename tf_CStr>
