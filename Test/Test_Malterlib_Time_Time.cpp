@@ -23,7 +23,6 @@ namespace
 	class CTime_Tests : public NMib::NTest::CTest
 	{
 	public:
-
 		void f_DoTests()
 		{
 			DMibTestSuite("Time")
@@ -148,7 +147,7 @@ namespace
 				}
 			};
 
-#	if DMibEnableSafeCheck > 0
+#if DMibEnableSafeCheck > 0
 			DMibTestSuite("CreateTime range checks")
 			{
 				{
@@ -165,11 +164,11 @@ namespace
 					DMibExpectNoException(CTimeConvert::fs_CreateTime(c_EndYear, 10, 1));
 
 					// Day boundaries
-					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1));   // January 1st
-					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 31));  // January 31st
-					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 2, 29));  // February 29th (leap year)
-					DMibExpectNoException(CTimeConvert::fs_CreateTime(2023, 2, 28));  // February 28th (non-leap year)
-					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 4, 30));  // April 30th
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 1)); // January 1st
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 1, 31)); // January 31st
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 2, 29)); // February 29th (leap year)
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2023, 2, 28)); // February 28th (non-leap year)
+					DMibExpectNoException(CTimeConvert::fs_CreateTime(2024, 4, 30)); // April 30th
 					DMibExpect(CTimeConvert::fs_CreateTime(c_StartYear, 11, 23), ==, CTime::fs_StartOfTime());
 
 					// Hour boundaries (0-23)
@@ -218,11 +217,36 @@ namespace
 
 				{
 					DMibTestPath("Invalid day of month");
-					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2024, 1, 0), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");
-					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2024, 1, 32), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");
-					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2024, 2, 30), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");  // February leap year
-					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2023, 2, 29), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");  // February non-leap year
-					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTime(2024, 4, 31), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");  // April has 30 days
+					DMibExpectViolatesSafeCheck
+						(
+							CTimeConvert::fs_CreateTime(2024, 1, 0)
+							, "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'"
+						)
+					;
+					DMibExpectViolatesSafeCheck
+						(
+							CTimeConvert::fs_CreateTime(2024, 1, 32)
+							, "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'"
+						)
+					;
+					DMibExpectViolatesSafeCheck
+						(
+							CTimeConvert::fs_CreateTime(2024, 2, 30)
+							, "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'"
+						)
+					; // February leap year
+					DMibExpectViolatesSafeCheck
+						(
+							CTimeConvert::fs_CreateTime(2023, 2, 29)
+							, "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'"
+						)
+					; // February non-leap year
+					DMibExpectViolatesSafeCheck
+						(
+							CTimeConvert::fs_CreateTime(2024, 4, 31)
+							, "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'"
+						)
+					; // April has 30 days
 				}
 
 				{
@@ -267,11 +291,11 @@ namespace
 					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(c_EndYear, 10, 1));
 
 					// Day boundaries
-					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1));   // January 1st
-					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 31));  // January 31st
-					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 2, 29));  // February 29th (leap year)
-					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2023, 2, 28));  // February 28th (non-leap year)
-					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 4, 30));  // April 30th
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1)); // January 1st
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 31)); // January 31st
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 2, 29)); // February 29th (leap year)
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2023, 2, 28)); // February 28th (non-leap year)
+					DMibExpectNoException(CTimeConvert::fs_CreateTimeIntFrac(2024, 4, 30)); // April 30th
 					DMibExpect(CTimeConvert::fs_CreateTimeIntFrac(c_StartYear, 11, 23), ==, CTime::fs_StartOfTime());
 
 					// Hour boundaries (0-23)
@@ -320,11 +344,36 @@ namespace
 
 				{
 					DMibTestPath("Invalid day of month");
-					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 0), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");
-					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 32), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");
-					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2024, 2, 30), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");  // February leap year
-					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2023, 2, 29), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");  // February non-leap year
-					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2024, 4, 31), "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'");  // April has 30 days
+					DMibExpectViolatesSafeCheck
+						(
+							CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 0)
+							, "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'"
+						)
+					;
+					DMibExpectViolatesSafeCheck
+						(
+							CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 32)
+							, "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'"
+						)
+					;
+					DMibExpectViolatesSafeCheck
+						(
+							CTimeConvert::fs_CreateTimeIntFrac(2024, 2, 30)
+							, "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'"
+						)
+					; // February leap year
+					DMibExpectViolatesSafeCheck
+						(
+							CTimeConvert::fs_CreateTimeIntFrac(2023, 2, 29)
+							, "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'"
+						)
+					; // February non-leap year
+					DMibExpectViolatesSafeCheck
+						(
+							CTimeConvert::fs_CreateTimeIntFrac(2024, 4, 31)
+							, "_DayOfMonth >= 0 && _DayOfMonth < fs_GetDaysInMonth(_Year, _Month) 'Day of month range check error'"
+						)
+					; // April has 30 days
 				}
 
 				{
@@ -347,7 +396,12 @@ namespace
 
 				{
 					DMibTestPath("Invalid FractionInt");
-					DMibExpectViolatesSafeCheck(CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0, 0, 0, NTime::NPrivate::CConst::mc_FractionDividend), "_FractionInt >= 0 && _FractionInt < NPrivate::CConst::mc_FractionDividend 'Fraction range check error'");
+					DMibExpectViolatesSafeCheck
+						(
+							CTimeConvert::fs_CreateTimeIntFrac(2024, 1, 1, 0, 0, 0, NTime::NPrivate::CConst::mc_FractionDividend)
+							, "_FractionInt >= 0 && _FractionInt < NPrivate::CConst::mc_FractionDividend 'Fraction range check error'"
+						)
+					;
 				}
 			};
 
@@ -560,7 +614,11 @@ namespace
 				fp64 TotalTime = (End - Start).f_GetSecondsFraction();
 				fp64 TotalTimeTimer = fp64(TimerEnd - TimerStart) / CSystem_Time::fs_TimerFrequencyFp();
 
-				DMibTest((DMibExpr(TotalTime) / DMibExpr(TotalTimeTimer)) > DMibExpr(fp64(1.0)/g_AllowedDiff) && (DMibExpr(TotalTime) / DMibExpr(TotalTimeTimer)) < DMibExpr(g_AllowedDiff));
+				DMibTest
+					(
+						(DMibExpr(TotalTime) / DMibExpr(TotalTimeTimer)) > DMibExpr(fp64(1.0) / g_AllowedDiff) && (DMibExpr(TotalTime) / DMibExpr(TotalTimeTimer)) < DMibExpr(g_AllowedDiff)
+					)
+				;
 			};
 
 			DMibTestSuite("Time speed")
@@ -580,12 +638,14 @@ namespace
 				fp64 TotalTime = (End - Start).f_GetSecondsFraction();
 				fp64 TotalTimeRaw = (EndRaw - StartRaw).f_GetSecondsFraction();
 
-
-
-				DMibTest((DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) > DMibExpr(TimeSpeed / g_AllowedDiff) && (DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) < DMibExpr(TimeSpeed * g_AllowedDiff));
+				DMibTest
+					(
+						(DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) > DMibExpr(TimeSpeed / g_AllowedDiff)
+						&& (DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) < DMibExpr(TimeSpeed * g_AllowedDiff)
+					)
+				;
 
 				CSystem_Time::fs_DisableTimeSpeed();
-
 			};
 
 			DMibTestSuite("Timer speed")
@@ -603,10 +663,14 @@ namespace
 				fp64 TotalTime = fp64(End - Start);
 				fp64 TotalTimeRaw = fp64(EndRaw - StartRaw);
 
-				DMibTest((DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) > DMibExpr(TimeSpeed / g_AllowedDiff) && (DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) < DMibExpr(TimeSpeed * g_AllowedDiff));
+				DMibTest
+					(
+						(DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) > DMibExpr(TimeSpeed / g_AllowedDiff)
+						&& (DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) < DMibExpr(TimeSpeed * g_AllowedDiff)
+					)
+				;
 
 				CSystem_Time::fs_DisableTimeSpeed();
-
 			};
 
 			DMibTestSuite("Time change notifications")
@@ -709,7 +773,7 @@ namespace
 				DMibExpect(CStr("{tc3}"_f << CTimeConvert::fs_CreateTime(1, 1, 1)), ==, "1-01-01");
 				DMibExpect(CStr("{tc3}"_f << CTimeConvert::fs_CreateTime(2000, 1, 1)), ==, "2000-01-01");
 
- 				DMibExpect(CStr("{tc5}"_f << CTimeConvert::fs_FromUnixSeconds(0)), ==, "1970-01-01 00:00");
+				DMibExpect(CStr("{tc5}"_f << CTimeConvert::fs_FromUnixSeconds(0)), ==, "1970-01-01 00:00");
 				DMibExpect(CStr("{tc5}"_f << CTimeConvert::fs_GetYearZero()), ==, "0-01-01 00:00");
 				DMibExpect(CStr("{tc5}"_f << (CTimeConvert::fs_GetYearZero() + CTimeSpanConvert::fs_CreateMinuteSpan(1))), ==, "0-01-01 00:01");
 				DMibExpect(CStr("{tc5}"_f << (CTimeConvert::fs_GetYearZero() - CTimeSpanConvert::fs_CreateMinuteSpan(1))), ==, "-1-12-31 23:59");
@@ -866,11 +930,11 @@ namespace
 						DMibTestSuite(_Path)
 						{
 							CTime EndTime = _StartTime + _Duration;
-		#ifdef DMibDebug
+#ifdef DMibDebug
 							auto IterationSpan = CTimeSpanConvert::fs_CreateDaySpan(19);
-		#else
+#else
 							auto IterationSpan = CTimeSpanConvert::fs_CreateDaySpan(1);
-		#endif
+#endif
 							{
 								DMibTestPath("Normal");
 								for (CTime Time = _StartTime; Time < EndTime; Time += IterationSpan)
@@ -923,15 +987,15 @@ namespace
 					}
 				};
 
-	#if defined(DMibDebug) || defined(DMibSanitizerEnabled)
+#if defined(DMibDebug) || defined(DMibSanitizerEnabled)
 				fCheckTurnaround("Around 1BC", CTimeConvert::fs_GetYearZero() - CTimeSpanConvert::fs_CreateDaySpan(365) * 300, CTimeSpanConvert::fs_CreateDaySpan(365) * 600);
 				fCheckTurnaround("Around start of time", CTime::fs_StartOfTime() + CTimeSpanConvert::fs_CreateDaySpan(365), CTimeSpanConvert::fs_CreateDaySpan(365) * 600);
 				fCheckTurnaround("Around end of time", CTime::fs_EndOfTime() - CTimeSpanConvert::fs_CreateDaySpan(365) * 601, CTimeSpanConvert::fs_CreateDaySpan(365) * 600);
-	#else
+#else
 				fCheckTurnaround("Around 1BC", CTimeConvert::fs_GetYearZero() - CTimeSpanConvert::fs_CreateDaySpan(365) * 3000, CTimeSpanConvert::fs_CreateDaySpan(365) * 6000);
 				fCheckTurnaround("Around start of time", CTime::fs_StartOfTime() + CTimeSpanConvert::fs_CreateDaySpan(365), CTimeSpanConvert::fs_CreateDaySpan(365) * 6000);
 				fCheckTurnaround("Around end of time", CTime::fs_EndOfTime() - CTimeSpanConvert::fs_CreateDaySpan(365) * 6001, CTimeSpanConvert::fs_CreateDaySpan(365) * 6000);
-	#endif
+#endif
 			};
 
 			DMibTestSuite("UTCConversion")
@@ -946,9 +1010,9 @@ namespace
 					}
 				;
 
-	#if DMibEnableSafeCheck > 0
+#if DMibEnableSafeCheck > 0
 				DMibExpectViolatesSafeCheck(fTestYear(constant_uint64(-7'514'938'706)));
-	#endif
+#endif
 				fTestYear(constant_uint64(-7'514'938'705));
 				fTestYear(0);
 				fTestYear(1599);
@@ -967,9 +1031,9 @@ namespace
 				fTestYear(30828);
 				fTestYear(6000000);
 				fTestYear(constant_uint64(577'039'110'548));
-	#if DMibEnableSafeCheck > 0
+#if DMibEnableSafeCheck > 0
 				DMibExpectViolatesSafeCheck(fTestYear(constant_uint64(577'039'110'549)));
-	#endif
+#endif
 			};
 
 			DMibTestSuite("UTCConversionFractions")
@@ -1050,7 +1114,7 @@ namespace
 
 			DMibTestSuite("TimeSpan")
 			{
- 				auto StartTime = CTimeConvert::fs_CreateTime(2001, 3, 14, 12, 53, 50, 0.5);
+				auto StartTime = CTimeConvert::fs_CreateTime(2001, 3, 14, 12, 53, 50, 0.5);
 				auto EndTime = CTimeConvert::fs_CreateTime(2002, 4, 15, 13, 54, 59, 0.6);
 				auto PositiveTimeSpan = EndTime - StartTime;
 				auto NegativeTimeSpan = StartTime - EndTime;
@@ -1103,12 +1167,12 @@ namespace
 
 				DMibExpect(CTimeSpanConvert(-CTimeSpanConvert::fs_CreateSpan(1, 0, 23, 59, 59, 0.99999)).f_GetWeeks(), ==, -1);
 				DMibExpect(CTimeSpanConvert(-CTimeSpanConvert::fs_CreateSpan(0, 1, 23, 59, 59, 0.99999)).f_GetDays(), ==, -1);
-				DMibExpect(CTimeSpanConvert(-CTimeSpanConvert::fs_CreateSpan(0, 0,  1, 59, 59, 0.99999)).f_GetHours(), ==, -1);
-				DMibExpect(CTimeSpanConvert(-CTimeSpanConvert::fs_CreateSpan(0, 0,  0,  1, 59, 0.99999)).f_GetMinutes(), ==, -1);
-				DMibExpect(CTimeSpanConvert(-CTimeSpanConvert::fs_CreateSpan(0, 0,  0,  0,  1, 0.99999)).f_GetSeconds(), ==, -1);
+				DMibExpect(CTimeSpanConvert(-CTimeSpanConvert::fs_CreateSpan(0, 0, 1, 59, 59, 0.99999)).f_GetHours(), ==, -1);
+				DMibExpect(CTimeSpanConvert(-CTimeSpanConvert::fs_CreateSpan(0, 0, 0, 1, 59, 0.99999)).f_GetMinutes(), ==, -1);
+				DMibExpect(CTimeSpanConvert(-CTimeSpanConvert::fs_CreateSpan(0, 0, 0, 0, 1, 0.99999)).f_GetSeconds(), ==, -1);
 			};
 
-			constexpr static umint c_nLoops = 256 * 1024;
+			static constexpr umint c_nLoops = 256 * 1024;
 
 			DMibTestSuite(CTestCategory("UTCConversionPerformance") << CTestGroup("Performance"))
 			{
@@ -1117,35 +1181,33 @@ namespace
 				CTestPerformanceMeasure NormalTime("Normal");
 				CTestPerformanceMeasure LegacyTime("Legacy");
 				{
-					for(umint j = 0; j < nTests; ++j)
+					for (umint j = 0; j < nTests; ++j)
 					{
 						NormalTime.f_Start();
 						[]() inline_never
-							{
-								CTime Now = CTime::fs_NowUTC();
-								for (umint i = 0; i < c_nLoops / 2; ++i)
-									Now = Now.f_ToUTC().f_ToLocal();
-								return Now;
-							}
-							()
-						;
+						{
+							CTime Now = CTime::fs_NowUTC();
+							for (umint i = 0; i < c_nLoops / 2; ++i)
+								Now = Now.f_ToUTC().f_ToLocal();
+							return Now;
+						}
+						();
 						NormalTime.f_Stop(c_nLoops);
 					}
 				}
 				{
-					for(umint j = 0; j < nTests; ++j)
+					for (umint j = 0; j < nTests; ++j)
 					{
 						LegacyTime.f_Start();
 						[]() inline_never
-							{
-								CTime Now = CTime::fs_NowLocal();
-								for (umint i = 0; i < c_nLoops / 2; ++i)
-									Now = Now.f_ToUtcLegacy().f_ToLocalLegacy();
+						{
+							CTime Now = CTime::fs_NowLocal();
+							for (umint i = 0; i < c_nLoops / 2; ++i)
+								Now = Now.f_ToUtcLegacy().f_ToLocalLegacy();
 
-								return Now;
-							}
-							()
-						;
+							return Now;
+						}
+						();
 						LegacyTime.f_Stop(c_nLoops);
 					}
 				}

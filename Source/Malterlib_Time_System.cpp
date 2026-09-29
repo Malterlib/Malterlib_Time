@@ -30,9 +30,9 @@ namespace NMib::NTime
 				NAtomic::TCAtomic<int64> m_LastSafeTimer;
 				NAtomic::TCAtomic<int64> m_LastTimer;
 
-	#if DMibConfig_Tests_Enable
+#	if DMibConfig_Tests_Enable
 				DMibListLinkDS_Link(CThreadLocal, m_Link);
-	#endif
+#	endif
 			};
 #endif
 			CSubSystem_Time();
@@ -52,9 +52,9 @@ namespace NMib::NTime
 			int64 f_GetTimerVal() const;
 #ifdef DMibSafeTimerAvailable
 			void f_EnableSafeTimer(NStr::CStr const &_ErrorMessage);
-	#if DMibConfig_Tests_Enable
+#	if DMibConfig_Tests_Enable
 			void f_MakeSafeTimerWrap(fp64 _InSeconds, uint32 _Where);
-	#endif
+#	endif
 			bool f_IsSafeTimerEnabled() const;
 #endif
 			void f_DestroyThreadLocal() override;
@@ -84,7 +84,7 @@ namespace NMib::NTime
 			fp64 m_TimerFrequencyFp;
 			NThread::TCAtomicOrSingleWriterAtomic<int64> m_NextUpdate;
 			mutable int64 m_NextUTCUpdate;
-			fp64 m_Drift; // Timer ticks per tick
+			fp64 m_Drift;                                                        // Timer ticks per tick
 			fp64 m_DriftFraction;
 
 			int64 m_ErrorMargin;
@@ -107,23 +107,23 @@ namespace NMib::NTime
 
 			mutable NThread::CMutual m_Lock;
 
-	#ifdef DMibSafeTimerAvailable
+#ifdef DMibSafeTimerAvailable
 			mutable NThread::CMutual m_LockSafeTimer;
 			mutable bool m_bUseSafeTimer;
 			mutable int64 m_SafeTimerVal;
 			mutable uint64 m_SafeTimerLast;
 			fp64 m_SafeTimerFrequencyReciprocal;
 			fp64 m_SafeTimerScale;
-	#endif
+#endif
 
 			NThread::CMutual m_TimeChangeNotificationLock;
 			NContainer::TCLinkedList<NFunction::TCFunction<void (NTime::CTime const &_OldTime, NTime::CTime const &_NewTime, NStr::CStr const &_Reason)>> m_TimeChangeNotifications;
 
 #ifdef DMibSafeTimerAvailable
-	#if DMibConfig_Tests_Enable
+#	if DMibConfig_Tests_Enable
 			NThread::CMutual m_ThreadLocalsLock;
 			DMibListLinkDS_List(CThreadLocal, m_Link) m_ThreadLocals;
-	#endif
+#	endif
 			mutable NStorage::TCAggregateSimple<NThread::TCThreadLocal<CThreadLocal, NMemory::CAllocator_NonTrackedHeap, NThread::EThreadLocalFlag_Inherit>> m_ThreadLocal;
 #endif
 		private:
@@ -135,19 +135,19 @@ namespace NMib::NTime
 
 		constinit TCSubSystem<CSubSystem_Time, ESubSystemDestruction_Last> g_MalterlibSubSystem_Time = {DAggregateInit};
 
-	#if defined(DMibSafeTimerAvailable) && DMibConfig_Tests_Enable
+#if defined(DMibSafeTimerAvailable) && DMibConfig_Tests_Enable
 		CSubSystem_Time *CSubSystem_Time::ms_pThis = nullptr;
-	#endif
+#endif
 
 		CSubSystem_Time::CSubSystem_Time()
 		{
-	#if defined(DMibSafeTimerAvailable) && DMibConfig_Tests_Enable
+#if defined(DMibSafeTimerAvailable) && DMibConfig_Tests_Enable
 			ms_pThis = this;
-	#endif
+#endif
 			m_bTimeInitDone = false;
-	#ifdef DMibSafeTimerAvailable
+#ifdef DMibSafeTimerAvailable
 			m_bUseSafeTimer = false;
-	#endif
+#endif
 			m_TimeSpeed = 1.0f;
 			m_TimeSpeedReciprocal = 1.0f;
 			m_bUsedTimeSpeed = false;
@@ -165,49 +165,49 @@ namespace NMib::NTime
 
 		CSubSystem_Time::~CSubSystem_Time()
 		{
-	#ifdef DMibSafeTimerAvailable
+#ifdef DMibSafeTimerAvailable
 			if (m_bThreadLocalCreated.f_Exchange(false))
 				m_ThreadLocal.f_Destruct();
-	#endif
+#endif
 		}
 
-	#ifdef DMibSafeTimerAvailable
+#ifdef DMibSafeTimerAvailable
 
 		CSubSystem_Time::CThreadLocal::CThreadLocal(CThreadLocal const &_Other)
 			: m_LastSafeTimer(_Other.m_LastSafeTimer.f_Load())
 			, m_LastTimer(_Other.m_LastTimer.f_Load())
 		{
-	#if DMibConfig_Tests_Enable
+#	if DMibConfig_Tests_Enable
 			auto &Internal = *ms_pThis;
 			DMibLock(Internal.m_ThreadLocalsLock);
 			Internal.m_ThreadLocals.f_Insert(this);
-	#endif
+#	endif
 		}
 
 		CSubSystem_Time::CThreadLocal::CThreadLocal()
 			: m_LastSafeTimer(-1)
 			, m_LastTimer(-1)
 		{
-	#if DMibConfig_Tests_Enable
+#	if DMibConfig_Tests_Enable
 			auto &Internal = *ms_pThis;
 			DMibLock(Internal.m_ThreadLocalsLock);
 			Internal.m_ThreadLocals.f_Insert(this);
-	#endif
+#	endif
 		}
 
 		CSubSystem_Time::CThreadLocal::~CThreadLocal()
 		{
-	#if DMibConfig_Tests_Enable
+#	if DMibConfig_Tests_Enable
 			auto &Internal = *ms_pThis;
 			DMibLock(Internal.m_ThreadLocalsLock);
 			Internal.m_ThreadLocals.f_Remove(this);
-	#endif
+#	endif
 		}
-	#endif
+#endif
 
 		void CSubSystem_Time::f_MeasureCycleFrequency()
 		{
-		#if (defined(DArchitecture_arm64) || defined(DArchitecture_arm64e))
+#if (defined(DArchitecture_arm64) || defined(DArchitecture_arm64e))
 			auto NativeFrequency = NPlatform::fg_Timer_CyclesRawFrequency();
 
 			m_CyclesUnscaledFrequency = NativeFrequency;
@@ -230,7 +230,7 @@ namespace NMib::NTime
 				m_CyclesFrequencyFp = m_CyclesFrequency;
 				m_CyclesFrequencyReciprocal = fp64(1.0) / m_CyclesFrequencyFp;
 			}
-		#else
+#else
 			// Measure correction and precache instruction cache
 			uint64 TimerCorrection = TCLimitsInt<uint64>::mc_Max;
 			uint64 CyclesCorrection = TCLimitsInt<uint64>::mc_Max;
@@ -274,7 +274,7 @@ namespace NMib::NTime
 
 			// No cycle scale on these architectures, so the unscaled counter is the cycles counter
 			m_CyclesUnscaledFrequency = m_CyclesFrequency;
-		#endif
+#endif
 		}
 
 		int64 CSubSystem_Time::fp_GetTimerFreq() const
@@ -284,9 +284,9 @@ namespace NMib::NTime
 
 		int64 CSubSystem_Time::fp_GetTimerValInternal() const
 		{
-	#ifndef DMibSafeTimerAvailable
+#ifndef DMibSafeTimerAvailable
 			return NPlatform::fg_TimerRaw_PreciseGet();
-	#else
+#else
 			if (m_bUseSafeTimer)
 			{
 				DMibLock(m_LockSafeTimer);
@@ -300,7 +300,7 @@ namespace NMib::NTime
 			if (!m_bThreadLocalAvailable)
 				return NPlatform::fg_TimerRaw_PreciseGet();
 
-			auto& ThreadLocal = **m_ThreadLocal;
+			auto &ThreadLocal = **m_ThreadLocal;
 
 			int64 NewTimerVal = NPlatform::fg_TimerRaw_PreciseGet();
 			int64 NewSafeTimerVal = NPlatform::fg_TimerRaw_SafeGet();
@@ -315,7 +315,7 @@ namespace NMib::NTime
 				fp64 MaxAllowedError(1.0);
 
 				if (SafeTimerReciprocal > fp64(100.0))
-					MaxAllowedError += SafeTimerReciprocal * fp64(1.0/3600.0);
+					MaxAllowedError += SafeTimerReciprocal * fp64(1.0 / 3600.0);
 
 				if ((TimerReciprocal - SafeTimerReciprocal).f_Abs() > MaxAllowedError)
 				{
@@ -340,7 +340,7 @@ namespace NMib::NTime
 			ThreadLocal.m_LastTimer = NewTimerVal;
 
 			return NewTimerVal;
-	#endif
+#endif
 		}
 
 		int64 CSubSystem_Time::f_GetTimerVal() const
@@ -369,21 +369,21 @@ namespace NMib::NTime
 
 		void CSubSystem_Time::fp_TimeInit()
 		{
-	#ifdef DMibSafeTimerAvailable
+#ifdef DMibSafeTimerAvailable
 			if (!m_bThreadLocalCreated.f_Exchange(true))
 			{
 				m_ThreadLocal.f_Construct();
 				m_bThreadLocalAvailable = true;
 			}
-	#endif
+#endif
 
 			NPlatform::fg_TimeRaw_GetNow(&m_TimeBase);
 
 			m_TimerBase = f_GetTimerVal();
 			m_TimerFrequency = fp_GetTimerFreq();
-	#ifdef DMibSafeTimerAvailable
+#ifdef DMibSafeTimerAvailable
 			m_SafeTimerFrequencyReciprocal = fp64(1.0) / fp64(NPlatform::fg_TimerRaw_SafeFrequency());
-	#endif
+#endif
 			m_TimerFrequencyReciprocal = fp64(1.0) / fp64(m_TimerFrequency);
 			m_TimerFrequencyFp = m_TimerFrequency;
 			m_Drift = 0.0;
@@ -413,12 +413,7 @@ namespace NMib::NTime
 			NPlatform::fg_TimeRaw_GetNow(&SystemTime);
 
 			int64 UpdateDiff = m_NextUpdate.f_Load(NAtomic::gc_MemoryOrder_Relaxed) - _CurrentTimer;
-			if
-				(
-					(UpdateDiff < 0)
-					|| (UpdateDiff > m_TimerFrequency * 2)
-					|| (fg_Abs((_Time - SystemTime).f_GetSeconds()) > 60)
-				)
+			if ((UpdateDiff < 0) || (UpdateDiff > m_TimerFrequency * 2) || (fg_Abs((_Time - SystemTime).f_GetSeconds()) > 60))
 			{
 				NTime::CTime OldTime;
 				{
@@ -427,12 +422,7 @@ namespace NMib::NTime
 					UpdateDiff = m_NextUpdate.f_Load(NAtomic::gc_MemoryOrder_Relaxed) - _CurrentTimer;
 					NTime::CTime SystemTime;
 					NPlatform::fg_TimeRaw_GetNow(&SystemTime);
-					if
-						(
-							(UpdateDiff < 0)
-							|| (UpdateDiff > m_TimerFrequency * 2)
-							|| (fg_Abs((_Time - SystemTime).f_GetSeconds()) > 60)
-						)
+					if ((UpdateDiff < 0) || (UpdateDiff > m_TimerFrequency * 2) || (fg_Abs((_Time - SystemTime).f_GetSeconds()) > 60))
 					{
 						m_NextUpdate = _CurrentTimer + m_TimerFrequency;
 
@@ -528,7 +518,7 @@ namespace NMib::NTime
 		}
 
 #ifdef DMibSafeTimerAvailable
-	#if DMibConfig_Tests_Enable
+#	if DMibConfig_Tests_Enable
 		void CSubSystem_Time::f_MakeSafeTimerWrap(fp64 _InSeconds, uint32 _Where)
 		{
 			int64 Offset = NPlatform::fg_MakeSafeTimerWrap(_InSeconds, _Where);
@@ -545,7 +535,7 @@ namespace NMib::NTime
 					Local.m_LastSafeTimer += Offset;
 			}
 		}
-	#endif
+#	endif
 		void CSubSystem_Time::f_EnableSafeTimer(NStr::CStr const &_Error)
 		{
 			{
@@ -572,10 +562,10 @@ namespace NMib::NTime
 		void CSubSystem_Time::f_DestroyThreadLocal()
 		{
 			m_bThreadLocalAvailable = false;
-	#ifdef DMibSafeTimerAvailable
+#ifdef DMibSafeTimerAvailable
 			if (m_bThreadLocalCreated.f_Exchange(false))
 				m_ThreadLocal.f_Destruct();
-	#endif
+#endif
 		}
 
 		void CSubSystem_Time::f_TimeGetNow(NTime::CTime *_pTime, bool _bRecursive) const
@@ -698,7 +688,7 @@ namespace NMib::NTime
 		_Other.mp_pNotification = nullptr;
 	}
 
-	CSystem_Time::CTimeChangeNotificationSubscription &CSystem_Time::CTimeChangeNotificationSubscription::operator =(CTimeChangeNotificationSubscription &&_Other)
+	CSystem_Time::CTimeChangeNotificationSubscription &CSystem_Time::CTimeChangeNotificationSubscription::operator = (CTimeChangeNotificationSubscription &&_Other)
 	{
 		fp_Remove();
 		mp_pNotification = _Other.mp_pNotification;
@@ -728,13 +718,10 @@ namespace NMib::NTime
 		)
 		: mp_pNotification(_pNotification)
 	{
-
 	}
 
-	CSystem_Time::CTimeChangeNotificationSubscription CSystem_Time::fs_RegisterTimeChangeNotification
-		(
-			NFunction::TCFunction<void (NTime::CTime const &_OldTime, NTime::CTime const &_NewTime, NStr::CStr const &_Reason)> &&_fNotification
-		)
+	auto CSystem_Time::fs_RegisterTimeChangeNotification(NFunction::TCFunction<void (NTime::CTime const &_OldTime, NTime::CTime const &_NewTime, NStr::CStr const &_Reason)> &&_fNotification)
+		-> CSystem_Time::CTimeChangeNotificationSubscription
 	{
 		auto &SubSystem = *g_MalterlibSubSystem_Time;
 		DMibLock(SubSystem.m_TimeChangeNotificationLock);
@@ -743,15 +730,16 @@ namespace NMib::NTime
 		return &NewNotification;
 	}
 
-
 	bool CSystem_Time::fs_TimeInitDone()
 	{
 		return g_MalterlibSubSystem_Time->m_bTimeInitDone;
 	}
+
 	fp64 CSystem_Time::fs_CyclesFrequencyFp()
 	{
 		return g_MalterlibSubSystem_Time->m_CyclesFrequencyFp;
 	}
+
 	uint64 CSystem_Time::fs_CyclesFrequency()
 	{
 		return g_MalterlibSubSystem_Time->m_CyclesFrequency;
@@ -771,6 +759,7 @@ namespace NMib::NTime
 	{
 		return g_MalterlibSubSystem_Time->m_TimerFrequency;
 	}
+
 	fp64 CSystem_Time::fs_TimerFrequencyFp()
 	{
 		return g_MalterlibSubSystem_Time->m_TimerFrequencyFp;
@@ -795,14 +784,17 @@ namespace NMib::NTime
 	{
 		return g_MalterlibSubSystem_Time->f_GetTimeSpeed();
 	}
+
 	fp64 CSystem_Time::fs_GetTimeSpeedReciprocal()
 	{
 		return g_MalterlibSubSystem_Time->f_GetTimeSpeedReciprocal();
 	}
+
 	void CSystem_Time::fs_DisableTimeSpeed()
 	{
 		return g_MalterlibSubSystem_Time->f_DisableTimeSpeed();
 	}
+
 	bool CSystem_Time::fs_GetTimeSimulating()
 	{
 		return g_MalterlibSubSystem_Time->f_GetTimeSimulating();
@@ -834,12 +826,12 @@ namespace NMib::NTime
 	}
 
 #ifdef DMibSafeTimerAvailable
-	#if DMibConfig_Tests_Enable
+#	if DMibConfig_Tests_Enable
 	void CSystem_Time::fs_MakeSafeTimerWrap(fp64 _InSeconds, uint32 _Where)
 	{
 		g_MalterlibSubSystem_Time->f_MakeSafeTimerWrap(_InSeconds, _Where);
 	}
-	#endif
+#	endif
 
 	void CSystem_Time::fs_EnableSafeTimer()
 	{

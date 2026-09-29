@@ -8,13 +8,13 @@ namespace NMib::NTime::NPrivate
 	template <typename tf_CType>
 	struct TCIsTime
 	{
-		constexpr static bool mc_bValue = false;
+		static constexpr bool mc_bValue = false;
 	};
 
 	template <>
 	struct TCIsTime<CTime>
 	{
-		constexpr static bool mc_bValue = true;
+		static constexpr bool mc_bValue = true;
 	};
 }
 
@@ -74,18 +74,14 @@ namespace NMib::NTime
 		{
 			uint64 SpanSeconds = mp_Seconds - _Other.mp_Seconds;
 			if (SpanSeconds >= (constant_uint64(1) << 63) - 1)
-			{
 				SpanSeconds = (constant_uint64(1) << 63) - 2;
-			}
 			ToSet = SpanSeconds;
 		}
 		else
 		{
 			uint64 SpanSeconds = _Other.mp_Seconds - mp_Seconds;
 			if (SpanSeconds >= (constant_uint64(1) << 63) - 1)
-			{
 				SpanSeconds = (constant_uint64(1) << 63) - 2;
-			}
 			ToSet = -SpanSeconds;
 		}
 		Ret.f_SetSecondsNoFraction(ToSet);
@@ -149,9 +145,7 @@ namespace NMib::NTime
 			++mp_Seconds;
 		}
 		else
-		{
 			++mp_Fraction;
-		}
 
 		return *this;
 	}
@@ -165,9 +159,7 @@ namespace NMib::NTime
 			--mp_Seconds;
 		}
 		else
-		{
 			--mp_Fraction;
-		}
 
 		return *this;
 	}

@@ -15,7 +15,7 @@ inline_always int64 NMib::NTime::NPlatform::fg_Timer_CyclesFast()
 #elif defined(DArchitecture_arm64)
 	return _ReadStatusReg(DMibArm64_CNTVCT_EL0) * g_CyclesScale;
 #else
-	#error "Implement this";
+#	error "Implement this";
 #endif
 }
 
@@ -27,6 +27,6 @@ inline_always int64 NMib::NTime::NPlatform::fg_Timer_CyclesUnscaled()
 #elif defined(DArchitecture_arm64)
 	return _ReadStatusReg(DMibArm64_CNTVCT_EL0);
 #else
-	#error "Implement this";
+#	error "Implement this";
 #endif
 }
