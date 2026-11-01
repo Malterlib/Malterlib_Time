@@ -10,7 +10,7 @@ namespace NMib::NTime
 		NTime::CTimeConvert::CDateTime DateTime;
 		NTime::CTimeConvert(_Time).f_ExtractDateTime(DateTime);
 
-		int32 Fraction = (DateTime.m_Fraction*1000.0).f_ToIntRound();
+		int32 Fraction = (DateTime.m_Fraction * 1000.0).f_ToIntRound();
 		if (Fraction >= 1000)
 			Fraction = 999;
 
@@ -40,7 +40,8 @@ namespace NMib::NTime
 			>> DateTime.m_Minute
 			>> DateTime.m_Second
 			>> Fraction
-		).f_Parse(_Str, nParsed);
+		)
+		.f_Parse(_Str, nParsed);
 
 		if (nParsed != 7)
 			return false;
@@ -116,8 +117,8 @@ namespace NMib::NTime
 		return Return;
 	}
 
-	constexpr static const ch8 *gc_Months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-	constexpr static const ch8 *gc_Days[] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+	static constexpr ch8 const *gc_Months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+	static constexpr ch8 const *gc_Days[] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
 
 	int32 fg_GetAscMonthNumber(NStr::CStr const &_Month)
 	{
@@ -138,7 +139,7 @@ namespace NMib::NTime
 
 		return "{} {} {} {sj2,sf0}:{sj2,sf0}:{sj2,sf0} {}"_f
 			<< gc_Days[DateTime.m_DayOfWeek]
-			<< gc_Months[DateTime.m_Month-1]
+			<< gc_Months[DateTime.m_Month - 1]
 			<< DateTime.m_DayOfMonth
 			<< DateTime.m_Hour
 			<< DateTime.m_Minute

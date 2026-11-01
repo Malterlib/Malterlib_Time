@@ -11,7 +11,7 @@ namespace NMib::NTime
 			f_Start();
 	}
 
-	CStopwatch::CStopwatch(CStopwatch const& _ToMove)
+	CStopwatch::CStopwatch(CStopwatch const &_ToMove)
 		: mp_StartTime(_ToMove.mp_StartTime)
 	{
 	}
@@ -61,7 +61,7 @@ namespace NMib::NTime
 		return Return;
 	}
 
-	CStopwatch::operator fp64() const
+	CStopwatch::operator fp64 () const
 	{
 		return f_GetTime();
 	}
@@ -122,7 +122,7 @@ namespace NMib::NTime
 		return Return;
 	}
 
-	CStopwatchRaw::operator fp64() const
+	CStopwatchRaw::operator fp64 () const
 	{
 		return f_GetTime();
 	}
@@ -184,7 +184,7 @@ namespace NMib::NTime
 		return (fp64(NPlatform::fg_Timer_CyclesFast() - mp_StartTime)) * CSystem_Time::fs_CyclesFrequencyReciprocal();
 	}
 
-	CCyclesStopwatch::CCyclesStopwatch::operator fp64() const
+	CCyclesStopwatch::CCyclesStopwatch::operator fp64 () const
 	{
 		DMibFastCheck(mp_StartTime != TCLimitsInt<int64>::mc_Min);
 		return f_GetTime();

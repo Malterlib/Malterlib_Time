@@ -14,32 +14,32 @@
 #ifndef DCompiler_clang
 inline_never int64 NMib::NTime::NPlatform::fg_Timer_Cycles()
 {
-#ifndef DArchitecture_arm64
-	int64 Ret;          // Time
-	int Dummy[4];           // For unused returns
-	volatile int DontSkip;  // Volatile to prevent optimizing
-	__cpuid(Dummy, 0);      // Serialize
-	DontSkip = Dummy[0];    // Prevent optimizing away cpuid
-#if defined(DArchitecture_x86) || defined(DArchitecture_x64)
-	Ret = __rdtsc();     // Read time
-#else
-	#error "Implement this";
-#endif
-	__cpuid(Dummy, 0);      // Serialize again
-	DontSkip = Dummy[0];    // Prevent optimizing away cpuid
+#	ifndef DArchitecture_arm64
+	int64 Ret; // Time
+	int Dummy[4]; // For unused returns
+	int volatile DontSkip; // Volatile to prevent optimizing
+	__cpuid(Dummy, 0); // Serialize
+	DontSkip = Dummy[0]; // Prevent optimizing away cpuid
+#		if defined(DArchitecture_x86) || defined(DArchitecture_x64)
+	Ret = __rdtsc(); // Read time
+#		else
+#			error "Implement this";
+#		endif
+	__cpuid(Dummy, 0); // Serialize again
+	DontSkip = Dummy[0]; // Prevent optimizing away cpuid
 	return Ret;
-#else
+#	else
 	NMib::NAtomic::fg_MemoryFence();
-#if defined(DArchitecture_x86) || defined(DArchitecture_x64)
+#		if defined(DArchitecture_x86) || defined(DArchitecture_x64)
 	int64 Ret = __rdtsc();
-#elif defined(DArchitecture_arm64)
+#		elif defined(DArchitecture_arm64)
 	int64 Ret = _ReadStatusReg(DMibArm64_CNTVCT_EL0) * g_CyclesScale;
-#else
-	#error "Implement this";
-#endif
+#		else
+#			error "Implement this";
+#		endif
 	NMib::NAtomic::fg_MemoryFence();
 	return Ret;
-#endif
+#	endif
 }
 #endif
 
@@ -60,10 +60,8 @@ int64 NMib::NTime::NPlatform::fg_TimerRaw_PreciseGet()
 
 	switch (gs_UnstableTimerMode)
 	{
-	case NMib::NTime::NPlatform::EUnstableTimerMode_AlwaysZero:
-		return 0;
-	case NMib::NTime::NPlatform::EUnstableTimerMode_AlwaysMaxInt:
-		return TCLimitsInt<int64>::mc_Max;
+	case NMib::NTime::NPlatform::EUnstableTimerMode_AlwaysZero: return 0;
+	case NMib::NTime::NPlatform::EUnstableTimerMode_AlwaysMaxInt: return TCLimitsInt<int64>::mc_Max;
 	case NMib::NTime::NPlatform::EUnstableTimerMode_AlwaysNegative:
 		// mc_Min is the CStopwatchRaw not-started sentinel; stay one above it so timed
 		// waits started under tampering do not trip the sentinel check
@@ -77,8 +75,7 @@ int64 NMib::NTime::NPlatform::fg_TimerRaw_PreciseGet()
 	case NMib::NTime::NPlatform::EUnstableTimerMode_OnceNegative:
 		gs_UnstableTimerMode = NMib::NTime::NPlatform::EUnstableTimerMode_Off;
 		return TCLimitsInt<int64>::mc_Min + 1;
-	case NMib::NTime::NPlatform::EUnstableTimerMode_Off:
-		break;
+	case NMib::NTime::NPlatform::EUnstableTimerMode_Off: break;
 	}
 
 #endif
@@ -115,6 +112,7 @@ namespace
 		{
 			timeBeginPeriod(1);
 		}
+
 		~CIncreaseTimerPrecision()
 		{
 			timeEndPeriod(1);
@@ -215,7 +213,7 @@ namespace
 {
 	NMib::NTime::CTime fg_TruncateTimeToMillisecond(NMib::NTime::CTime const &_Time)
 	{
-		constexpr static uint64 c_FractionPerMillisecond = NMib::NTime::NPrivate::CConst::mc_FractionDividend / 1000;
+		static constexpr uint64 c_FractionPerMillisecond = NMib::NTime::NPrivate::CConst::mc_FractionDividend / 1000;
 
 		NMib::NTime::CTime TruncatedTime = _Time;
 		uint64 FractionInt = TruncatedTime.f_GetFractionInt();
@@ -322,7 +320,7 @@ NMib::NTime::CTime NMib::NTime::NPlatform::fg_TimeRaw_ToUtc(CTime const &_Time)
 namespace
 {
 	// NMib::NTime::CTimeConvert::fs_CreateTimeConstExpr(1601, 1, 1)
-	constexpr static NMib::NTime::CTime const g_FileTimeBase = NMib::NTime::CTime::fs_Create(237148610522659200, 0);
+	static constexpr NMib::NTime::CTime const g_FileTimeBase = NMib::NTime::CTime::fs_Create(237148610522659200, 0);
 }
 
 void NMib::NTime::NPlatform::fg_TimeRaw_GetNow(NMib::NTime::CTime *_pTime)
@@ -347,7 +345,7 @@ void NMib::NTime::NPlatform::fg_TimeRaw_GetNow(NMib::NTime::CTime *_pTime)
 
 fp64 NMib::NTime::NPlatform::fg_TimeRaw_Resolution()
 {
-	return fg_Min(fp64(1.0/10000000.0), fg_TimerRaw_PreciseResolution());
+	return fg_Min(fp64(1.0 / 10000000.0), fg_TimerRaw_PreciseResolution());
 }
 
 int64 NMib::NTime::NPlatform::fg_TimerRaw_GetCPUFrequency()

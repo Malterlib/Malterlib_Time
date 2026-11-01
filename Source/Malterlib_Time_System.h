@@ -12,11 +12,11 @@ namespace NMib::NTime
 		struct CTimeChangeNotificationSubscription
 		{
 			CTimeChangeNotificationSubscription(CTimeChangeNotificationSubscription const &_Other) = delete;
-			CTimeChangeNotificationSubscription &operator =(CTimeChangeNotificationSubscription const &_Other) = delete;
+			CTimeChangeNotificationSubscription &operator = (CTimeChangeNotificationSubscription const &_Other) = delete;
 
 			CTimeChangeNotificationSubscription();
 			CTimeChangeNotificationSubscription(CTimeChangeNotificationSubscription &&_Other);
-			CTimeChangeNotificationSubscription &operator =(CTimeChangeNotificationSubscription &&_Other);
+			CTimeChangeNotificationSubscription &operator = (CTimeChangeNotificationSubscription &&_Other);
 			~CTimeChangeNotificationSubscription();
 
 		private:
@@ -27,10 +27,8 @@ namespace NMib::NTime
 			NFunction::TCFunction<void (NTime::CTime const &_OldTime, NTime::CTime const &_NewTime, NStr::CStr const &_Reason)> *mp_pNotification;
 		};
 
-		static CTimeChangeNotificationSubscription fs_RegisterTimeChangeNotification
-			(
-				NFunction::TCFunction<void (NTime::CTime const &_OldTime, NTime::CTime const &_NewTime, NStr::CStr const &_Reason)> &&_fNotification
-			)
+		static auto fs_RegisterTimeChangeNotification(NFunction::TCFunction<void (NTime::CTime const &_OldTime, NTime::CTime const &_NewTime, NStr::CStr const &_Reason)> &&_fNotification)
+			-> CTimeChangeNotificationSubscription
 		;
 
 		static bool fs_TimeInitDone();
@@ -53,9 +51,9 @@ namespace NMib::NTime
 		static NTime::CTime fs_TimeToUtc(NTime::CTime const &_Time);
 		static int64 fs_TimeResolution();
 #ifdef DMibSafeTimerAvailable
-	#if DMibConfig_Tests_Enable
+#	if DMibConfig_Tests_Enable
 		static void fs_MakeSafeTimerWrap(fp64 _InSeconds, uint32 _Where);
-	#endif
+#	endif
 		static void fs_EnableSafeTimer();
 		static bool fs_IsSafeTimerEnabled();
 #endif

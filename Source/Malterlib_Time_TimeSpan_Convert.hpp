@@ -5,12 +5,12 @@
 
 namespace NMib::NTime
 {
-	constexpr CTimeSpanConvert_BabylonianCommon::CTimeSpanConvert_BabylonianCommon(const CTimeSpan &_Time) noexcept
+	constexpr CTimeSpanConvert_BabylonianCommon::CTimeSpanConvert_BabylonianCommon(CTimeSpan const &_Time) noexcept
 		: mp_pTime(&_Time)
 	{
 	}
 
-	constexpr CTimeSpanConvert_BabylonianCommon &CTimeSpanConvert_BabylonianCommon::operator = (const CTimeSpan &_Time) noexcept
+	constexpr CTimeSpanConvert_BabylonianCommon &CTimeSpanConvert_BabylonianCommon::operator = (CTimeSpan const &_Time) noexcept
 	{
 		mp_pTime = &_Time;
 
@@ -53,14 +53,12 @@ namespace NMib::NTime
 		return NewSpan;
 	}
 
-
 	constexpr CTimeSpan CTimeSpanConvert_BabylonianCommon::fs_CreateMinuteSpan(int64 _Minutes) noexcept
 	{
 		CTimeSpan NewSpan;
 		NewSpan.f_SetSeconds(_Minutes * NPrivate::CConst::mc_SecondsInMinuteSigned);
 		return NewSpan;
 	}
-
 
 	constexpr CTimeSpan CTimeSpanConvert_BabylonianCommon::fs_CreateSecondSpan(int64 _Seconds) noexcept
 	{

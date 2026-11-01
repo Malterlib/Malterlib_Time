@@ -11,7 +11,7 @@ namespace NMib::NTime
 	}
 
 	constexpr CTimeSpan::CTimeSpan(int64 _Value, uint64 _Fraction) noexcept
-		: mp_Seconds (_Value)
+		: mp_Seconds(_Value)
 		, mp_Fraction(_Fraction)
 	{
 	}
@@ -23,7 +23,7 @@ namespace NMib::NTime
 		return mp_Seconds != NPrivate::CConst::mc_InvalidSpanSeconds;
 	}
 
-	constexpr CTimeSpan CTimeSpan::operator + (const CTimeSpan &_Other) const noexcept
+	constexpr CTimeSpan CTimeSpan::operator + (CTimeSpan const &_Other) const noexcept
 	{
 		CTimeSpan Ret;
 		Ret.mp_Seconds = mp_Seconds + _Other.mp_Seconds;
@@ -40,7 +40,7 @@ namespace NMib::NTime
 		return Ret;
 	}
 
-	constexpr CTimeSpan CTimeSpan::operator - (const CTimeSpan &_Other) const noexcept
+	constexpr CTimeSpan CTimeSpan::operator - (CTimeSpan const &_Other) const noexcept
 	{
 		CTimeSpan Ret;
 
@@ -95,7 +95,7 @@ namespace NMib::NTime
 		return Ret;
 	}
 
-	constexpr CTimeSpan &CTimeSpan::operator += (const CTimeSpan &_Other) noexcept
+	constexpr CTimeSpan &CTimeSpan::operator += (CTimeSpan const &_Other) noexcept
 	{
 		mp_Seconds += _Other.mp_Seconds;
 		uint64 FracAdd = _Other.mp_Fraction;
@@ -111,7 +111,7 @@ namespace NMib::NTime
 		return *this;
 	}
 
-	constexpr CTimeSpan &CTimeSpan::operator -= (const CTimeSpan &_Other) noexcept
+	constexpr CTimeSpan &CTimeSpan::operator -= (CTimeSpan const &_Other) noexcept
 	{
 		mp_Seconds -= _Other.mp_Seconds;
 		uint64 FracSub = _Other.mp_Fraction;

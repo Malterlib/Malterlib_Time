@@ -15,7 +15,7 @@ void NMib::NTime::NPlatform::fg_TimeRaw_GetUTCOffset(NTime::CTimeSpan *_pTimeOff
 {
 #if 1
 	time_t RawTime;
-	time (&RawTime);
+	time(&RawTime);
 	tm ResultBuffer;
 	tm *pTime = localtime_r(&RawTime, &ResultBuffer);
 	if (!pTime)
@@ -113,7 +113,7 @@ void NMib::NTime::NPlatform::fg_TimeRaw_GetNow(NMib::NTime::CTime *_pTime)
 
 fp64 NMib::NTime::NPlatform::fg_TimeRaw_Resolution()
 {
-	return fg_Max(fp64(1.0/1000000.0), fg_TimerRaw_PreciseResolution());
+	return fg_Max(fp64(1.0 / 1000000.0), fg_TimerRaw_PreciseResolution());
 }
 
 int64 NMib::NTime::NPlatform::fg_TimerRaw_PreciseGet()
@@ -141,10 +141,9 @@ int64 NMib::NTime::NPlatform::fg_TimerRaw_SafeGet()
 	return mach_absolute_time();
 }
 
-
 int64 NMib::NTime::NPlatform::fg_TimerRaw_PreciseFrequency()
 {
-	mach_timebase_info_data_t TimeBase = { 0 };
+	mach_timebase_info_data_t TimeBase = {0};
 	mach_timebase_info(&TimeBase);
 	return (1000000000LL * TimeBase.denom) / TimeBase.numer;
 }
@@ -176,7 +175,7 @@ int64 NMib::NTime::NPlatform::fg_Timer_CyclesRawFrequency()
 {
 #if defined(DArchitecture_arm64) || defined(DArchitecture_arm64e)
 	umint Frequency;
-	asm volatile ("mrs %0, CNTFRQ_EL0" : "=r" (Frequency));
+	asm volatile("mrs %0, CNTFRQ_EL0" : "=r" (Frequency));
 	if (Frequency)
 		return Frequency;
 	else

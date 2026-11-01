@@ -87,7 +87,7 @@ namespace NMib::NTime
 	}
 
 	template <bool t_bDoCorrection>
-	TCCyclesTimeMeasure<t_bDoCorrection>::operator fp64() const
+	TCCyclesTimeMeasure<t_bDoCorrection>::operator fp64 () const
 	{
 		DMibFastCheck(mp_Time != TCLimitsInt<int64>::mc_Min && mp_Time >= 0);
 		return fp64(mp_Time) * CSystem_Time::fs_CyclesFrequencyReciprocal();
@@ -158,7 +158,7 @@ namespace NMib::NTime
 		return mp_Time != TCLimitsInt<int64>::mc_Min && mp_Time >= 0;
 	}
 
-	CTimeMeasure::operator fp64() const
+	CTimeMeasure::operator fp64 () const
 	{
 		DMibFastCheck(mp_Time != TCLimitsInt<int64>::mc_Min && mp_Time >= 0);
 		return fp64(mp_Time) * CSystem_Time::fs_TimerFrequencyReciprocal();

@@ -23,9 +23,9 @@ namespace NMib::NTime
 		int64 f_GetMicros() const;
 		int64 f_GetMillis() const;
 
-		operator fp64() const;
-		fp64 operator / ( const CPerfTimeMeasureMin &_Other) const;
-		CPerfTimeMeasureMin operator * ( const fp64 &_Other) const;
+		operator fp64 () const;
+		fp64 operator / (CPerfTimeMeasureMin const &_Other) const;
+		CPerfTimeMeasureMin operator * (fp64 const &_Other) const;
 
 		template <typename t_CFormatter>
 		auto f_GetStringFormatType(t_CFormatter &_Formatter) -> decltype(NStr::fg_GetStringFormatType(_Formatter, fg_ByValue(f_GetTime())));
@@ -51,9 +51,9 @@ namespace NMib::NTime
 		only_parameters_aliased inline_never void f_StopNonCorrected();
 
 		only_parameters_aliased fp64 f_GetCycles() const;
-		only_parameters_aliased fp32 operator / ( const CPrefCyclesTimeMeasureMin &_Other) const;
-		only_parameters_aliased CPrefCyclesTimeMeasureMin &operator /= ( const fp64 &_Other);
-		only_parameters_aliased CPrefCyclesTimeMeasureMin operator * ( const fp64 &_Other) const;
+		only_parameters_aliased fp32 operator / (CPrefCyclesTimeMeasureMin const &_Other) const;
+		only_parameters_aliased CPrefCyclesTimeMeasureMin &operator /= (fp64 const &_Other);
+		only_parameters_aliased CPrefCyclesTimeMeasureMin operator * (fp64 const &_Other) const;
 
 		template <typename t_CFormatter>
 		int f_GetStringFormatType(t_CFormatter &_Formatter);
@@ -85,11 +85,11 @@ namespace NMib::NTime
 		CPerfTimeMeasureMin *mp_pTimeMeausureMin;
 	};
 
-#	define DMibScopePerfTimeMeasureMin(_Timer) NMib::NTime::CPerfTimeMeasureMinScope TimerMinScope(_Timer)
+#define DMibScopePerfTimeMeasureMin(_Timer) NMib::NTime::CPerfTimeMeasureMinScope TimerMinScope(_Timer)
 
-#	ifndef DMibPNoShortCuts
-#		define DScopePerfTimeMeasureMin(_Timer) DMibScopePerfTimeMeasureMin(_Timer)
-#	endif
+#ifndef DMibPNoShortCuts
+#	define DScopePerfTimeMeasureMin(_Timer) DMibScopePerfTimeMeasureMin(_Timer)
+#endif
 }
 
 #include "Malterlib_Time_PerfTimeMeasure.hpp"

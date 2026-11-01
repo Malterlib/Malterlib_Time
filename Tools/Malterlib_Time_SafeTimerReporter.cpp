@@ -8,8 +8,8 @@ class CSafeTimerReporterApplication : public NMib::CApplication
 public:
 	CSafeTimerReporterApplication()
 	{
-
 	}
+
 	aint f_Main()
 	{
 		while (true)
@@ -22,7 +22,6 @@ public:
 		}
 		return NMib::NTest::fg_RunTests();
 	}
-
 };
 
 DMibAppImplement(CSafeTimerReporterApplication);

@@ -46,9 +46,9 @@ namespace NMib::NTime
 		constexpr void f_SetFraction(fp64 _Fraction) noexcept;
 		constexpr fp64 f_GetSecondsFraction() const noexcept;
 
-		constexpr static CTime fs_EndOfTime() noexcept;
-		constexpr static CTime fs_StartOfTime() noexcept;
-		constexpr static CTime fs_Create(uint64 _Seconds, uint64 _Fraction = 0) noexcept;
+		static constexpr CTime fs_EndOfTime() noexcept;
+		static constexpr CTime fs_StartOfTime() noexcept;
+		static constexpr CTime fs_Create(uint64 _Seconds, uint64 _Fraction = 0) noexcept;
 
 		template <typename tf_COption, typename tf_CArgs>
 		constexpr bool f_FormatParseOption(CFormatOptions &_Options, tf_COption &_Option, tf_CArgs &_Args) const noexcept;
@@ -79,7 +79,7 @@ namespace NMib::NTime
 	concept cIsTime = NPrivate::TCIsTime<NTraits::TCRemoveReferenceAndQualifiers<tf_CType>>::mc_bValue;
 
 	NMib::NStr::CStr fg_GetFullTimeStr(CTime const &_Time);
-	bool fg_ParseFullTimeStr(CTime &_Time, NMib::NStr::CStr const& _Str);
+	bool fg_ParseFullTimeStr(CTime &_Time, NMib::NStr::CStr const &_Str);
 
 	// Parses a flexible date/time string in format: YYYY-MM-DD [HH:MM[:SS[.FFF]]]
 	// Returns CTime on success, or error on failure

@@ -30,7 +30,7 @@ namespace NMib::NTime
 			return m_Stopwatch.f_GetTime() >= m_Timeout;
 		}
 
-		bool operator!() const
+		bool operator ! () const
 		{
 			return !f_TimedOut();
 		}

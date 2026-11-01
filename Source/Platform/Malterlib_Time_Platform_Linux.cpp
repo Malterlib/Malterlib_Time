@@ -10,7 +10,7 @@
 void NMib::NTime::NPlatform::fg_TimeRaw_GetUTCOffset(NTime::CTimeSpan *_pTimeOffset)
 {
 	time_t RawTime;
-	time (&RawTime);
+	time(&RawTime);
 	tm ResultBuffer;
 	tm *pTime = localtime_r(&RawTime, &ResultBuffer);
 	if (!pTime)
@@ -141,7 +141,7 @@ int64 NMib::NTime::NPlatform::fg_TimerRaw_SafeGet()
 {
 	timespec Time;
 	clock_gettime(CLOCK_MONOTONIC, &Time);
-	return (int64) Time.tv_sec * 1000000000 + int64(Time.tv_nsec);
+	return (int64)Time.tv_sec * 1000000000 + int64(Time.tv_nsec);
 }
 
 int64 NMib::NTime::NPlatform::fg_TimerRaw_GetCPUFrequency()
@@ -154,12 +154,12 @@ int64 NMib::NTime::NPlatform::fg_Timer_CyclesRawFrequency()
 {
 #if defined(DArchitecture_arm64) || defined(DArchitecture_arm64e)
 	umint Counter;
-	asm volatile ("mrs %0, CNTFRQ_EL0" : "=r" (Counter));
+	asm volatile("mrs %0, CNTFRQ_EL0" : "=r" (Counter));
 	if (Counter)
 		return Counter;
 	else
 		return fg_TimerRaw_PreciseFrequency();
 #else
-	return fg_TimerRaw_PreciseFrequency();;
+	return fg_TimerRaw_PreciseFrequency();
 #endif
 }

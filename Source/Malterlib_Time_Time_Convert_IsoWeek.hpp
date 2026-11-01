@@ -70,8 +70,9 @@ namespace NMib::NTime
 		return mp_pTime->f_GetFraction();
 	}
 
-	constexpr CTime CTimeConvert_ISOWeek::fs_CreateTime(int64 _Year, aint _Week, aint _DayOfWeek, aint _Hour, aint _Minute, aint _Second, fp64 _Fraction)
+	constexpr auto CTimeConvert_ISOWeek::fs_CreateTime(int64 _Year, aint _Week, aint _DayOfWeek, aint _Hour, aint _Minute, aint _Second, fp64 _Fraction)
 		noexcept(NContract::gc_bSafeCheckNoExcept)
+		-> CTime
 	{
 		--_Week;
 
@@ -116,7 +117,7 @@ namespace NMib::NTime
 		else
 		{
 			if constexpr (t_StopAtStage > 1)
-				Convert.fp_ExtractDateTime<4+t_StopAtStage, false>(DateTime);
+				Convert.fp_ExtractDateTime<4 + t_StopAtStage, false>(DateTime);
 			else
 				Convert.fp_ExtractDateTime<2, false>(DateTime);
 		}
