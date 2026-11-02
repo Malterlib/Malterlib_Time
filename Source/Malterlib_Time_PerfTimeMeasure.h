@@ -85,10 +85,10 @@ namespace NMib::NTime
 		CPerfTimeMeasureMin *mp_pTimeMeausureMin;
 	};
 
-#define DMibScopePerfTimeMeasureMin(_Timer) NMib::NTime::CPerfTimeMeasureMinScope TimerMinScope(_Timer)
+#define DMibScopePerfTimeMeasureMin(d_Timer) NMib::NTime::CPerfTimeMeasureMinScope TimerMinScope(d_Timer)
 
 #ifndef DMibPNoShortCuts
-#	define DScopePerfTimeMeasureMin(_Timer) DMibScopePerfTimeMeasureMin(_Timer)
+#	define DScopePerfTimeMeasureMin(d_Timer) DMibScopePerfTimeMeasureMin(d_Timer)
 #endif
 }
 

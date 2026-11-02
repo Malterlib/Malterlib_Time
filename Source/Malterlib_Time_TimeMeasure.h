@@ -115,20 +115,20 @@ namespace NMib::NTime
 		ch8 const *mp_pName;
 	};
 
-#define DMibScopeMeasure(_Timer) NMib::NTime::TCMeasureScope<decltype(_Timer)> TimerScope(_Timer)
+#define DMibScopeMeasure(d_Timer) NMib::NTime::TCMeasureScope<decltype(d_Timer)> TimerScope(d_Timer)
 
 #if defined(DMibDebug) || defined(DConfig_Profile)
-#	define DMibScopeTraceTimeMeasure(_Name) NMib::NTime::CTimeMeasureTraceScope TimerScope(_Name)
-#	define DMibScopeConOutTimeMeasure(_Name) NMib::NTime::CTimeMeasureConOutScope TimerScope(_Name)
+#	define DMibScopeTraceTimeMeasure(d_Name) NMib::NTime::CTimeMeasureTraceScope TimerScope(d_Name)
+#	define DMibScopeConOutTimeMeasure(d_Name) NMib::NTime::CTimeMeasureConOutScope TimerScope(d_Name)
 #else
-#	define DMibScopeTraceTimeMeasure(_Name)
-#	define DMibScopeConOutTimeMeasure(_Name)
+#	define DMibScopeTraceTimeMeasure(d_Name)
+#	define DMibScopeConOutTimeMeasure(d_Name)
 #endif
 
 #ifndef DMibPNoShortCuts
-#	define DScopeMeasure(_Timer) DMibScopeMeasure(_Timer)
-#	define DScopeTraceTimeMeasure(_Name) DMibScopeTraceTimeMeasure(_Name)
-#	define DScopeConOutTimeMeasure(_Name) DMibScopeConOutTimeMeasure(_Name)
+#	define DScopeMeasure(d_Timer) DMibScopeMeasure(d_Timer)
+#	define DScopeTraceTimeMeasure(d_Name) DMibScopeTraceTimeMeasure(d_Name)
+#	define DScopeConOutTimeMeasure(d_Name) DMibScopeConOutTimeMeasure(d_Name)
 #endif
 }
 
