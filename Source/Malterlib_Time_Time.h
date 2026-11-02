@@ -98,3 +98,4 @@ namespace NMib::NTime
 #include "Malterlib_Time_Time_Format.hpp"
 #include "Malterlib_Time_Time_Stream.hpp"
 #include "Malterlib_Time_Time_Integration.hpp"
+#include "Malterlib_Time_Time_Instantiated.hpp"
