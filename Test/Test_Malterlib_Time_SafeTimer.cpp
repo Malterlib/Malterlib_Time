@@ -17,7 +17,7 @@ namespace
 {
 	struct CSafeTimer_Tests : public NMib::NTest::CTest
 	{
-		bool f_RecursiveTest(NMib::NStr::CStr &_oError)
+		bool f_RecursiveTest(NMib::NStr::CStr &o_Error)
 		{
 			NMib::NStr::CStr StdOut;
 			uint32 ExitCode = 2;
@@ -27,7 +27,7 @@ namespace
 					NMib::NFile::CFile::fs_GetProgramPath()
 					, NMib::NContainer::fg_CreateVector<NMib::NStr::CStr>("--test", fg_TestGetCurrentPath(), "--filter-results", "[\"All\"]", "--process-recursive")
 					, StdOut
-					, _oError
+					, o_Error
 					, ExitCode
 				)
 			;

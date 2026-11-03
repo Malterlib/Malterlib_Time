@@ -75,8 +75,8 @@ namespace NMib::NTime
 		constexpr CTime(uint64 _Seconds, uint64 _Fraction) noexcept;
 	};
 
-	template <typename tf_CType>
-	concept cIsTime = NPrivate::TCIsTime<NTraits::TCRemoveReferenceAndQualifiers<tf_CType>>::mc_bValue;
+	template <typename t_CType>
+	concept cIsTime = NPrivate::TCIsTime<NTraits::TCRemoveReferenceAndQualifiers<t_CType>>::mc_bValue;
 
 	NMib::NStr::CStr fg_GetFullTimeStr(CTime const &_Time);
 	bool fg_ParseFullTimeStr(CTime &_Time, NMib::NStr::CStr const &_Str);

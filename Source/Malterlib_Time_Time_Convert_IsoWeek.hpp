@@ -106,18 +106,18 @@ namespace NMib::NTime
 		return NewTime;
 	}
 
-	template <aint t_StopAtStage>
+	template <aint tf_StopAtStage>
 	constexpr void CTimeConvert_ISOWeek::fp_ExtractDateTime(CDateTime &_Dest) const noexcept
 	{
 		CTimeConvert_ProlepticGreogrian::CDateTime DateTime;
 		CTimeConvert_ProlepticGreogrian Convert(*mp_pTime);
 
-		if constexpr (t_StopAtStage < 0)
+		if constexpr (tf_StopAtStage < 0)
 			Convert.fp_ExtractDateTime<-1, false>(DateTime);
 		else
 		{
-			if constexpr (t_StopAtStage > 1)
-				Convert.fp_ExtractDateTime<4 + t_StopAtStage, false>(DateTime);
+			if constexpr (tf_StopAtStage > 1)
+				Convert.fp_ExtractDateTime<4 + tf_StopAtStage, false>(DateTime);
 			else
 				Convert.fp_ExtractDateTime<2, false>(DateTime);
 		}

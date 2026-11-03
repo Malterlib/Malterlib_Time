@@ -27,11 +27,11 @@ namespace NMib::NTime
 		fp64 operator / (CPerfTimeMeasureMin const &_Other) const;
 		CPerfTimeMeasureMin operator * (fp64 const &_Other) const;
 
-		template <typename t_CFormatter>
-		auto f_GetStringFormatType(t_CFormatter &_Formatter) -> decltype(NStr::fg_GetStringFormatType(_Formatter, fg_ByValue(f_GetTime())));
+		template <typename tf_CFormatter>
+		auto f_GetStringFormatType(tf_CFormatter &_Formatter) -> decltype(NStr::fg_GetStringFormatType(_Formatter, fg_ByValue(f_GetTime())));
 
-		template <typename t_CFormatter>
-		auto f_CreateStringFormatter(t_CFormatter &_Formatter) const -> decltype(NStr::fg_CreateStringFormatter(_Formatter, fg_ByValue(f_GetTime())));
+		template <typename tf_CFormatter>
+		auto f_CreateStringFormatter(tf_CFormatter &_Formatter) const -> decltype(NStr::fg_CreateStringFormatter(_Formatter, fg_ByValue(f_GetTime())));
 
 	private:
 		int64 mp_MinTime = TCLimitsInt<int64>::mc_Max;
@@ -55,11 +55,11 @@ namespace NMib::NTime
 		only_parameters_aliased CPrefCyclesTimeMeasureMin &operator /= (fp64 const &_Other);
 		only_parameters_aliased CPrefCyclesTimeMeasureMin operator * (fp64 const &_Other) const;
 
-		template <typename t_CFormatter>
-		int f_GetStringFormatType(t_CFormatter &_Formatter);
+		template <typename tf_CFormatter>
+		int f_GetStringFormatType(tf_CFormatter &_Formatter);
 
-		template <typename t_CFormatter>
-		auto f_CreateStringFormatter(t_CFormatter &_Formatter) const;
+		template <typename tf_CFormatter>
+		auto f_CreateStringFormatter(tf_CFormatter &_Formatter) const;
 
 	private:
 		struct CCorrection

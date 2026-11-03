@@ -23,14 +23,14 @@ namespace NMib::NTime
 			mp_MinCycles = mp_CurrentCycles;
 	}
 
-	template <typename t_CFormatter>
-	auto CPerfTimeMeasureMin::f_CreateStringFormatter(t_CFormatter &_Formatter) const -> decltype(NStr::fg_CreateStringFormatter(_Formatter, fg_ByValue(f_GetTime())))
+	template <typename tf_CFormatter>
+	auto CPerfTimeMeasureMin::f_CreateStringFormatter(tf_CFormatter &_Formatter) const -> decltype(NStr::fg_CreateStringFormatter(_Formatter, fg_ByValue(f_GetTime())))
 	{
 		return NStr::fg_CreateStringFormatter(_Formatter, fg_ByValue(f_GetTime()));
 	}
 
-	template <typename t_CFormatter>
-	auto CPrefCyclesTimeMeasureMin::f_CreateStringFormatter(t_CFormatter &_Formatter) const
+	template <typename tf_CFormatter>
+	auto CPrefCyclesTimeMeasureMin::f_CreateStringFormatter(tf_CFormatter &_Formatter) const
 	{
 		return NMib::NStr::fg_CreateStringFormatter(_Formatter, mp_MinCycles);
 	}

@@ -5,7 +5,7 @@
 
 namespace NMib::NTime::NPrivate
 {
-	template <typename tf_CType>
+	template <typename t_CType>
 	struct TCIsTime
 	{
 		static constexpr bool mc_bValue = false;

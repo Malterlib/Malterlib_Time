@@ -60,7 +60,7 @@ namespace NMib::NTime
 		return Days;
 	}
 
-	template <aint t_StopAtStage, bool t_bExtractMonth>
+	template <aint tf_StopAtStage, bool tf_bExtractMonth>
 	constexpr void CTimeConvert_ProlepticGreogrian::fp_ExtractDateTimeAD(CDateTime &_Dest, uint64 _Seconds) const noexcept
 	{
 		uint64 Seconds = _Seconds;
@@ -119,7 +119,7 @@ namespace NMib::NTime
 
 		_Dest.m_bIsLeapYear = bIsLeapYear;
 
-		if constexpr (t_StopAtStage == 1)
+		if constexpr (tf_StopAtStage == 1)
 			return;
 
 		aint DayOfYear = Seconds / NPrivate::CConst::mc_SecondsInDay;
@@ -127,12 +127,12 @@ namespace NMib::NTime
 		_Dest.m_DayOfWeek = fsp_GetWeekDay(_Dest.m_Year, DayOfYear);
 		_Dest.m_DayOfYear = DayOfYear;
 
-		if constexpr (t_StopAtStage == 2)
+		if constexpr (tf_StopAtStage == 2)
 			return;
 
 		Seconds -= DayOfYear * NPrivate::CConst::mc_SecondsInDay;
 
-		if constexpr (t_bExtractMonth)
+		if constexpr (tf_bExtractMonth)
 		{
 			aint PassedLeapDay = 0;
 			aint DayOfYearMonth = DayOfYear;
@@ -155,7 +155,7 @@ namespace NMib::NTime
 
 			++_Dest.m_Month;
 
-			if constexpr (t_StopAtStage == 3)
+			if constexpr (tf_StopAtStage == 3)
 				return;
 
 			if (PassedLeapDay && _Dest.m_Month == 2)
@@ -163,30 +163,30 @@ namespace NMib::NTime
 			else
 				_Dest.m_DayOfMonth = DayOfYearMonth - fsp_GetDayOfYearFromMonth(_Dest.m_Month - 1) + 1;
 
-			if constexpr (t_StopAtStage == 4)
+			if constexpr (tf_StopAtStage == 4)
 				return;
 		}
 
 		_Dest.m_Hour = Seconds / NPrivate::CConst::mc_SecondsInHour;
 
-		if constexpr (t_StopAtStage == 5)
+		if constexpr (tf_StopAtStage == 5)
 			return;
 		Seconds -= _Dest.m_Hour * NPrivate::CConst::mc_SecondsInHour;
 
 		_Dest.m_Minute = Seconds / NPrivate::CConst::mc_SecondsInMinute;
-		if constexpr (t_StopAtStage == 6)
+		if constexpr (tf_StopAtStage == 6)
 			return;
 		Seconds -= _Dest.m_Minute * NPrivate::CConst::mc_SecondsInMinute;
 
 		_Dest.m_Second = Seconds;
-		if constexpr (t_StopAtStage == 7)
+		if constexpr (tf_StopAtStage == 7)
 			return;
 
 		_Dest.m_Fraction = mp_pTime->f_GetFraction();
 		_Dest.m_FractionInt = mp_pTime->f_GetFractionInt();
 	}
 
-	template <aint t_StopAtStage, bool t_bExtractMonth>
+	template <aint tf_StopAtStage, bool tf_bExtractMonth>
 	constexpr void CTimeConvert_ProlepticGreogrian::fp_ExtractDateTimeBC(CDateTime &_Dest, uint64 _Seconds) const noexcept
 	{
 		auto FixupYear = g_OnScopeExit / [&]()
@@ -195,10 +195,10 @@ namespace NMib::NTime
 			}
 		;
 
-		fp_ExtractDateTimeAD<t_StopAtStage, t_bExtractMonth>(_Dest, _Seconds + NPrivate::CConst::mc_YearOffsetSeconds);
+		fp_ExtractDateTimeAD<tf_StopAtStage, tf_bExtractMonth>(_Dest, _Seconds + NPrivate::CConst::mc_YearOffsetSeconds);
 	}
 
-	template <aint t_StopAtStage, bool t_bExtractMonth>
+	template <aint tf_StopAtStage, bool tf_bExtractMonth>
 	constexpr void CTimeConvert_ProlepticGreogrian::fp_ExtractDateTime(CDateTime &_Dest) const noexcept
 	{
 		uint64 Seconds = mp_pTime->f_GetSeconds();
@@ -206,11 +206,11 @@ namespace NMib::NTime
 		if (mp_pTime->f_IsValid())
 		{
 			if (Seconds <= NPrivate::CConst::mc_YearTwoAdSeconds)
-				fp_ExtractDateTimeBC<t_StopAtStage, t_bExtractMonth>(_Dest, Seconds);
+				fp_ExtractDateTimeBC<tf_StopAtStage, tf_bExtractMonth>(_Dest, Seconds);
 			else
 			{
 				Seconds -= NPrivate::CConst::mc_YearZeroPlus1DaySeconds;
-				fp_ExtractDateTimeAD<t_StopAtStage, t_bExtractMonth>(_Dest, Seconds);
+				fp_ExtractDateTimeAD<tf_StopAtStage, tf_bExtractMonth>(_Dest, Seconds);
 			}
 		}
 		else
@@ -261,17 +261,17 @@ namespace NMib::NTime
 		return Destination;
 	}
 
-	template <aint t_StopAtStage>
+	template <aint tf_StopAtStage>
 	constexpr void CTimeConvert_ProlepticGreogrian::f_ExtractDateTime(CDateTime &_Destination) const noexcept
 	{
-		fp_ExtractDateTime<t_StopAtStage, true>(_Destination);
+		fp_ExtractDateTime<tf_StopAtStage, true>(_Destination);
 	}
 
-	template <aint t_StopAtStage>
+	template <aint tf_StopAtStage>
 	constexpr auto CTimeConvert_ProlepticGreogrian::f_ExtractDateTime() const noexcept -> CDateTime
 	{
 		CDateTime Destination;
-		fp_ExtractDateTime<t_StopAtStage, true>(Destination);
+		fp_ExtractDateTime<tf_StopAtStage, true>(Destination);
 		return Destination;
 	}
 

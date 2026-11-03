@@ -57,10 +57,10 @@ namespace NMib::NTime
 
 		constexpr CDateTime f_ExtractDateTime() const noexcept;
 
-		template <aint t_StopAtStage>
+		template <aint tf_StopAtStage>
 		constexpr void f_ExtractDateTime(CDateTime &_Destination) const noexcept;
 
-		template <aint t_StopAtStage>
+		template <aint tf_StopAtStage>
 		constexpr CDateTime f_ExtractDateTime() const noexcept;
 
 		constexpr int64 f_GetYear() const noexcept;
@@ -111,13 +111,13 @@ namespace NMib::NTime
 
 		static constexpr inline_medium aint fsp_GetWeekDay(int64 _Year, aint _DayOfYear) noexcept;
 
-		template <aint t_StopAtStage, bool t_bExtractMonth>
+		template <aint tf_StopAtStage, bool tf_bExtractMonth>
 		constexpr void fp_ExtractDateTimeAD(CDateTime &_Dest, uint64 _Seconds) const noexcept;
 
-		template <aint t_StopAtStage, bool t_bExtractMonth>
+		template <aint tf_StopAtStage, bool tf_bExtractMonth>
 		constexpr void fp_ExtractDateTimeBC(CDateTime &_Dest, uint64 _Seconds) const noexcept;
 
-		template <aint t_StopAtStage, bool t_bExtractMonth>
+		template <aint tf_StopAtStage, bool tf_bExtractMonth>
 		constexpr void fp_ExtractDateTime(CDateTime &_Dest) const noexcept;
 
 		static constexpr int32 mcp_MonthDayOfYear[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
@@ -157,7 +157,7 @@ namespace NMib::NTime
 		;
 
 	private:
-		template <aint t_StopAtStage>
+		template <aint tf_StopAtStage>
 		constexpr void fp_ExtractDateTime(CDateTime &_Dest) const noexcept;
 	};
 

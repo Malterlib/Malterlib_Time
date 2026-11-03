@@ -74,6 +74,6 @@ namespace NMib::NTime::NPrivate
 		static_assert(mc_MinYear == constant_int64(-7'514'938'705));
 	};
 
-	template <typename tf_CType>
+	template <typename t_CType>
 	struct TCIsTime;
 }
