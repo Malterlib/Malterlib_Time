@@ -726,8 +726,8 @@ namespace NMib::NTime
 		auto &SubSystem = *g_MalterlibSubSystem_Time;
 		DMibLock(SubSystem.m_TimeChangeNotificationLock);
 
-		auto &NewNotification = SubSystem.m_TimeChangeNotifications.f_Insert(fg_Move(_fNotification));
-		return &NewNotification;
+		auto &fNewNotification = SubSystem.m_TimeChangeNotifications.f_Insert(fg_Move(_fNotification));
+		return &fNewNotification;
 	}
 
 	bool CSystem_Time::fs_TimeInitDone()
