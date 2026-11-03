@@ -25,7 +25,7 @@ namespace NMib::NTime
 			o_FormatInto += "Negative Infinity";
 			return;
 		}
-		else if (_Seconds == fp64::fs_0())
+		else if (_Seconds == fp64::fs_Zero())
 		{
 			o_FormatInto += "0 s";
 			return;

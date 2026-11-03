@@ -39,7 +39,6 @@ namespace NMib::NTime
 			~CSubSystem_Time();
 
 			void f_TimeGetUTCOffset(NTime::CTimeSpan *_pUTCOffset) const;
-			void fp_UTCOffsetInit() const;
 			void f_TimeGetNow(NTime::CTime *_pTime, bool _bRecursive = false) const;
 			NTime::CTime f_TimeToLocal(NTime::CTime const &_Time) const;
 			NTime::CTime f_TimeToUtc(NTime::CTime const &_Time) const;
@@ -130,6 +129,7 @@ namespace NMib::NTime
 			int64 fp_GetTimerFreq() const;
 			int64 fp_GetTimerValInternal() const;
 			void fp_TimeInit();
+			void fp_UTCOffsetInit() const;
 			void fp_TimerUpdate(int64 _CurrentTimer, NTime::CTime &_Time, bool _bRecursive);
 		};
 
