@@ -15,9 +15,8 @@ static fp64 const g_AllowedDiff = 1.03;
 
 namespace
 {
-	class CSafeTimer_Tests : public NMib::NTest::CTest
+	struct CSafeTimer_Tests : public NMib::NTest::CTest
 	{
-	public:
 		bool f_RecursiveTest(NMib::NStr::CStr &_oError)
 		{
 			NMib::NStr::CStr StdOut;

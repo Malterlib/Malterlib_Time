@@ -31,9 +31,8 @@ namespace NMib::NTime
 
 	struct CTimeConvert_ProlepticGreogrian : public CTimeConvert_BabylonianCommon
 	{
-		class CDateTime
+		struct CDateTime
 		{
-		public:
 			int64 m_Year; // Note: 1 BC is year 0.
 			aint m_Month;
 			aint m_DayOfYear;
@@ -127,9 +126,8 @@ namespace NMib::NTime
 
 	struct CTimeConvert_ISOWeek : public CTimeConvert_BabylonianCommon
 	{
-		class CDateTime
+		struct CDateTime
 		{
-		public:
 			int64 m_Year;
 			aint m_Week;
 			aint m_DayOfYear;

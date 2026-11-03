@@ -6,9 +6,8 @@
 namespace NMib::NStream
 {
 	template <typename t_CStream>
-	class TCBinaryStreamTypeReference<t_CStream, NTime::CTimeSpan>
+	struct TCBinaryStreamTypeReference<t_CStream, NTime::CTimeSpan>
 	{
-	public:
 		static constexpr void fs_Feed(t_CStream &_Stream, NTime::CTimeSpan const &_Data)
 		{
 			_Stream << _Data.f_GetSeconds();

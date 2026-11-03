@@ -20,9 +20,8 @@ namespace
 	using namespace NMib::NTime;
 	using namespace NMib::NStr;
 
-	class CTime_Tests : public NMib::NTest::CTest
+	struct CTime_Tests : public NMib::NTest::CTest
 	{
-	public:
 		void f_DoTests()
 		{
 			DMibTestSuite("Time")

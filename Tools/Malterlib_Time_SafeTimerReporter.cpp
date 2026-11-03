@@ -3,9 +3,8 @@
 
 #include <Mib/Core/Core>
 
-class CSafeTimerReporterApplication : public NMib::CApplication
+struct CSafeTimerReporterApplication : public NMib::CApplication
 {
-public:
 	CSafeTimerReporterApplication()
 	{
 	}
