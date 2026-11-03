@@ -15,7 +15,7 @@ namespace NMib::NTime
 		if (_bSetCorrection)
 		{
 			CPrefCyclesTimeMeasureMin Timer;
-			for (umint i = 0; i < 10; ++i)
+			for (umint iIteration = 0; iIteration < 10; ++iIteration)
 			{
 				Timer.f_Start();
 				Timer.f_StopNonCorrected();

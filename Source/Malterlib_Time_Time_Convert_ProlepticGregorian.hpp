@@ -67,7 +67,7 @@ namespace NMib::NTime
 
 		_Dest.m_Year = (Seconds / NPrivate::CConst::mc_AverageSecondsInYear);
 
-		for (umint i = 0; i < 2; ++i)
+		for (umint iAttempt = 0; iAttempt < 2; ++iAttempt)
 		{
 			uint64 YearSub = _Dest.m_Year;
 
@@ -144,11 +144,11 @@ namespace NMib::NTime
 			}
 
 			_Dest.m_Month = 11;
-			for (aint i = 1; i < 12; ++i)
+			for (aint iMonth = 1; iMonth < 12; ++iMonth)
 			{
-				if (DayOfYearMonth < fsp_GetDayOfYearFromMonth(i))
+				if (DayOfYearMonth < fsp_GetDayOfYearFromMonth(iMonth))
 				{
-					_Dest.m_Month = i - 1;
+					_Dest.m_Month = iMonth - 1;
 					break;
 				}
 			}

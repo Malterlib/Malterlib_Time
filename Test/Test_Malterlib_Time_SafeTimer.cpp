@@ -6,11 +6,11 @@
 #define DMalteribTimeTestWithPrecision
 
 #ifdef DMalteribTimeTestWithPrecision
-static fp64 const g_CheckTime = 0.2;
-static fp64 const g_AllowedDiff = 1.1;
+static fp64 const gs_CheckTime = 0.2;
+static fp64 const gs_AllowedDiff = 1.1;
 #else
-static fp64 const g_CheckTime = 1.0;
-static fp64 const g_AllowedDiff = 1.03;
+static fp64 const gs_CheckTime = 1.0;
+static fp64 const gs_AllowedDiff = 1.03;
 #endif
 
 namespace
@@ -56,7 +56,7 @@ namespace
 				NMib::NTime::NPlatform::fg_TimerRaw_PreciseGet();
 				NMib::NTime::NPlatform::fg_TimerRaw_SafeGet();
 			}
-			NMib::NSys::fg_Thread_Sleep(g_CheckTime);
+			NMib::NSys::fg_Thread_Sleep(gs_CheckTime);
 			NMib::NTime::CTime End = NMib::NTime::CTime::fs_NowUTC();
 			fp32 TotalTimeTimer = Stopwatch.f_GetTime();
 			auto TimerEnd = NMib::NTime::NPlatform::fg_TimerRaw_SafeGet();
@@ -79,13 +79,13 @@ namespace
 				bSuccess = false;
 			}
 #endif
-			if (!((TotalTime / TotalTimeTimerRaw) > fp64(1.0) / g_AllowedDiff && (TotalTime / TotalTimeTimerRaw) < g_AllowedDiff))
+			if (!((TotalTime / TotalTimeTimerRaw) > fp64(1.0) / gs_AllowedDiff && (TotalTime / TotalTimeTimerRaw) < gs_AllowedDiff))
 			{
 				DMibConErrOut("TotalTime: {}, TotalTimeTimerRaw: {} = {}{\n}", TotalTime, TotalTimeTimerRaw, (TotalTime / TotalTimeTimerRaw));
 				bSuccess = false;
 			}
 
-			if (!((TotalTimeTimer / TotalTimeTimerRaw) > fp64(1.0) / g_AllowedDiff && (TotalTimeTimer / TotalTimeTimerRaw) < g_AllowedDiff))
+			if (!((TotalTimeTimer / TotalTimeTimerRaw) > fp64(1.0) / gs_AllowedDiff && (TotalTimeTimer / TotalTimeTimerRaw) < gs_AllowedDiff))
 			{
 				DMibConErrOut("TotalTimeTimer: {}, TotalTimeTimerRaw: {} = {}{\n}", TotalTimeTimer, TotalTimeTimerRaw, (TotalTimeTimer / TotalTimeTimerRaw));
 				bSuccess = false;
@@ -138,10 +138,10 @@ namespace
 #	ifdef DMalteribTimeTestWithPrecision
 							NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision();
 #	endif
-							for (umint i = 0; i < 5; ++i)
+							for (umint iWrap = 0; iWrap < 5; ++iWrap)
 							{
-								NMib::NTime::CSystem_Time::fs_MakeSafeTimerWrap(g_CheckTime * 0.4f, iWrapPos);
-								DMibTestPath(NMib::NStr::fg_Format("Wrap {}", i));
+								NMib::NTime::CSystem_Time::fs_MakeSafeTimerWrap(gs_CheckTime * 0.4f, iWrapPos);
+								DMibTestPath(NMib::NStr::fg_Format("Wrap {}", iWrap));
 								bool bRetVal = f_UnstableTimerTest
 									(
 										[]
@@ -170,19 +170,19 @@ namespace
 #	ifdef DMalteribTimeTestWithPrecision
 							NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision();
 #	endif
-							for (umint i = 0; i < 5; ++i)
+							for (umint iWrap = 0; iWrap < 5; ++iWrap)
 							{
 								NMib::NTime::CSystem_Time::fs_MakeSafeTimerWrap(0.0f, iWrapPos);
-								NMib::NSys::fg_Thread_Sleep(g_CheckTime * 0.1f);
-								DMibTestPath(NMib::NStr::fg_Format("Wrap {}", i));
+								NMib::NSys::fg_Thread_Sleep(gs_CheckTime * 0.1f);
+								DMibTestPath(NMib::NStr::fg_Format("Wrap {}", iWrap));
 								bool bRetVal = f_UnstableTimerTest
 									(
 										[]
 										{
 											NMib::NTime::CTime::fs_NowUTC();
-											NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(-g_CheckTime * 0.5f);
+											NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(-gs_CheckTime * 0.5f);
 											NMib::NTime::CTime::fs_NowUTC();
-											NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(g_CheckTime * 0.5f);
+											NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(gs_CheckTime * 0.5f);
 											NMib::NTime::CTime::fs_NowUTC();
 										}
 										, false
@@ -209,10 +209,10 @@ namespace
 #	ifdef DMalteribTimeTestWithPrecision
 							NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision();
 #	endif
-							for (umint i = 0; i < 5; ++i)
+							for (umint iWrap = 0; iWrap < 5; ++iWrap)
 							{
-								NMib::NTime::CSystem_Time::fs_MakeSafeTimerWrap(g_CheckTime * 0.4f, iWrapPos);
-								DMibTestPath(NMib::NStr::fg_Format("Wrap {}", i));
+								NMib::NTime::CSystem_Time::fs_MakeSafeTimerWrap(gs_CheckTime * 0.4f, iWrapPos);
+								DMibTestPath(NMib::NStr::fg_Format("Wrap {}", iWrap));
 								bool bRetVal = f_UnstableTimerTest
 									(
 										[]
@@ -243,17 +243,17 @@ namespace
 #	ifdef DMalteribTimeTestWithPrecision
 					NMib::NTime::NPlatform::fg_TimerRaw_SafeIncreasePrecision();
 #	endif
-					for (umint i = 0; i < 5; ++i)
+					for (umint iWrap = 0; iWrap < 5; ++iWrap)
 					{
-						DMibTestPath(NMib::NStr::fg_Format("Wrap {}", i));
+						DMibTestPath(NMib::NStr::fg_Format("Wrap {}", iWrap));
 						bool bRetVal = f_UnstableTimerTest
 							(
 								[]
 								{
 									NMib::NTime::CTime::fs_NowUTC();
-									NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(-g_CheckTime * 0.1f);
+									NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(-gs_CheckTime * 0.1f);
 									NMib::NTime::CTime::fs_NowUTC();
-									NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(g_CheckTime * 0.1f);
+									NMib::NTime::NPlatform::fg_TimerRaw_SafeOffset(gs_CheckTime * 0.1f);
 									NMib::NTime::CTime::fs_NowUTC();
 								}
 								, false

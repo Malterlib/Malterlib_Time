@@ -234,7 +234,7 @@ namespace NMib::NTime
 			// Measure correction and precache instruction cache
 			uint64 TimerCorrection = TCLimitsInt<uint64>::mc_Max;
 			uint64 CyclesCorrection = TCLimitsInt<uint64>::mc_Max;
-			for (int i = 0; i < 10; ++i)
+			for (int iMeasurement = 0; iMeasurement < 10; ++iMeasurement)
 			{
 				uint64 TimerCorrectionThis = -NPlatform::fg_TimerRaw_PreciseGet();
 				TimerCorrectionThis += NPlatform::fg_TimerRaw_PreciseGet();

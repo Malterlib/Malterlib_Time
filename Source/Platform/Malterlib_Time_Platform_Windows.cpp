@@ -320,14 +320,14 @@ NMib::NTime::CTime NMib::NTime::NPlatform::fg_TimeRaw_ToUtc(CTime const &_Time)
 namespace
 {
 	// NMib::NTime::CTimeConvert::fs_CreateTimeConstExpr(1601, 1, 1)
-	static constexpr NMib::NTime::CTime const g_FileTimeBase = NMib::NTime::CTime::fs_Create(237148610522659200, 0);
+	static constexpr NMib::NTime::CTime const gc_FileTimeBase = NMib::NTime::CTime::fs_Create(237148610522659200, 0);
 }
 
 void NMib::NTime::NPlatform::fg_TimeRaw_GetNow(NMib::NTime::CTime *_pTime)
 {
 	FILETIME Time;
 	GetSystemTimeAsFileTime(&Time);
-	NTime::CTime CurrentTime = g_FileTimeBase;
+	NTime::CTime CurrentTime = gc_FileTimeBase;
 
 	LARGE_INTEGER Temp;
 	Temp.LowPart = Time.dwLowDateTime;

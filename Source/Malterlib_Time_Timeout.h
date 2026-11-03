@@ -8,13 +8,13 @@ namespace NMib::NTime
 	struct CTimeout
 	{
 		CTimeout(fp64 _nSeconds)
-			: m_Timeout(_nSeconds)
+			: mp_Timeout(_nSeconds)
 		{
 			f_Start();
 		}
 
 		CTimeout(fp64 _nSeconds, bool _bStart)
-			: m_Timeout(_nSeconds)
+			: mp_Timeout(_nSeconds)
 		{
 			if (_bStart)
 				f_Start();
@@ -22,12 +22,12 @@ namespace NMib::NTime
 
 		void f_Start()
 		{
-			m_Stopwatch.f_Start();
+			mp_Stopwatch.f_Start();
 		}
 
 		bool f_TimedOut() const
 		{
-			return m_Stopwatch.f_GetTime() >= m_Timeout;
+			return mp_Stopwatch.f_GetTime() >= mp_Timeout;
 		}
 
 		bool operator ! () const
@@ -36,7 +36,7 @@ namespace NMib::NTime
 		}
 
 	protected:
-		CStopwatch m_Stopwatch;
-		fp64 m_Timeout;
+		CStopwatch mp_Stopwatch;
+		fp64 mp_Timeout;
 	};
 }

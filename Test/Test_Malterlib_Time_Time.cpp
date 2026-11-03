@@ -4,11 +4,11 @@
 #define DMalteribTimeTestWithPrecision
 
 #ifdef DMalteribTimeTestWithPrecision
-static fp64 const g_CheckTime = 0.2;
-static fp64 const g_AllowedDiff = 1.1;
+static fp64 const gs_CheckTime = 0.2;
+static fp64 const gs_AllowedDiff = 1.1;
 #else
-static fp64 const g_CheckTime = 1.0;
-static fp64 const g_AllowedDiff = 1.02;
+static fp64 const gs_CheckTime = 1.0;
+static fp64 const gs_AllowedDiff = 1.02;
 #endif
 
 #include <Mib/Test/Performance>
@@ -615,7 +615,7 @@ namespace
 
 				DMibTest
 					(
-						(DMibExpr(TotalTime) / DMibExpr(TotalTimeTimer)) > DMibExpr(fp64(1.0) / g_AllowedDiff) && (DMibExpr(TotalTime) / DMibExpr(TotalTimeTimer)) < DMibExpr(g_AllowedDiff)
+						(DMibExpr(TotalTime) / DMibExpr(TotalTimeTimer)) > DMibExpr(fp64(1.0) / gs_AllowedDiff) && (DMibExpr(TotalTime) / DMibExpr(TotalTimeTimer)) < DMibExpr(gs_AllowedDiff)
 					)
 				;
 			};
@@ -628,7 +628,7 @@ namespace
 				CTime StartRaw;
 				NTime::NPlatform::fg_TimeRaw_GetNow(&StartRaw);
 
-				NMib::NSys::fg_Thread_Sleep(g_CheckTime);
+				NMib::NSys::fg_Thread_Sleep(gs_CheckTime);
 
 				CTime End = CTime::fs_NowUTC();
 				CTime EndRaw;
@@ -639,8 +639,8 @@ namespace
 
 				DMibTest
 					(
-						(DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) > DMibExpr(TimeSpeed / g_AllowedDiff)
-						&& (DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) < DMibExpr(TimeSpeed * g_AllowedDiff)
+						(DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) > DMibExpr(TimeSpeed / gs_AllowedDiff)
+						&& (DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) < DMibExpr(TimeSpeed * gs_AllowedDiff)
 					)
 				;
 
@@ -664,8 +664,8 @@ namespace
 
 				DMibTest
 					(
-						(DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) > DMibExpr(TimeSpeed / g_AllowedDiff)
-						&& (DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) < DMibExpr(TimeSpeed * g_AllowedDiff)
+						(DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) > DMibExpr(TimeSpeed / gs_AllowedDiff)
+						&& (DMibExpr(TotalTime) / DMibExpr(TotalTimeRaw)) < DMibExpr(TimeSpeed * gs_AllowedDiff)
 					)
 				;
 
@@ -1074,13 +1074,13 @@ namespace
 				}
 
 				// Test using raw fraction integers near maximum
-				constexpr uint64 MaxFrac = NTime::NPrivate::CConst::mc_FractionDividend - 1;
+				constexpr uint64 c_MaxFraction = NTime::NPrivate::CConst::mc_FractionDividend - 1;
 				for (int64 Year : {2000, 2024})
 				{
-					fTestFractionInt(Year, MaxFrac);
-					fTestFractionInt(Year, MaxFrac - 10);
-					fTestFractionInt(Year, MaxFrac - 100);
-					fTestFractionInt(Year, MaxFrac - 1000);
+					fTestFractionInt(Year, c_MaxFraction);
+					fTestFractionInt(Year, c_MaxFraction - 10);
+					fTestFractionInt(Year, c_MaxFraction - 100);
+					fTestFractionInt(Year, c_MaxFraction - 1000);
 				}
 			};
 
@@ -1180,13 +1180,13 @@ namespace
 				CTestPerformanceMeasure NormalTime("Normal");
 				CTestPerformanceMeasure LegacyTime("Legacy");
 				{
-					for (umint j = 0; j < nTests; ++j)
+					for (umint iTest = 0; iTest < nTests; ++iTest)
 					{
 						NormalTime.f_Start();
 						[]() inline_never
 						{
 							CTime Now = CTime::fs_NowUTC();
-							for (umint i = 0; i < c_nLoops / 2; ++i)
+							for (umint iLoop = 0; iLoop < c_nLoops / 2; ++iLoop)
 								Now = Now.f_ToUTC().f_ToLocal();
 							return Now;
 						}
@@ -1195,13 +1195,13 @@ namespace
 					}
 				}
 				{
-					for (umint j = 0; j < nTests; ++j)
+					for (umint iTest = 0; iTest < nTests; ++iTest)
 					{
 						LegacyTime.f_Start();
 						[]() inline_never
 						{
 							CTime Now = CTime::fs_NowLocal();
-							for (umint i = 0; i < c_nLoops / 2; ++i)
+							for (umint iLoop = 0; iLoop < c_nLoops / 2; ++iLoop)
 								Now = Now.f_ToUtcLegacy().f_ToLocalLegacy();
 
 							return Now;
