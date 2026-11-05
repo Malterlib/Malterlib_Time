@@ -69,10 +69,10 @@ namespace NMib::NTime
 		friend struct CTimeConvert_BabylonianCommon;
 		friend struct CTimeConvert_ProlepticGreogrian;
 
+		constexpr CTime(uint64 _Seconds, uint64 _Fraction) noexcept;
+
 		uint64 mp_Seconds = NPrivate::CConst::mc_InvalidTimeSeconds; // Number of seconds since -7'514'938'706-11-23 (Gregorian Proleptic).
 		uint64 mp_Fraction = 0;
-
-		constexpr CTime(uint64 _Seconds, uint64 _Fraction) noexcept;
 	};
 
 	template <typename t_CType>

@@ -12,12 +12,12 @@ namespace NMib::NTime
 		struct CTimeChangeNotificationSubscription
 		{
 			CTimeChangeNotificationSubscription(CTimeChangeNotificationSubscription const &_Other) = delete;
-			CTimeChangeNotificationSubscription &operator = (CTimeChangeNotificationSubscription const &_Other) = delete;
-
 			CTimeChangeNotificationSubscription();
 			CTimeChangeNotificationSubscription(CTimeChangeNotificationSubscription &&_Other);
-			CTimeChangeNotificationSubscription &operator = (CTimeChangeNotificationSubscription &&_Other);
 			~CTimeChangeNotificationSubscription();
+
+			CTimeChangeNotificationSubscription &operator = (CTimeChangeNotificationSubscription const &_Other) = delete;
+			CTimeChangeNotificationSubscription &operator = (CTimeChangeNotificationSubscription &&_Other);
 
 		private:
 			friend struct CSystem_Time;

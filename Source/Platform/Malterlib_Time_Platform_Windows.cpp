@@ -108,16 +108,19 @@ namespace
 {
 	struct CIncreaseTimerPrecision
 	{
-		CIncreaseTimerPrecision()
-		{
-			timeBeginPeriod(1);
-		}
-
-		~CIncreaseTimerPrecision()
-		{
-			timeEndPeriod(1);
-		}
+		CIncreaseTimerPrecision();
+		~CIncreaseTimerPrecision();
 	};
+
+	CIncreaseTimerPrecision::CIncreaseTimerPrecision()
+	{
+		timeBeginPeriod(1);
+	}
+
+	CIncreaseTimerPrecision::~CIncreaseTimerPrecision()
+	{
+		timeEndPeriod(1);
+	}
 
 	constinit NMib::NStorage::TCAggregate<CIncreaseTimerPrecision> g_IncreaseTimerPrecision = {DAggregateInit};
 	constinit NMib::NAtomic::TCAtomic<uint64> g_SafeTimerFullPrecision{0};

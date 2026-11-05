@@ -46,7 +46,6 @@ namespace NMib::NTime
 			bool m_bIsLeapYear;
 		};
 
-	public:
 		constexpr CTimeConvert_ProlepticGreogrian(NTime::CTime const &_Time) noexcept;
 		constexpr CTimeConvert_ProlepticGreogrian &operator = (NTime::CTime const &_Time) noexcept;
 
