@@ -325,7 +325,7 @@ namespace
 
 void NMib::NTime::NPlatform::fg_TimeRaw_GetNow(NMib::NTime::CTime *_pTime)
 {
-	FILETIME Time; // NOLINT(malterlib-conceptual-prefix): FILETIME is a struct, which the check takes for a function type by its name
+	FILETIME Time;
 	GetSystemTimeAsFileTime(&Time);
 	NTime::CTime CurrentTime = gc_FileTimeBase;
 
