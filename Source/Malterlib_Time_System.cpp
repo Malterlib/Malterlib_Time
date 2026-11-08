@@ -180,7 +180,7 @@ namespace NMib::NTime
 #	if DMibConfig_Tests_Enable
 			auto &Internal = *ms_pThis;
 			DMibLock(Internal.m_ThreadLocalsLock);
-			Internal.m_ThreadLocals.f_Insert(this);
+			Internal.m_ThreadLocals.f_Insert(this); // NOLINT(malterlib-thread-local-storage): removed in the destructor under the same lock, and the list exists only in test builds
 #	endif
 		}
 
@@ -191,7 +191,7 @@ namespace NMib::NTime
 #	if DMibConfig_Tests_Enable
 			auto &Internal = *ms_pThis;
 			DMibLock(Internal.m_ThreadLocalsLock);
-			Internal.m_ThreadLocals.f_Insert(this);
+			Internal.m_ThreadLocals.f_Insert(this); // NOLINT(malterlib-thread-local-storage): removed in the destructor under the same lock, and the list exists only in test builds
 #	endif
 		}
 
